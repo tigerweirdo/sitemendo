@@ -311,7 +311,8 @@ html[data-lang-pending] body { visibility: hidden; }
   background: var(--paper);
 }
 
-/* Hero'daki çok amaçlı alet: 440×440 birimlik sabit sahne, --k ile ölçeklenir. */
+/* Hero'daki çok amaçlı alet: 440×440 birimlik sabit sahne, --k ile ölçeklenir.
+   Açık yelpaze CSS varsayılanı — JS'siz ve hydration öncesi de doğru görünür. */
 .knife {
   --k: .7;
   position: relative;
@@ -331,16 +332,61 @@ html[data-lang-pending] body { visibility: hidden; }
   transform: scale(var(--k));
   transform-origin: 0 0;
 }
-.knife__shadow {
+
+/* Gölge iki parçalı: sapın altında yoğun çekirdek, yelpazenin ayak izinde
+   geniş yumuşak hale. Işık sol üstten geldiği için ikisi de sağ alta kaçık. */
+.knife__shadows {
   position: absolute;
-  left: 216px;
-  top: 416px;
-  width: 268px;
-  height: 40px;
-  margin: -20px 0 0 -134px;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(9, 9, 9, .24), rgba(9, 9, 9, .09) 56%, transparent 74%);
+  inset: 0;
   pointer-events: none;
 }
+.knife__shadow {
+  position: absolute;
+  pointer-events: none;
+}
+.knife__shadow--fan {
+  left: 216px;
+  top: 408px;
+  width: 330px;
+  height: 54px;
+  margin: -27px 0 0 -165px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(9, 9, 9, .15), rgba(9, 9, 9, .06) 54%, transparent 78%);
+  transform: scaleX(1) scaleY(1);
+  animation:
+    knife-shadow-fan-in 1.5s .3s cubic-bezier(.16, .82, .28, 1) both,
+    knife-shadow-fan-idle 5.6s 2.4s ease-in-out infinite alternate;
+}
+.knife__shadow--core {
+  left: 229px;
+  top: 402px;
+  width: 168px;
+  height: 34px;
+  margin: -17px 0 0 -84px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(9, 9, 9, .22), rgba(9, 9, 9, .09) 52%, transparent 76%);
+  transform: scale(1);
+  animation:
+    knife-shadow-core-in 1.3s .1s cubic-bezier(.16, .82, .28, 1) both,
+    knife-shadow-core-idle 5.6s 2.4s ease-in-out infinite alternate;
+}
+
+/* Gölge yelpazeyle birlikte açılır, sonra salınımla birlikte nefes alır. */
+@keyframes knife-shadow-fan-in {
+  from { transform: scaleX(.36) scaleY(.82); opacity: .28; }
+  to { transform: scaleX(1) scaleY(1); opacity: 1; }
+}
+@keyframes knife-shadow-fan-idle {
+  from { transform: scaleX(1) scaleY(1); opacity: 1; }
+  to { transform: scaleX(.95) scaleY(1); opacity: .82; }
+}
+@keyframes knife-shadow-core-in {
+  from { transform: scale(.78); opacity: .5; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes knife-shadow-core-idle {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(.94); opacity: .86; }
+}
+
 .knife__stage {
   position: absolute;
   left: 0;
@@ -351,6 +397,7 @@ html[data-lang-pending] body { visibility: hidden; }
   perspective-origin: 50% 44%;
 }
 .knife__tilt,
+.knife__drift,
 .knife__orbit {
   position: absolute;
   left: 0;
@@ -360,13 +407,28 @@ html[data-lang-pending] body { visibility: hidden; }
   transform-style: preserve-3d;
   will-change: transform;
 }
+/* Duruş pozu CSS'te; giriş de CSS'te oynadığı için JS'siz de çalışır. */
+.knife__orbit {
+  transform: rotateX(9deg) rotateY(-14deg) rotateZ(-4deg) translateY(0);
+  animation: knife-orbit-in 1.4s cubic-bezier(.16, .82, .28, 1) both;
+}
+.knife__drift { animation: knife-drift 5.6s 2.4s ease-in-out infinite alternate; }
+
+@keyframes knife-orbit-in {
+  from { transform: rotateX(19deg) rotateY(-34deg) rotateZ(-10deg) translateY(16px); }
+  to { transform: rotateX(9deg) rotateY(-14deg) rotateZ(-4deg) translateY(0); }
+}
+@keyframes knife-drift {
+  from { transform: rotateX(0deg) rotateY(0deg) translateY(0); }
+  to { transform: rotateX(3deg) rotateY(10deg) translateY(-5px); }
+}
 
 /* Sap: üst üste dizilmiş katmanlarla kalınlık kazanır.
    Ara katmanlar çelik astar, en öndeki ve en arkadaki koyu kabzadır. */
 .knife-handle {
   position: absolute;
   left: 187px;
-  top: 60px;
+  top: 48px;
   width: 66px;
   height: 212px;
   transform-style: preserve-3d;
@@ -375,7 +437,7 @@ html[data-lang-pending] body { visibility: hidden; }
   position: absolute;
   inset: 0;
   border-radius: 24px;
-  background: linear-gradient(180deg, #e0ded4, #a8a69e 62%, #8d8b84);
+  background: linear-gradient(180deg, #e6e4dc, #b3b1a9 22%, #9a988f 68%, #86847d);
   transform: translateZ(var(--dz));
 }
 .knife-handle__layer--scale {
@@ -383,12 +445,21 @@ html[data-lang-pending] body { visibility: hidden; }
   border-radius: 21px;
   background: linear-gradient(178deg, #232320, #0d0d0c 42%, #060605);
 }
+/* Kabzanın iç bükeyliğini veren dikey parlama bandı. */
+.knife-handle__layer--front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(243, 241, 234, .11) 27%, transparent 56%);
+}
+/* Sol üstteki ışığın kabza üzerindeki geniş yansıması. */
 .knife-handle__layer--front::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(118deg, rgba(243, 241, 234, .22), rgba(243, 241, 234, .05) 30%, transparent 56%);
+  background: linear-gradient(142deg, rgba(243, 241, 234, .2), rgba(243, 241, 234, .05) 30%, transparent 56%);
 }
 .knife-handle__cross {
   position: absolute;
@@ -398,22 +469,47 @@ html[data-lang-pending] body { visibility: hidden; }
   width: 28px;
   height: 28px;
   margin: -14px 0 0 -14px;
-  background: var(--sulfur);
+  background: linear-gradient(152deg, #f4fb3a, var(--sulfur) 42%, #c2c900);
   clip-path: polygon(35% 0, 65% 0, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0 65%, 0 35%, 35% 35%);
 }
+/* Aletlerin sapa gömüldüğü yerdeki temas gölgesi: tüm aletlerin önünde,
+   sapın ön kabzasının arkasında durur. */
+.knife-handle__foot {
+  position: absolute;
+  left: 220px;
+  top: 258px;
+  width: 96px;
+  height: 34px;
+  margin: -17px 0 0 -48px;
+  transform: translateZ(14.5px);
+  background: radial-gradient(50% 50% at 50% 32%, rgba(9, 9, 9, .2), rgba(9, 9, 9, .08) 46%, transparent 72%);
+  pointer-events: none;
+}
 
-/* Aletler: menteşe (220, 250) etrafında döner, kapalıyken sapın içindedir. */
+/* Aletler: menteşe (220, 238) etrafında döner, kapalıyken sapın içindedir. */
 .knife-tool {
   position: absolute;
   left: 220px;
-  top: 250px;
+  top: 238px;
   width: 44px;
   height: var(--h);
   margin-left: -22px;
   margin-top: calc(16px - var(--h));
+  transform: rotate(var(--open));
   transform-origin: 22px calc(var(--h) - 16px);
   transform-style: preserve-3d;
   will-change: transform;
+  animation:
+    knife-unfold .95s var(--delay) cubic-bezier(.22, .9, .28, 1.08) both,
+    knife-tool-idle 5.6s 2.4s ease-in-out infinite alternate;
+}
+@keyframes knife-unfold {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(var(--open)); }
+}
+@keyframes knife-tool-idle {
+  from { transform: rotate(var(--open)); }
+  to { transform: rotate(calc(var(--open) + var(--breath))); }
 }
 .knife-tool__stack {
   position: absolute;
@@ -427,6 +523,8 @@ html[data-lang-pending] body { visibility: hidden; }
   --kt-rivet: transparent;
   --kt-detail: transparent;
   --kt-bevel: transparent;
+  --kt-ao: transparent;
+  --kt-rod-back: #82807a;
   position: absolute;
   inset: 0;
   transform: translateZ(var(--dz));
@@ -434,13 +532,16 @@ html[data-lang-pending] body { visibility: hidden; }
 .knife-tool__layer--back {
   --kt-fill: #6b6963;
   --kt-edge: #5a5853;
+  --kt-rod-back: #6b6963;
 }
 .knife-tool__layer--face {
-  --kt-fill: url(#kt-steel);
+  --kt-fill: var(--kt-face-fill);
   --kt-edge: #121210;
   --kt-rivet: #43413b;
   --kt-detail: #8a887e;
-  --kt-bevel: #ffffff;
+  --kt-bevel: rgba(255, 255, 255, .45);
+  --kt-ao: var(--kt-face-ao);
+  --kt-rod-back: #9c9a91;
 }
 .knife-tool__layer svg {
   display: block;
@@ -449,9 +550,16 @@ html[data-lang-pending] body { visibility: hidden; }
   overflow: visible;
 }
 
-@media (min-width: 520px) { .knife { --k: .82; } }
-@media (min-width: 768px) { .knife { --k: .9; } }
-@media (min-width: 1000px) { .knife { --k: .88; } }
+@media (prefers-reduced-motion: reduce) {
+  .knife__orbit,
+  .knife__drift,
+  .knife-tool,
+  .knife__shadow { animation: none; }
+}
+
+@media (min-width: 520px) { .knife { --k: .78; } }
+@media (min-width: 768px) { .knife { --k: .86; } }
+@media (min-width: 1000px) { .knife { --k: .9; } }
 @media (min-width: 1200px) { .knife { --k: .95; } }
 
 .tag {
