@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — Sekme ikonu küçültüldü
+
+Tarayıcı sekmesinde işaret kareyi dolduruyordu. `icon.svg` içinde sarı C daha küçük (daha fazla siyah pay). `favicon.ico` aynı çizimden yenilendi.
+
+Değişen dosyalar: `app/icon.svg`, `app/favicon.ico`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — İkon ve sap amblemi
 
 Favicon / `icon.svg` sarı onay işareti (siyah kare). Hero sapındaki haç aynı yola çekildi.

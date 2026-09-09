@@ -450,7 +450,7 @@ html[data-lang-pending] body { visibility: hidden; }
   border-radius: inherit;
   background: linear-gradient(142deg, rgba(243, 241, 234, .2), rgba(243, 241, 234, .05) 30%, transparent 56%);
 }
-/* Sap amblemi: site ikonuyla birebir aynı onay işareti. */
+/* Sap amblemi: rapordaki puan halkasının kendisi; site ikonuyla aynı çizim. */
 .knife-handle__mark {
   position: absolute;
   left: 50%;
@@ -462,7 +462,7 @@ html[data-lang-pending] body { visibility: hidden; }
   overflow: visible;
   fill: none;
   stroke: url(#kt-mark);
-  stroke-width: 6.2;
+  stroke-width: 5.2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

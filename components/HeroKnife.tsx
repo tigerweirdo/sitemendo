@@ -404,7 +404,7 @@ export function HeroKnife({ label }: { label: string }) {
                     >
                       {l.front ? (
                         <svg className="knife-handle__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                          <path d="M6 17.5 L13 24.5 L26.5 8"/>
+                          <circle cx="16" cy="16" r="10.5" strokeDasharray="50 16" transform="rotate(-58 16 16)"/>
                         </svg>
                       ) : null}
                     </div>
