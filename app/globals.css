@@ -273,7 +273,6 @@ html[data-lang-pending] body { visibility: hidden; }
   flex-direction: column;
   gap: 8px;
 }
-.hero__eyebrow { margin-bottom: 10px; }
 .hero__title {
   max-width: 18em;
   overflow-wrap: break-word;

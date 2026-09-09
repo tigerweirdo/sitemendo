@@ -196,7 +196,6 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <section className="hero" id="top">
           <div className="wrap hero__wrap">
             <div className="hero__copy">
-              <p className="kicker hero__eyebrow">{c.hero.label}</p>
               <h1 className="h1 hero__title">{c.hero.a}</h1>
               <p className="lead">{c.hero.support}</p>
             </div>

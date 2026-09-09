@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — Düz dil (TR/EN/DE)
+
+Hero kicker kalktı. Metin teknik jargondan çıktı: “denetim” → “kontrol”, kapsam başlıkları soru cümlesi, rapor/hizmet/SSS sade. `Check.code` ve boş hero alanları silindi.
+
+Değişen dosyalar: `lib/content.ts`, `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Kalın C (arka plansız)
 
 Kullanıcı A–L seçmedi; mevcut sarı C’nin arka plansız kalın halini denemek istedi. `icon.svg` + `favicon.ico`: r 9→9.2, sarı 3.4→7, mürekkep hat 5.4→9, açıklık 16.5 (C olarak kalsın diye). Kare/mühür yok. Sap amblemi aynı ailede kalınlaştı (5.2→7.2).
