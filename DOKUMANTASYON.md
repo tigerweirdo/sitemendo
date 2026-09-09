@@ -14,7 +14,7 @@
 
 ### 2026-09-10 — Resend bağlandı (canlı form)
 
-`sitemendo.com` Resend’de verified. API anahtarı yalnızca `.env.local` + Vercel (production/development). Demo kapalı. Gönderen `hello@sitemendo.com`. Canlıya `/api/audit` gitmesi için bu turda kod yayınlanır. Anahtar sohbette paylaşıldı; iş bitince Resend’de yenilenmeli.
+`sitemendo.com` Resend’de verified. API anahtarı yalnızca `.env.local` + Vercel (production/development). Demo kapalı. Gönderen `hello@sitemendo.com`. `POST https://sitemendo.com/api/audit` → 200 `{ mode: "live" }`. Anahtar sohbette paylaşıldı; Resend’de yenilenmeli.
 
 ### 2026-09-10 — hello@ yönlendirme çalışıyor
 
