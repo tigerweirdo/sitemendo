@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — Çakı açılış sırası
+
+Aletler dıştan içe açılıyor; süre yola orantılı, üstünden geçme yok.
+
+Değişen dosyalar: `components/HeroKnife.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Çakı gölgesi siluet
 
 Eliptik gölge kalktı. Gölge artık nesnenin kendi siluetinin bulanık kopyası; imleç ışık gibi davranınca gölge ters yöne kayıyor.

@@ -141,8 +141,11 @@ type Tool = {
   h: number;
   open: number;
   z: number;
-  /* Açılış içeriden dışarıya sırayla: ortadaki aletler önce, uçtakiler en son. */
+  /* Açılış dıştan içe: en uzun yolu olan alet önce çıkar, böylece kimse
+     bir başkasının üstünden geçmez. Süre yola orantılı, yani hepsi aynı
+     açısal hızla dönüyor ve aralarındaki açı boyunca eşit kalıyor. */
   delay: number;
+  dur: number;
   breath: number;
   shape: ReactNode;
 };
@@ -165,7 +168,8 @@ const TOOLS: Tool[] = [
     h: 188,
     open: -152,
     z: -11.5,
-    delay: 0.34,
+    delay: 0.06,
+    dur: 1.08,
     breath: 0.8,
     shape: (
       <>
@@ -183,6 +187,7 @@ const TOOLS: Tool[] = [
     open: -114,
     z: -6.9,
     delay: 0.26,
+    dur: 0.94,
     breath: -0.8,
     shape: (
       <>
@@ -197,7 +202,8 @@ const TOOLS: Tool[] = [
     h: 146,
     open: -76,
     z: -2.3,
-    delay: 0.18,
+    delay: 0.46,
+    dur: 0.79,
     breath: 0.8,
     shape: (
       <>
@@ -212,7 +218,8 @@ const TOOLS: Tool[] = [
     h: 142,
     open: 76,
     z: 2.3,
-    delay: 0.18,
+    delay: 0.5,
+    dur: 0.79,
     breath: -0.8,
     shape: (
       <>
@@ -229,7 +236,8 @@ const TOOLS: Tool[] = [
     h: 172,
     open: 114,
     z: 6.9,
-    delay: 0.26,
+    delay: 0.3,
+    dur: 0.94,
     breath: 0.8,
     shape: (
       <>
@@ -244,7 +252,8 @@ const TOOLS: Tool[] = [
     h: 178,
     open: 152,
     z: 11.5,
-    delay: 0.34,
+    delay: 0.1,
+    dur: 1.08,
     breath: -0.8,
     shape: (
       <>
@@ -365,6 +374,7 @@ export function HeroKnife({ label }: { label: string }) {
                         '--h': `${t.h}px`,
                         '--open': `${t.open}deg`,
                         '--delay': `${t.delay}s`,
+                        '--dur': `${t.dur}s`,
                       } as CSSProperties}
                     >
                       <div className="knife__cast-layer">
@@ -404,6 +414,7 @@ export function HeroKnife({ label }: { label: string }) {
                       '--h': `${t.h}px`,
                       '--open': `${t.open}deg`,
                       '--delay': `${t.delay}s`,
+                      '--dur': `${t.dur}s`,
                       '--breath': `${t.breath}deg`,
                       '--kt-face-fill': `url(#kt-steel-${t.id})`,
                       '--kt-face-ao': `url(#kt-ao-${t.id})`,

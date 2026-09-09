@@ -408,7 +408,7 @@ html[data-lang-pending] body { visibility: hidden; }
 /* Gölgedeki aletler açılışı paylaşır ama boştaki nefesi paylaşmaz: her karede
    yeniden bulanıklaştırmak pahalı, farkı da görünmüyor. */
 .knife__cast .knife-tool {
-  animation: knife-unfold .95s var(--delay) cubic-bezier(.22, .9, .28, 1.08) both;
+  animation: knife-unfold var(--dur) var(--delay) cubic-bezier(.22, .9, .28, 1.08) both;
   will-change: auto;
 }
 
@@ -489,7 +489,7 @@ html[data-lang-pending] body { visibility: hidden; }
   transform-style: preserve-3d;
   will-change: transform;
   animation:
-    knife-unfold .95s var(--delay) cubic-bezier(.22, .9, .28, 1.08) both,
+    knife-unfold var(--dur) var(--delay) cubic-bezier(.22, .9, .28, 1.08) both,
     knife-tool-idle 5.6s 2.4s ease-in-out infinite alternate;
 }
 @keyframes knife-unfold {
