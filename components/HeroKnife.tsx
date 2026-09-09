@@ -331,6 +331,11 @@ export function HeroKnife({ label }: { label: string }) {
     <figure className="knife" ref={root} role="img" aria-label={label}>
       <svg className="knife-defs" width="0" height="0" aria-hidden="true" focusable="false">
         <defs>
+          <linearGradient id="kt-mark" x1="0" y1="0" x2="0.65" y2="1">
+            <stop offset="0" stopColor="#f8ff52"/>
+            <stop offset="0.45" stopColor="var(--sulfur)"/>
+            <stop offset="1" stopColor="#c2c900"/>
+          </linearGradient>
           {TOOLS.map((t) => (
             <linearGradient key={`g-${t.id}`} id={`kt-steel-${t.id}`} x1="0" y1="0" x2="1" y2="0.06">
               {steelStops(t.open).map((s, i) => (
@@ -397,7 +402,11 @@ export function HeroKnife({ label }: { label: string }) {
                       }
                       style={{ '--dz': `${l.dz.toFixed(2)}px` } as CSSProperties}
                     >
-                      {l.front ? <span className="knife-handle__cross"/> : null}
+                      {l.front ? (
+                        <svg className="knife-handle__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                          <path d="M6 17.5 L13 24.5 L26.5 8"/>
+                        </svg>
+                      ) : null}
                     </div>
                   ))}
                 </div>

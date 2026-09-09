@@ -450,16 +450,21 @@ html[data-lang-pending] body { visibility: hidden; }
   border-radius: inherit;
   background: linear-gradient(142deg, rgba(243, 241, 234, .2), rgba(243, 241, 234, .05) 30%, transparent 56%);
 }
-.knife-handle__cross {
+/* Sap amblemi: site ikonuyla birebir aynı onay işareti. */
+.knife-handle__mark {
   position: absolute;
   left: 50%;
   top: 42%;
   z-index: 1;
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px;
-  background: linear-gradient(152deg, #f4fb3a, var(--sulfur) 42%, #c2c900);
-  clip-path: polygon(35% 0, 65% 0, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0 65%, 0 35%, 35% 35%);
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  overflow: visible;
+  fill: none;
+  stroke: url(#kt-mark);
+  stroke-width: 6.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 /* Aletlerin sapa gömüldüğü yerdeki temas gölgesi: tüm aletlerin önünde,
    sapın ön kabzasının arkasında durur. */

@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — İkon ve sap amblemi
+
+Favicon / `icon.svg` sarı onay işareti (siyah kare). Hero sapındaki haç aynı yola çekildi.
+
+Değişen dosyalar: `app/icon.svg`, `app/favicon.ico`, `components/HeroKnife.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Çakı açılış sırası
 
 Aletler dıştan içe açılıyor; süre yola orantılı, üstünden geçme yok.
