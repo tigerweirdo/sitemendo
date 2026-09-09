@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Mail tasarımı siteye çekildi
+
+Onay ve admin mailleri kâğıt / mürekkep / sülfür, Inter benzeri sans, marka `SITEMENDO.`. Admin konusu `Yeni istek: alan`. Gmail Tanıtım: yönlendirilmiş otomatik mailde sık; filtre (Gelen Kutusu) kalıcı çözüm.
+
+Değişen dosyalar: `lib/auditMail.ts`, `app/api/audit/route.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Eski demo oturumu formda kalıyordu
 
 Canlı API `{ mode: "live" }` dönüyor. Kullanıcı hâlâ “Demo bitti” gördü: önceki demo `sessionStorage` geri yükleniyor veya `localhost` eski env ile açık. Demo kayıtları artık yok sayılıyor.

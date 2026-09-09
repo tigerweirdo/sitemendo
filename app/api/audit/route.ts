@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { confirmEmail, fromAddress, notifyAddress, notifyEmail } from '@/lib/auditMail';
+import { confirmEmail, fromAddress, mailHeaders, notifyAddress, notifyEmail } from '@/lib/auditMail';
 import { clientIp, tooManyRequests } from '@/lib/auditRateLimit';
 import { parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
 
@@ -52,6 +52,7 @@ export async function POST(request: Request) {
   const customer = confirmEmail(payload);
   const resend = new Resend(apiKey);
 
+  const host = new URL(payload.websiteUrl).hostname.replace(/^www\./, '');
   const notify = await resend.emails.send({
     from,
     to: notifyTo,
@@ -59,6 +60,8 @@ export async function POST(request: Request) {
     subject: owner.subject,
     text: owner.text,
     html: owner.html,
+    headers: mailHeaders('notify', host),
+    tags: [{ name: 'kind', value: 'audit-notify' }],
   });
 
   if (notify.error) {
@@ -72,6 +75,8 @@ export async function POST(request: Request) {
     subject: customer.subject,
     text: customer.text,
     html: customer.html,
+    headers: mailHeaders('confirm', host),
+    tags: [{ name: 'kind', value: 'audit-confirm' }],
   });
 
   if (confirm.error) {
