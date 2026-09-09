@@ -11,6 +11,20 @@
 
 ## Görevler
 
+### 2026-09-09 — Kurumsal geçiş (hero, tipografi, tutarlılık)
+
+Analiz: “Kim bakıyor?” birinci tekil/kişisel; Inter Tight poster gövde; siyah hero kartı açık rapor belgesiyle çelişiyordu; h1/h2/h3/fiyat/adım numaraları ayrı ölçeklerdeydi; sarı kutu ve slogan başlıklar mektup ritmini bozuyordu.
+
+Karar:
+1. Tipografi token sistemi (`--fs-body/ui/meta/h1/h2/h3/mono/price/count`). Inter gövde, IBM Plex Mono yalnızca veri (alan adı, skor, fiyat, adım no).
+2. Hero kurumsal: kicker “hizmet · Berlin”, h1 hizmet tanımı, form kâğıt üzerinde (krem kutu yok), sağda aynı `.doc` dilinde rapor önizlemesi.
+3. Hakkımızda üçüncü şahıs + figcaption (ad + unvan). Footer etiketi ayrı `footer.tag`.
+4. Slogan başlıklar kalktı: hizmetler “Denetim ve düzeltme”, rapor “Rapor örneği”, CTA “Ücretsiz denetim talebi”.
+
+Doğrulama: `tsc --noEmit`; 360/1440 ekran; 360px yatay kaydırma yok.
+
+Değişen dosyalar: `app/globals.css`, `app/layout.tsx`, `components/Site.tsx`, `components/LegalPage.tsx`, `lib/content.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Görünümü sıkılaştırma (mektup ritmi)
 
 Önceki ajans/stüdyo hissini azaltmak için palet ve keskin köşeler korundu; sayfa daraltıldı, siyah zeminler ve sarı yük kaldırıldı.

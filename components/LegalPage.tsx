@@ -53,7 +53,7 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
       <main id="main" className="legal">
         <div className="wrap">
           <p className="legal__updated">{legal.updated}</p>
-          <h1 className="display d2 legal__title">{title}</h1>
+          <h1 className="h1 legal__title">{title}</h1>
           <p className="lead">{lead}</p>
           <div className="legal__body">
             {type === 'impressum' && (

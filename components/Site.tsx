@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
-import { content, type ChecklistCell, type Lang } from '@/lib/content';
-import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
+import { content, type Finding, type Lang } from '@/lib/content';
+import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, PERSON_NAME, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
 import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMode, type FormStep } from '@/lib/formPersist';
 import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
@@ -195,26 +195,40 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <section className="hero" id="top">
           <div className="wrap hero__wrap">
             <div className="hero__copy">
-              <h1 className="display hero__title">{c.hero.a}</h1>
+              <p className="kicker hero__eyebrow">{c.hero.label}</p>
+              <h1 className="h1 hero__title">{c.hero.a}</h1>
               <p className="lead">{c.hero.support}</p>
               <div className="hero__form">
-                <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref} primaryCta/>
+                <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref}/>
               </div>
             </div>
-            <ReportCard sample={c.hero.sample} rows={c.checklist.slice(0, 3)}/>
+            <ReportCard
+              sample={c.hero.sample}
+              label={c.sampleReport.label}
+              issues={c.sampleReport.issues}
+              findings={c.findings}
+            />
           </div>
         </section>
 
         <section className="sec about" id="about">
           <div className="wrap about__wrap">
-            <div className="about__photo">
+            <figure className="about__photo">
               <img src="/portrait.jpg" alt={c.about.photoAlt} width={240} height={240}/>
-            </div>
+              <figcaption>
+                <strong>{PERSON_NAME}</strong>
+                <span>{c.about.role}</span>
+              </figcaption>
+            </figure>
             <div className="about__copy">
-              <h2 className="display d2">{c.about.title}</h2>
+              <h2 className="h2">{c.about.title}</h2>
               <p className="lead">{c.about.p1}</p>
               <p className="lead">{c.about.p2}</p>
               <ul className="about__contacts">
+                <li>
+                  <span className="about__k">{c.legal.address}</span>
+                  <span>{COMPANY.street}, {COMPANY.postalCode} {COMPANY.city}</span>
+                </li>
                 <li>
                   <span className="about__k">{c.about.emailLabel}</span>
                   <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
@@ -234,7 +248,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
 
         <Section id="checks">
           <div className="section-intro">
-            <h2 className="display d2">{c.checksTitle}</h2>
+            <h2 className="h2">{c.checksTitle}</h2>
             <p className="lead">{c.checksSub}</p>
           </div>
           <div className="checks">
@@ -250,7 +264,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <Section id="report">
           <div className="report-layout">
             <div className="report-copy">
-              <h2 className="display d2">{c.reportTitle}</h2>
+              <h2 className="h2">{c.reportTitle}</h2>
               <p className="lead">{c.reportSub}</p>
             </div>
             <SampleReport lang={lang}/>
@@ -259,13 +273,13 @@ export function Site({ initialLang }: { initialLang: Lang }) {
 
         <section className="sec statement">
           <div className="wrap">
-            <h2 className="display d2">{c.statementA}</h2>
+            <h2 className="h2">{c.statementA}</h2>
             <p className="lead statement__sub">{c.statementSub}</p>
           </div>
         </section>
 
         <Section id="services">
-          <h2 className="display d3 services-heading">{c.servicesTitle}</h2>
+          <h2 className="h2 services-heading">{c.servicesTitle}</h2>
           <div className="services">
             {c.services.map(s => (
               <div className={`service ${s.featured ? 'featured' : ''}`} key={s.no}>
@@ -285,7 +299,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         </Section>
 
         <Section id="how">
-          <h2 className="display d2 how-heading">{c.howTitle}</h2>
+          <h2 className="h2 how-heading">{c.howTitle}</h2>
           <div className="steps">
             {c.steps.map((s, i) => (
               <div className="step" key={s[0]}>
@@ -299,17 +313,19 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         </Section>
 
         <Section id="faq">
-          <h2 className="display d3 faq-heading">{c.faqTitle}</h2>
+          <h2 className="h2 faq-heading">{c.faqTitle}</h2>
           <FAQList items={c.faq}/>
         </Section>
 
         <Section id="start">
           <div className="final">
             <div className="final__copy">
-              <h2 className="display d1">{c.final}<span className="dot">.</span></h2>
+              <h2 className="h2 h2--lg">{c.final}</h2>
             </div>
             <div className="final__form">
-              <AuditForm lang={lang} idPrefix="final" privacyHref={privacyHref} primaryCta/>
+              <div className="form-panel">
+                <AuditForm lang={lang} idPrefix="final" privacyHref={privacyHref}/>
+              </div>
             </div>
           </div>
         </Section>
@@ -328,19 +344,38 @@ function Section({ dark, id, children }: { dark?: boolean; id?: string; children
   );
 }
 
-function ReportCard({ sample, rows }: { sample: string; rows: ChecklistCell[] }) {
+function ReportCard({
+  sample,
+  label,
+  issues,
+  findings,
+}: {
+  sample: string;
+  label: string;
+  issues: string;
+  findings: Finding[];
+}) {
   return (
-    <aside className="report-card">
-      <div className="report-card__head">
+    <aside className="doc doc--preview" aria-label={label}>
+      <div className="doc__head">
+        <div>
+          <p className="doc-domain">{SAMPLE_DOMAIN}</p>
+          <p className="doc-label">{label}</p>
+        </div>
         <p className="tag tag--sample">{sample}</p>
       </div>
-      {rows.map(row => (
-        <div className="report-row" key={row.k}>
-          <span className="report-row__k">{row.k}</span>
-          <span className="report-row__dots" aria-hidden="true"/>
-          <span className={`report-row__v ${row.s}`}>{row.v}</span>
-        </div>
-      ))}
+      <div className="doc__count">
+        <b>03</b>
+        <p>{issues}</p>
+      </div>
+      <ul className="preview-list">
+        {findings.map(f => (
+          <li key={f.no}>
+            <span className={`severity severity--${f.level}`}>{f.severity}</span>
+            <p>{f.title}</p>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 }
@@ -383,7 +418,7 @@ async function submitAuditRequest(payload: { websiteUrl: string; email: string; 
   }
 }
 
-function AuditForm({ lang, idPrefix, privacyHref, primaryCta }: { lang: Lang; idPrefix: string; privacyHref: string; primaryCta?: boolean }) {
+function AuditForm({ lang, idPrefix, privacyHref }: { lang: Lang; idPrefix: string; privacyHref: string }) {
   const f = content[lang].form;
   const ctx = useContext(AuditFormContext);
   if (!ctx) throw new Error('AuditForm needs provider');
@@ -392,7 +427,6 @@ function AuditForm({ lang, idPrefix, privacyHref, primaryCta }: { lang: Lang; id
   const urlId = `${idPrefix}-url`;
   const emailId = `${idPrefix}-email`;
   const errId = `${idPrefix}-error`;
-  const arrow = primaryCta ? ' →' : '';
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -442,7 +476,7 @@ function AuditForm({ lang, idPrefix, privacyHref, primaryCta }: { lang: Lang; id
               onChange={e => setUrl(e.target.value)}
             />
             {error && <p className="form-error" id={errId} role="alert">{error}</p>}
-            <button className="btn" type="submit">{f.submit}{arrow}</button>
+            <button className="btn" type="submit">{f.submit}</button>
           </div>
           <ul className="micro">{f.micro.map(x => <li key={x}>{x}</li>)}</ul>
           <p className="privacy-note">{f.privacy} <a href={privacyHref}>{f.privacyLink}</a></p>
@@ -450,7 +484,7 @@ function AuditForm({ lang, idPrefix, privacyHref, primaryCta }: { lang: Lang; id
       )}
       {step === 'email' && (
         <>
-          <p className="d4 ask">{f.ask}</p>
+          <p className="h3 ask">{f.ask}</p>
           <label className="audit-form__label" htmlFor={emailId}>{f.email}</label>
           <div className="audit-form__field">
             <input
@@ -467,7 +501,7 @@ function AuditForm({ lang, idPrefix, privacyHref, primaryCta }: { lang: Lang; id
               onChange={e => setEmail(e.target.value)}
             />
             {error && <p className="form-error" id={errId} role="alert">{error}</p>}
-            <button className="btn" disabled={busy} type="submit">{busy ? f.sending : `${f.prepare}${arrow}`}</button>
+            <button className="btn" disabled={busy} type="submit">{busy ? f.sending : f.prepare}</button>
           </div>
           <p className="privacy-note">{f.privacy} <a href={privacyHref}>{f.privacyLink}</a></p>
           <button className="form-back" type="button" onClick={() => setStep('url')}>{f.back}</button>
@@ -477,7 +511,7 @@ function AuditForm({ lang, idPrefix, privacyHref, primaryCta }: { lang: Lang; id
         <div className="done">
           <span className="done__mark"/>
           <div>
-            <p className="d4">{mode === 'demo' ? f.demo : f.done}</p>
+            <p className="h3">{mode === 'demo' ? f.demo : f.done}</p>
             <p className="done__text">{f.doneText} <b>{email}</b></p>
             {mode === 'demo' && <p className="demo-note">{f.demoNote}</p>}
             <div className="done__actions">
@@ -572,7 +606,7 @@ function Footer({
         <div className="footer__top">
           <div>
             <p className="footer__brand">SITEMENDO<span className="dot">.</span></p>
-            <p className="footer-tag">{c.hero.label}</p>
+            <p className="footer-tag">{c.footer.tag}</p>
             <p className="footer-city">Berlin, {c.legal.country}</p>
             <a className="footer-mail" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
             <a className="footer-mail" href={`tel:${CONTACT_PHONE_E164}`}>{CONTACT_PHONE_DISPLAY}</a>
