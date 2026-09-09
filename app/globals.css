@@ -462,7 +462,7 @@ html[data-lang-pending] body { visibility: hidden; }
   overflow: visible;
   fill: none;
   stroke: url(#kt-mark);
-  stroke-width: 5.2;
+  stroke-width: 7.2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

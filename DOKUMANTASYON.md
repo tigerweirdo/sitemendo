@@ -11,6 +11,16 @@
 
 ## Görevler
 
+### 2026-09-09 — Kalın C (arka plansız)
+
+Kullanıcı A–L seçmedi; mevcut sarı C’nin arka plansız kalın halini denemek istedi. `icon.svg` + `favicon.ico`: r 9→9.2, sarı 3.4→7, mürekkep hat 5.4→9, açıklık 16.5 (C olarak kalsın diye). Kare/mühür yok. Sap amblemi aynı ailede kalınlaştı (5.2→7.2).
+
+Değişen dosyalar: `app/icon.svg`, `app/favicon.ico`, `app/globals.css`, `DOKUMANTASYON.md`.
+
+### 2026-09-09 — Sekme ikonu alternatifleri (2. tur)
+
+İlk tur (A–F: halka, mühürler, onay, rapor yaprağı) seçilmedi. Uygulama yok. İkinci tur kavram olarak ayrı: G Nokta, H S., I Büyüteç, J Göz, K Satırlar, L Artı. Kullanıcı seçince `icon.svg` + `favicon.ico` uygulanacak.
+
 ### 2026-09-09 — İkon silueti (kare yok)
 
 Sekme ikonunda siyah kare kalktı. İşaret rapor puan halkası (sarı C); açık zeminde okunması için altında mürekkep çizgi. Şeffaf `icon.svg` + `favicon.ico`.
