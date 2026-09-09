@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — İkon silueti (kare yok)
+
+Sekme ikonunda siyah kare kalktı. İşaret rapor puan halkası (sarı C); açık zeminde okunması için altında mürekkep çizgi. Şeffaf `icon.svg` + `favicon.ico`.
+
+Değişen dosyalar: `app/icon.svg`, `app/favicon.ico`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Sekme ikonu küçültüldü
 
 Tarayıcı sekmesinde işaret kareyi dolduruyordu. `icon.svg` içinde sarı C daha küçük (daha fazla siyah pay). `favicon.ico` aynı çizimden yenilendi.
