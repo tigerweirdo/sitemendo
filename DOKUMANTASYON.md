@@ -19,6 +19,8 @@
   4. `main` SSH ile push edildi
   5. Vercel projesi GitHub reposuna bağlandı (`tigerweirdos-projects`)
   6. Üretim ortam değişkenleri `.env.example` ile hizalandı (demo mode açık)
+- İlk Vercel production build (`dpl_AbU1isHYUiKXnrtFYtRUgAoFbJMT`) `VULNERABLE_NEXTJS_VERSION` (CVE-2025-66478) ile reddedildi
+- `next` 15.2.4 → 15.5.25 yükseltildi (15.2 satırındaki yama yetmedi; Vercel güncel 15.5 yamasını istiyor)
 - Sonuç: Aşağıdaki “Yayın sonuçları” satırında güncellenir
 - Not: `.env.local` commit edilmedi
 
