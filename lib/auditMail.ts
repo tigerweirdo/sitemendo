@@ -13,8 +13,8 @@ const INK = '#090909';
 const SULFUR = '#E8F000';
 const MUTED = '#4A4A46';
 const LINE = '#C6C5BE';
-const SANS = "Arial, Helvetica, sans-serif";
-const MONO = "ui-monospace, 'IBM Plex Mono', Consolas, monospace";
+const SANS = 'Arial, Helvetica, sans-serif';
+const MONO = "Consolas, 'Courier New', monospace";
 
 function escapeHtml(value: string) {
   return value
@@ -32,44 +32,32 @@ function hostOf(websiteUrl: string) {
   }
 }
 
-function preheader(text: string) {
-  return `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">${escapeHtml(text)}</div>`;
-}
-
-function brandRow() {
-  return `<tr>
-    <td style="padding:0 0 18px;border-bottom:1px solid ${LINE};">
-      <p style="margin:0;font:600 16px/1.2 ${SANS};letter-spacing:0.06em;text-transform:uppercase;color:${INK};">SITEMENDO<span style="color:${SULFUR};">.</span></p>
-    </td>
-  </tr>`;
-}
-
-function footerRow(note: string) {
-  return `<tr>
-    <td style="padding:20px 0 0;border-top:1px solid ${LINE};">
-      <p style="margin:0;font:400 13px/1.45 ${SANS};color:${MUTED};">${escapeHtml(note)}</p>
-    </td>
-  </tr>`;
-}
-
-function wrapLetter(preview: string, innerRows: string) {
+function wrapDoc(lang: Lang, preview: string, rows: string) {
   return `<!doctype html>
-<html lang="tr">
+<html lang="${lang}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light only">
   <meta name="supported-color-schemes" content="light">
   <title>Sitemendo</title>
+  <style>
+    :root { color-scheme: light only; }
+    body, table, td { color-scheme: light only; }
+  </style>
 </head>
-<body style="margin:0;padding:0;background:${PAPER};color:${INK};">
-  ${preheader(preview)}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};">
+<body bgcolor="${PAPER}" style="margin:0;padding:0;background:${PAPER};background-color:${PAPER};color:${INK};">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preview)}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="background:${PAPER};background-color:${PAPER};">
     <tr>
-      <td align="center" style="padding:28px 16px;">
-        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:${PAPER};">
-          ${brandRow()}
-          ${innerRows}
+      <td align="center" bgcolor="${PAPER}" style="padding:28px 16px;background:${PAPER};background-color:${PAPER};">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="width:100%;max-width:560px;background:${PAPER};background-color:${PAPER};border:1px solid ${INK};">
+          <tr>
+            <td bgcolor="${PAPER}" style="padding:28px 28px 32px;background:${PAPER};background-color:${PAPER};color:${INK};">
+              <p style="margin:0 0 18px;padding:0 0 16px;border-bottom:1px solid ${INK};font:600 16px/1.2 ${SANS};letter-spacing:0.06em;text-transform:uppercase;color:${INK};">SITEMENDO<span style="color:${SULFUR};">.</span></p>
+              ${rows}
+            </td>
+          </tr>
         </table>
       </td>
     </tr>
@@ -78,74 +66,60 @@ function wrapLetter(preview: string, innerRows: string) {
 </html>`;
 }
 
-function heading(text: string) {
-  return `<tr>
-    <td style="padding:22px 0 12px;">
-      <h1 style="margin:0;font:600 22px/1.3 ${SANS};letter-spacing:-0.015em;color:${INK};">${escapeHtml(text)}</h1>
-    </td>
-  </tr>`;
+function h1(text: string) {
+  return `<h1 style="margin:0 0 12px;font:600 22px/1.3 ${SANS};letter-spacing:-0.015em;color:${INK};">${escapeHtml(text)}</h1>`;
 }
 
-function para(text: string) {
-  return `<tr>
-    <td style="padding:0 0 14px;">
-      <p style="margin:0;font:400 17px/1.55 ${SANS};color:${MUTED};">${text}</p>
-    </td>
-  </tr>`;
+function p(text: string) {
+  return `<p style="margin:0 0 16px;font:400 17px/1.55 ${SANS};color:${INK};">${text}</p>`;
 }
 
-function dataBox(label: string, valueHtml: string) {
-  return `<tr>
-    <td style="padding:0 0 14px;">
-      <p style="margin:0 0 6px;font:500 13px/1.3 ${SANS};color:${MUTED};">${escapeHtml(label)}</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${INK};">
-        <tr>
-          <td style="padding:12px 14px;font:400 13px/1.45 ${MONO};color:${INK};word-break:break-all;">${valueHtml}</td>
-        </tr>
-      </table>
-    </td>
-  </tr>`;
+function muted(text: string) {
+  return `<p style="margin:22px 0 0;padding-top:16px;border-top:1px solid ${LINE};font:400 13px/1.45 ${SANS};color:${MUTED};">${escapeHtml(text)}</p>`;
 }
 
-function fieldRow(label: string, valueHtml: string) {
+function box(label: string, valueHtml: string) {
+  return `<p style="margin:0 0 6px;font:500 13px/1.3 ${SANS};color:${MUTED};">${escapeHtml(label)}</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="margin:0 0 18px;border:1px solid ${INK};background:${PAPER};background-color:${PAPER};">
+    <tr>
+      <td bgcolor="${PAPER}" style="padding:12px 14px;font:400 13px/1.45 ${MONO};color:${INK};word-break:break-all;background:${PAPER};background-color:${PAPER};">${valueHtml}</td>
+    </tr>
+  </table>`;
+}
+
+function row(label: string, valueHtml: string) {
   return `<tr>
-    <td style="padding:10px 0;border-top:1px solid ${LINE};font:500 13px/1.4 ${SANS};color:${MUTED};width:28%;">${escapeHtml(label)}</td>
-    <td style="padding:10px 0 10px 12px;border-top:1px solid ${LINE};font:400 15px/1.45 ${SANS};color:${INK};">${valueHtml}</td>
+    <td valign="top" style="padding:10px 12px 10px 0;border-top:1px solid ${LINE};font:500 13px/1.4 ${SANS};color:${MUTED};width:96px;">${escapeHtml(label)}</td>
+    <td valign="top" style="padding:10px 0;border-top:1px solid ${LINE};font:400 15px/1.45 ${SANS};color:${INK};">${valueHtml}</td>
   </tr>`;
 }
 
 export function notifyEmail(payload: AuditPayload, receivedAt: string) {
   const host = hostOf(payload.websiteUrl);
-  const site = `<a href="${escapeHtml(payload.websiteUrl)}" style="color:${INK};">${escapeHtml(payload.websiteUrl)}</a>`;
-  const mail = `<a href="mailto:${escapeHtml(payload.email)}" style="color:${INK};">${escapeHtml(payload.email)}</a>`;
-  const text = [
-    `Yeni kontrol isteği: ${host}`,
-    '',
-    `Site: ${payload.websiteUrl}`,
-    `E-posta: ${payload.email}`,
-    `Dil: ${LANG_LABEL[payload.language]}`,
-    `Saat: ${receivedAt}`,
-    '',
-    'Yanıtlayınca müşteriye gidersiniz.',
-  ].join('\n');
-
+  const site = `<a href="${escapeHtml(payload.websiteUrl)}" style="color:${INK};text-decoration:underline;">${escapeHtml(payload.websiteUrl)}</a>`;
+  const mail = `<a href="mailto:${escapeHtml(payload.email)}" style="color:${INK};text-decoration:underline;">${escapeHtml(payload.email)}</a>`;
   return {
     subject: `Yeni istek: ${host}`,
-    text,
-    html: wrapLetter(`${host} — ${payload.email}`, `
-      ${heading('Yeni kontrol isteği')}
-      ${para('Formdan bir istek geldi. 48 saat içinde rapor yazılacak.')}
-      <tr>
-        <td style="padding:4px 0 18px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-            ${fieldRow('Site', site)}
-            ${fieldRow('E-posta', mail)}
-            ${fieldRow('Dil', escapeHtml(LANG_LABEL[payload.language]))}
-            ${fieldRow('Saat', escapeHtml(receivedAt))}
-          </table>
-        </td>
-      </tr>
-      ${footerRow('Sitemendo · Berlin')}
+    text: [
+      'Yeni kontrol isteği',
+      '',
+      `Site: ${payload.websiteUrl}`,
+      `E-posta: ${payload.email}`,
+      `Dil: ${LANG_LABEL[payload.language]}`,
+      `Saat: ${receivedAt}`,
+      '',
+      'Yanıtlayınca müşteriye gidersiniz.',
+    ].join('\n'),
+    html: wrapDoc('tr', `${host} — ${payload.email}`, `
+      ${h1('Yeni kontrol isteği')}
+      ${p('Formdan bir istek geldi. 48 saat içinde rapor yazılacak.')}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 8px;">
+        ${row('Site', site)}
+        ${row('E-posta', mail)}
+        ${row('Dil', escapeHtml(LANG_LABEL[payload.language]))}
+        ${row('Saat', escapeHtml(receivedAt))}
+      </table>
+      ${muted('Sitemendo · Berlin')}
     `),
   };
 }
@@ -167,7 +141,7 @@ const CONFIRM: Record<Lang, {
     title: 'Aldık.',
     lead: 'Kontrol isteğiniz bize ulaştı. Raporu 48 saat içinde bu e-postaya gönderiyoruz.',
     siteLabel: 'Site',
-    hours: '48 saat içinde',
+    hours: '48 saat içinde.',
     ask: `Bir şey sormak isterseniz bu maili yanıtlayın veya <a href="mailto:${CONTACT_EMAIL}" style="color:${INK};text-decoration:underline;">${CONTACT_EMAIL}</a> yazın.`,
     footer: 'Sitemendo · Berlin',
     text: url => [
@@ -185,7 +159,7 @@ const CONFIRM: Record<Lang, {
     title: 'Got it.',
     lead: 'We received your check request. We will send the report to this email within 48 hours.',
     siteLabel: 'Website',
-    hours: 'Within 48 hours',
+    hours: 'Within 48 hours.',
     ask: `If you have a question, reply to this email or write to <a href="mailto:${CONTACT_EMAIL}" style="color:${INK};text-decoration:underline;">${CONTACT_EMAIL}</a>.`,
     footer: 'Sitemendo · Berlin',
     text: url => [
@@ -203,7 +177,7 @@ const CONFIRM: Record<Lang, {
     title: 'Angekommen.',
     lead: 'Ihre Prüfungsanfrage ist bei uns angekommen. Den Bericht senden wir innerhalb von 48 Stunden an diese E-Mail.',
     siteLabel: 'Website',
-    hours: 'Innerhalb von 48 Stunden',
+    hours: 'Innerhalb von 48 Stunden.',
     ask: `Bei Fragen antworten Sie auf diese E-Mail oder schreiben Sie an <a href="mailto:${CONTACT_EMAIL}" style="color:${INK};text-decoration:underline;">${CONTACT_EMAIL}</a>.`,
     footer: 'Sitemendo · Berlin',
     text: url => [
@@ -220,23 +194,25 @@ const CONFIRM: Record<Lang, {
 export function confirmEmail(payload: AuditPayload) {
   const copy = CONFIRM[payload.language];
   const host = hostOf(payload.websiteUrl);
-  const site = `<a href="${escapeHtml(payload.websiteUrl)}" style="color:${INK};">${escapeHtml(payload.websiteUrl)}</a>`;
+  const site = `<a href="${escapeHtml(payload.websiteUrl)}" style="color:${INK};text-decoration:underline;">${escapeHtml(payload.websiteUrl)}</a>`;
   return {
     subject: copy.subject,
     text: copy.text(payload.websiteUrl),
-    html: wrapLetter(copy.preview(host), `
-      ${heading(copy.title)}
-      ${para(copy.lead)}
-      ${dataBox(copy.siteLabel, site)}
-      ${para(`<span style="display:inline-block;padding:4px 8px;background:${SULFUR};color:${INK};font:600 13px/1.2 ${SANS};">${escapeHtml(copy.hours)}</span>`)}
-      ${para(copy.ask)}
-      ${footerRow(copy.footer)}
+    html: wrapDoc(payload.language, copy.preview(host), `
+      ${h1(copy.title)}
+      ${p(copy.lead)}
+      ${box(copy.siteLabel, site)}
+      ${p(escapeHtml(copy.hours))}
+      ${p(copy.ask)}
+      ${muted(copy.footer)}
     `),
   };
 }
 
-export function notifyAddress() {
-  return (process.env.AUDIT_NOTIFY_EMAIL || CONTACT_EMAIL).trim();
+export function notifyAddresses() {
+  const raw = process.env.AUDIT_NOTIFY_EMAIL || CONTACT_EMAIL;
+  const list = raw.split(',').map(s => s.trim()).filter(Boolean);
+  return list.length ? list : [CONTACT_EMAIL];
 }
 
 export function fromAddress() {
@@ -247,6 +223,5 @@ export function fromAddress() {
 export function mailHeaders(kind: 'notify' | 'confirm', host: string) {
   return {
     'X-Entity-Ref-ID': `sitemendo-${kind}-${host}-${Date.now()}`,
-    'X-Auto-Response-Suppress': 'OOF, AutoReply',
   };
 }

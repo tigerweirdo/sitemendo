@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { confirmEmail, fromAddress, mailHeaders, notifyAddress, notifyEmail } from '@/lib/auditMail';
+import { CONTACT_EMAIL } from '@/lib/company';
+import { confirmEmail, fromAddress, mailHeaders, notifyAddresses, notifyEmail } from '@/lib/auditMail';
 import { clientIp, tooManyRequests } from '@/lib/auditRateLimit';
 import { parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
 
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
 
   const receivedAt = new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Berlin' });
   const from = fromAddress();
-  const notifyTo = notifyAddress();
+  const notifyTo = notifyAddresses();
   const owner = notifyEmail(payload, receivedAt);
   const customer = confirmEmail(payload);
   const resend = new Resend(apiKey);
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
   const confirm = await resend.emails.send({
     from,
     to: payload.email,
-    replyTo: notifyTo,
+    replyTo: CONTACT_EMAIL,
     subject: customer.subject,
     text: customer.text,
     html: customer.html,

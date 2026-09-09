@@ -22,10 +22,10 @@ NEXT_PUBLIC_IMPRESSUM_URL=/impressum
 NEXT_PUBLIC_DEMO_MODE=false
 RESEND_API_KEY=re_xxxxxxxx
 AUDIT_FROM_EMAIL=Sitemendo <hello@sitemendo.com>
-AUDIT_NOTIFY_EMAIL=hello@sitemendo.com
+AUDIT_NOTIFY_EMAIL=you@gmail.com
 ```
 
-The form posts to `/api/audit`. If `RESEND_API_KEY` is set, two emails are sent: one to `AUDIT_NOTIFY_EMAIL` and a confirmation to the visitor. If the key is missing and demo mode is true, the form reports that nothing was sent. It never fakes a successful live request.
+The form posts to `/api/audit`. If `RESEND_API_KEY` is set, two emails are sent: one to `AUDIT_NOTIFY_EMAIL` and a confirmation to the visitor. Do not set the notify address to `hello@sitemendo.com` if that address only forwards — mail from `hello@` to `hello@` is dropped. If the key is missing and demo mode is true, the form reports that nothing was sent. It never fakes a successful live request.
 
 Before going live, verify `sitemendo.com` in [Resend](https://resend.com) and use that domain in `AUDIT_FROM_EMAIL`. The onboarding sender (`beth.t@example.com`) can only reach the Resend account email.
 

@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Admin mail hello@ döngüsünde kalıyordu
+
+Resend `from=hello@` `to=hello@` gönderiyordu; Cloudflare yönlendirme bunu bırakıyor (`sent`, Gmail’e düşmez). Bildirim artık doğrudan gelen kutuya. Mail, sitedeki rapor belgesi: kâğıt `#F3F1EA`, mürekkep çerçeve, `SITEMENDO.`; sarı blok yok.
+
+Değişen dosyalar: `lib/auditMail.ts`, `app/api/audit/route.ts`, `.env.example`, `README.md`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Mail tasarımı siteye çekildi
 
 Onay ve admin mailleri kâğıt / mürekkep / sülfür, Inter benzeri sans, marka `SITEMENDO.`. Admin konusu `Yeni istek: alan`. Gmail Tanıtım: yönlendirilmiş otomatik mailde sık; filtre (Gelen Kutusu) kalıcı çözüm.
