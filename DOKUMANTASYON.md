@@ -11,6 +11,30 @@
 
 ## Görevler
 
+### 2026-09-09 — Hero 3D çok amaçlı alet
+
+Hero sağına CSS 3D + GSAP ile açılan çok amaçlı çakı (İsveç/İsviçre aleti metaforu) eklendi: mürekkep gövde, sülfür işaret, kâğıt metal ağızlar. Açılış animasyonu, yavaş idle, imlekle eğilme. `prefers-reduced-motion` açıkken durağan açık poz. Palet ve keskin köşeler korundu.
+
+Doğrulama: 1440/360; yatay kaydırma yok; konsol hatası yok.
+
+Değişen dosyalar: `components/HeroKnife.tsx`, `components/Site.tsx`, `app/globals.css`, `lib/content.ts`, `package.json`, `DOKUMANTASYON.md`.
+
+### 2026-09-09 — Tek rapor örneği
+
+Hero’daki kısa önizleme kaldırıldı. Sayfada tek örnek belgesi kaldı: `#report` içindeki tam rapor (bulgular + kontrol listesi).
+
+Doğrulama: hero’da `.doc` yok; `#report` bir kez; 360px kaydırma yok.
+
+Değişen dosyalar: `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
+### 2026-09-09 — Kişisel kimlik kaldırıldı
+
+Ana sayfa ve Impressum’dan kişi adı, portre ve sokak adresi çıktı. İletişim: e-posta, telefon, WhatsApp. Konum yalnızca “Berlin” (hero kicker + footer). `public/portrait.jpg` silindi.
+
+Doğrulama: isim/adres/portre DOM’da yok; `#about` ve `/impressum` kontrol edildi.
+
+Değişen dosyalar: `components/Site.tsx`, `components/LegalPage.tsx`, `lib/company.ts`, `lib/content.ts`, `app/globals.css`, `public/portrait.jpg`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Kurumsal geçiş (hero, tipografi, tutarlılık)
 
 Analiz: “Kim bakıyor?” birinci tekil/kişisel; Inter Tight poster gövde; siyah hero kartı açık rapor belgesiyle çelişiyordu; h1/h2/h3/fiyat/adım numaraları ayrı ölçeklerdeydi; sarı kutu ve slogan başlıklar mektup ritmini bozuyordu.
@@ -219,12 +243,12 @@ Düşük:
 15–16. Meta/OG/title dile uyuyor; dil değişiminde form korunur, `?lang=` yazılır, kaydırma mümkünse sabitlenir.
 17. Almanca (`de`) tam içerik: nav, hero, form, hizmetler, SSS, yasal, meta. Dil: TR / EN / DE.
 
-Yer tutucu Impressum (tescil kaydı değil — tutarlı uydurma):
+Yer tutucu iletişim (`lib/company.ts`):
 - Unvan: Sitemendo
-- Adres: Invalidenstraße 117, 10115 Berlin
-- E-posta: hello@sitemendo.de
-- Temsilci: Geschäftsführung (yer tutucu)
-- Sabitler: `lib/company.ts`
+- Konum (sokak yok): Berlin
+- E-posta: hello@sitemendo.com
+- Telefon yer tutucu: +49 155 12345678
+- Kişi adı ve sokak adresi yayınlanmaz
 
 Doğrulama: Playwright Chromium, 1440 / 820 / 390 / 320. 76 UX + regresyon (kontrast, başlık çakışması, rozet boşluğu, form senkron, gizlilik turu, DE, menü, SSS, mailto). Commit/push yok.
 

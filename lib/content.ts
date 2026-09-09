@@ -8,10 +8,10 @@ export type LegalBlock = { h: string; p: string };
 
 export type Copy = {
   nav: { how: string; checks: string; services: string; faq: string; cta: string; ctaShort: string; lang: string };
-  a11y: { skip: string; mainNav: string; menu: string };
+  a11y: { skip: string; mainNav: string; menu: string; knife: string };
   hero: { label: string; a: string; b: string; c: string; d: string; e: string; support: string; sample: string; chrome: string };
   about: {
-    title: string; p1: string; p2: string; photoAlt: string; role: string;
+    title: string; p1: string; p2: string;
     emailLabel: string; phoneLabel: string; whatsapp: string;
   };
   sec: { checks: string; output: string; decision: string; services: string; process: string; start: string };
@@ -52,7 +52,7 @@ export type Copy = {
     back: string; updated: string;
     privacyTitle: string; privacyLead: string; privacy: LegalBlock[];
     impressumTitle: string; impressumLead: string;
-    provider: string; address: string; country: string; represented: string; representedBy: string; emailLabel: string; phoneLabel: string;
+    provider: string; country: string; emailLabel: string; phoneLabel: string;
     impressum: LegalBlock[];
   };
 };
@@ -60,7 +60,7 @@ export type Copy = {
 export const content: Record<Lang, Copy> = {
   tr: {
     nav: { how: 'Nasıl çalışır', checks: 'Kapsam', services: 'Hizmetler', faq: 'SSS', cta: 'Ücretsiz denetim', ctaShort: 'Denetim', lang: 'Dil' },
-    a11y: { skip: 'İçeriğe geç', mainNav: 'Ana menü', menu: 'Menü' },
+    a11y: { skip: 'İçeriğe geç', mainNav: 'Ana menü', menu: 'Menü', knife: 'Açılan çok amaçlı denetim aleti' },
     hero: {
       label: 'Web sitesi denetimi · Berlin',
       a: 'Web siteniz için teknik denetim raporu.',
@@ -76,8 +76,6 @@ export const content: Record<Lang, Copy> = {
       title: 'Hakkımızda',
       p1: 'Sitemendo, Berlin’de küçük işletmelerin web sitelerini denetleyen bir stüdyodur. Mobil uyum, hız, güvenlik ve formlar gibi müşteri kaybettiren teknik sorunları tarar; 48 saat içinde anlaşılır bir rapor gönderir.',
       p2: 'İlk denetim ücretsizdir. Düzeltme zorunlu değildir. Form yerine e-posta veya telefon ile de yazabilirsiniz.',
-      photoAlt: 'Sitemendo kurucusu Temmuz Çetiner',
-      role: 'Kurucu, Sitemendo',
       emailLabel: 'E-posta',
       phoneLabel: 'Telefon',
       whatsapp: 'WhatsApp',
@@ -201,10 +199,7 @@ export const content: Record<Lang, Copy> = {
       impressumTitle: 'Impressum',
       impressumLead: 'Yasal bilgiler ve iletişim.',
       provider: 'Hizmet sağlayıcı',
-      address: 'Adres',
       country: 'Almanya',
-      represented: 'Temsilci',
-      representedBy: 'Temmuz Çetiner',
       emailLabel: 'E-posta',
       phoneLabel: 'Telefon',
       impressum: [
@@ -214,7 +209,7 @@ export const content: Record<Lang, Copy> = {
   },
   en: {
     nav: { how: 'How it works', checks: 'Scope', services: 'Services', faq: 'FAQ', cta: 'Free audit', ctaShort: 'Audit', lang: 'Language' },
-    a11y: { skip: 'Skip to content', mainNav: 'Main navigation', menu: 'Menu' },
+    a11y: { skip: 'Skip to content', mainNav: 'Main navigation', menu: 'Menu', knife: 'Unfolding multi-tool for website audits' },
     hero: {
       label: 'Website audit · Berlin',
       a: 'A technical audit report for your website.',
@@ -230,8 +225,6 @@ export const content: Record<Lang, Copy> = {
       title: 'About us',
       p1: 'Sitemendo is a Berlin studio that inspects small-business websites. We check for technical issues that cost you customers — mobile errors, slow pages, broken forms — and send a clear report within 48 hours.',
       p2: 'The first audit is free. You are not obliged to hire us for the fix. You can also reach us by email or phone.',
-      photoAlt: 'Sitemendo founder Temmuz Çetiner',
-      role: 'Founder, Sitemendo',
       emailLabel: 'Email',
       phoneLabel: 'Phone',
       whatsapp: 'WhatsApp',
@@ -355,10 +348,7 @@ export const content: Record<Lang, Copy> = {
       impressumTitle: 'Impressum',
       impressumLead: 'Legal notice and contact.',
       provider: 'Service provider',
-      address: 'Address',
       country: 'Germany',
-      represented: 'Represented by',
-      representedBy: 'Temmuz Çetiner',
       emailLabel: 'Email',
       phoneLabel: 'Phone',
       impressum: [
@@ -368,7 +358,7 @@ export const content: Record<Lang, Copy> = {
   },
   de: {
     nav: { how: 'So funktioniert’s', checks: 'Was wir prüfen', services: 'Leistungen', faq: 'FAQ', cta: 'Kostenlose Prüfung', ctaShort: 'Prüfen', lang: 'Sprache' },
-    a11y: { skip: 'Zum Inhalt', mainNav: 'Hauptnavigation', menu: 'Menü' },
+    a11y: { skip: 'Zum Inhalt', mainNav: 'Hauptnavigation', menu: 'Menü', knife: 'Auffaltendes Mehrzweckwerkzeug für Website-Prüfungen' },
     hero: {
       label: 'Website-Prüfung · Berlin',
       a: 'Technischer Prüfbericht für Ihre Website.',
@@ -384,8 +374,6 @@ export const content: Record<Lang, Copy> = {
       title: 'Über uns',
       p1: 'Sitemendo ist ein Berliner Studio für die Prüfung von Websites kleiner Betriebe. Wir suchen technische Probleme, die Kunden kosten — mobile Fehler, langsame Seiten, defekte Formulare — und senden innerhalb von 48 Stunden einen klaren Bericht.',
       p2: 'Die erste Prüfung ist kostenlos. Eine Beauftragung zur Reparatur ist nicht nötig. Sie erreichen uns auch per E-Mail oder Telefon.',
-      photoAlt: 'Sitemendo-Gründer Temmuz Çetiner',
-      role: 'Inhaber, Sitemendo',
       emailLabel: 'E-Mail',
       phoneLabel: 'Telefon',
       whatsapp: 'WhatsApp',
@@ -509,10 +497,7 @@ export const content: Record<Lang, Copy> = {
       impressumTitle: 'Impressum',
       impressumLead: 'Rechtliche Angaben und Kontakt.',
       provider: 'Diensteanbieter',
-      address: 'Anschrift',
       country: 'Deutschland',
-      represented: 'Vertreten durch',
-      representedBy: 'Temmuz Çetiner',
       emailLabel: 'E-Mail',
       phoneLabel: 'Telefon',
       impressum: [

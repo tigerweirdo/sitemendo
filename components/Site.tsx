@@ -1,13 +1,14 @@
 'use client';
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
-import { content, type Finding, type Lang } from '@/lib/content';
-import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, PERSON_NAME, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
+import { content, type Lang } from '@/lib/content';
+import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
 import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMode, type FormStep } from '@/lib/formPersist';
 import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
+import { HeroKnife } from '@/components/HeroKnife';
 
 type SharedForm = {
   step: FormStep;
@@ -198,37 +199,23 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               <p className="kicker hero__eyebrow">{c.hero.label}</p>
               <h1 className="h1 hero__title">{c.hero.a}</h1>
               <p className="lead">{c.hero.support}</p>
-              <div className="hero__form">
-                <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref}/>
-              </div>
             </div>
-            <ReportCard
-              sample={c.hero.sample}
-              label={c.sampleReport.label}
-              issues={c.sampleReport.issues}
-              findings={c.findings}
-            />
+            <div className="hero__art">
+              <HeroKnife label={c.a11y.knife}/>
+            </div>
+            <div className="hero__form">
+              <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref}/>
+            </div>
           </div>
         </section>
 
         <section className="sec about" id="about">
           <div className="wrap about__wrap">
-            <figure className="about__photo">
-              <img src="/portrait.jpg" alt={c.about.photoAlt} width={240} height={240}/>
-              <figcaption>
-                <strong>{PERSON_NAME}</strong>
-                <span>{c.about.role}</span>
-              </figcaption>
-            </figure>
             <div className="about__copy">
               <h2 className="h2">{c.about.title}</h2>
               <p className="lead">{c.about.p1}</p>
               <p className="lead">{c.about.p2}</p>
               <ul className="about__contacts">
-                <li>
-                  <span className="about__k">{c.legal.address}</span>
-                  <span>{COMPANY.street}, {COMPANY.postalCode} {COMPANY.city}</span>
-                </li>
                 <li>
                   <span className="about__k">{c.about.emailLabel}</span>
                   <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
@@ -341,42 +328,6 @@ function Section({ dark, id, children }: { dark?: boolean; id?: string; children
     <section className={`sec ${dark ? 'sec--dark' : ''}`} id={id}>
       <div className="wrap">{children}</div>
     </section>
-  );
-}
-
-function ReportCard({
-  sample,
-  label,
-  issues,
-  findings,
-}: {
-  sample: string;
-  label: string;
-  issues: string;
-  findings: Finding[];
-}) {
-  return (
-    <aside className="doc doc--preview" aria-label={label}>
-      <div className="doc__head">
-        <div>
-          <p className="doc-domain">{SAMPLE_DOMAIN}</p>
-          <p className="doc-label">{label}</p>
-        </div>
-        <p className="tag tag--sample">{sample}</p>
-      </div>
-      <div className="doc__count">
-        <b>03</b>
-        <p>{issues}</p>
-      </div>
-      <ul className="preview-list">
-        {findings.map(f => (
-          <li key={f.no}>
-            <span className={`severity severity--${f.level}`}>{f.severity}</span>
-            <p>{f.title}</p>
-          </li>
-        ))}
-      </ul>
-    </aside>
   );
 }
 
@@ -536,8 +487,7 @@ function SampleReport({ lang }: { lang: Lang }) {
             <p className="doc-domain">{SAMPLE_DOMAIN}</p>
           </div>
           <div className="doc-rev">
-            <p className="tag tag--sample">{c.hero.sample}</p>
-            <p className="doc-label">{c.sampleReport.label}</p>
+            <p className="tag tag--sample">{c.sampleReport.label}</p>
           </div>
         </div>
         <div className="doc__count">
