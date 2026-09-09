@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — Dil sırası TR / DE / EN
+
+Dil değiştiricide sıra TR → DE → EN. Kaynak: `LANGS` (`lib/lang.ts`).
+
+Değişen dosyalar: `lib/lang.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Düz dil (TR/EN/DE)
 
 Hero kicker kalktı. Metin teknik jargondan çıktı: “denetim” → “kontrol”, kapsam başlıkları soru cümlesi, rapor/hizmet/SSS sade. `Check.code` ve boş hero alanları silindi.

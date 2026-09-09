@@ -1,6 +1,6 @@
 import type { Lang } from './content';
 
-export const LANGS: Lang[] = ['tr', 'en', 'de'];
+export const LANGS: Lang[] = ['tr', 'de', 'en'];
 export const LANG_COOKIE = 'sitemendo.lang';
 export const LANG_STORAGE = 'sitemendo.lang';
 
