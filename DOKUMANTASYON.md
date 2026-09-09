@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Eski demo oturumu formda kalıyordu
+
+Canlı API `{ mode: "live" }` dönüyor. Kullanıcı hâlâ “Demo bitti” gördü: önceki demo `sessionStorage` geri yükleniyor veya `localhost` eski env ile açık. Demo kayıtları artık yok sayılıyor.
+
+Değişen dosyalar: `lib/formPersist.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Resend bağlandı (canlı form)
 
 `sitemendo.com` Resend’de verified. API anahtarı yalnızca `.env.local` + Vercel (production/development). Demo kapalı. Gönderen `hello@sitemendo.com`. `POST https://sitemendo.com/api/audit` → 200 `{ mode: "live" }`. Anahtar sohbette paylaşıldı; Resend’de yenilenmeli.

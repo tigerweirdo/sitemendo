@@ -17,11 +17,15 @@ export function readPersistedForm(): PersistedForm | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<PersistedForm>;
     if (parsed.step !== 'url' && parsed.step !== 'email' && parsed.step !== 'done') return null;
+    if (parsed.mode === 'demo') {
+      sessionStorage.removeItem(FORM_STORAGE_KEY);
+      return null;
+    }
     return {
       step: parsed.step,
       url: typeof parsed.url === 'string' ? parsed.url : '',
       email: typeof parsed.email === 'string' ? parsed.email : '',
-      mode: parsed.mode === 'live' || parsed.mode === 'demo' ? parsed.mode : null,
+      mode: parsed.mode === 'live' ? parsed.mode : null,
     };
   } catch {
     return null;
