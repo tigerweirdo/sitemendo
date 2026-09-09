@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { content, type Lang } from '@/lib/content';
-import { COMPANY, CONTACT_EMAIL } from '@/lib/company';
+import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from '@/lib/company';
 import { readPersistedForm } from '@/lib/formPersist';
 import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
@@ -46,16 +46,13 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
           <a className="brand" href={homeHref}>SITEMENDO<b>.</b></a>
           <div className="nav__right">
             <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-            <a className="btn btn--sm nav-cta" href={homeHref}>
-              <span className="nav-cta__full">{legal.back} →</span>
-              <span className="nav-cta__short">{legal.back} →</span>
-            </a>
+            <a className="btn btn--sm nav-cta" href={homeHref}>{legal.back}</a>
           </div>
         </div>
       </header>
       <main id="main" className="legal">
         <div className="wrap">
-          <p className="mono muted">{legal.updated}</p>
+          <p className="legal__updated">{legal.updated}</p>
           <h1 className="display d2 legal__title">{title}</h1>
           <p className="lead">{lead}</p>
           <div className="legal__body">
@@ -77,6 +74,10 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
                   <h2>{legal.emailLabel}</h2>
                   <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
                 </section>
+                <section>
+                  <h2>{legal.phoneLabel}</h2>
+                  <p><a href={`tel:${CONTACT_PHONE_E164}`}>{CONTACT_PHONE_DISPLAY}</a></p>
+                </section>
               </>
             )}
             {sections.map(section => (
@@ -86,14 +87,14 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
               </section>
             ))}
           </div>
-          <a className="btn legal-back" href={homeHref}>{legal.back} →</a>
+          <a className="btn legal-back" href={homeHref}>{legal.back}</a>
         </div>
       </main>
       <footer className="footer">
         <div className="wrap footer__bottom">
-          <p className="mono muted">© {new Date().getFullYear()} Sitemendo · {c.footer.rights}</p>
+          <p>© {new Date().getFullYear()} Sitemendo · {c.footer.rights}</p>
           <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-          <p className="mono muted">{c.footer.mark}</p>
+          <p>{c.footer.mark}</p>
         </div>
       </footer>
     </div>

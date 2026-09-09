@@ -16,20 +16,18 @@ export function LanguageSwitch({
 }) {
   return (
     <div className="langs" role="group" aria-label={label}>
-      {LANGS.map((code, i) => (
-        <span key={code} className="langs__item">
-          {i > 0 && <i>/</i>}
-          <button
-            type="button"
-            aria-pressed={lang === code}
-            onClick={() => {
-              setLang(code);
-              onPick?.();
-            }}
-          >
-            {code.toUpperCase()}
-          </button>
-        </span>
+      {LANGS.map(code => (
+        <button
+          key={code}
+          type="button"
+          aria-pressed={lang === code}
+          onClick={() => {
+            setLang(code);
+            onPick?.();
+          }}
+        >
+          {code.toUpperCase()}
+        </button>
       ))}
     </div>
   );

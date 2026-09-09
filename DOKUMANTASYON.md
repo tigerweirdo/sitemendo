@@ -11,6 +11,28 @@
 
 ## Görevler
 
+### 2026-09-09 — Tasarım ve UX revizyonu (landing)
+
+Canlı sitedeki defektler, dil/ton temizliği, yeni hero vaadi, güven bölümü, hizmet kartları, erişilebilirlik ve tipografi. Palet, keskin köşeler ve hairline çizgiler korundu; yeni font, gölge, yuvarlak köşe, emoji ve scroll fade-in eklenmedi.
+
+Yapılanlar:
+1. Hero başlığı tek cümle (boşluk/`<br>` kaybı kapandı). Dil değiştirici ayırıcısı DOM’dan çıktı (yalnızca CSS `border-left`). Nav’da tek CTA; dar header’da metin JS `matchMedia` ile kısalıyor. SSS `<details>`/`<summary>` — cevaplar her zaman DOM’da, JS’siz açılır. SSS numaraları kaldırıldı. Fiyat tekrarı: “rapordan sonra netleşir” yalnızca 250 € ve 450 € kartlarında birer kez; 79 €/ay kartından silindi. “İsteğe bağlı…” bakım kartının içine alındı. E-posta tüm dosyalarda `hello@sitemendo.com`.
+2. Kod stringleri, bölüm eyebrow numaraları, MOB/SPD kısaltmaları, gereksiz `→` ve büyük harfli mono etiketler kaldırıldı. Mono yalnızca örnek rapor teknik satırları ve fiyat rakamları.
+3. Hero: somut vaat, tek cümle alt metin, URL + büyük buton, üç güvence, sade 3 satırlık örnek kart (Mobil / Hız / Kırık bağlantı).
+4. Hero’dan sonra güven bölümü: birinci tekil şahıs, Berlin, `/portrait.jpg` (şimdilik gri yer tutucu), e-posta + telefon + WhatsApp.
+5. Ücretli kart CTA’ları kaldırıldı; bölüm altında tek buton. Fiyatlar büyük ve üstte. 0 € kartı sarı çerçeveyle öne çıktı. Madde işaretleri görünür.
+6. Gövde ≥17px, `max-width: 65ch`, `:focus-visible` 2px + 2px offset (mürekkep; sülfür tek başına kâğıt üzerinde 1.10:1), dokunma ≥44px, `prefers-reduced-motion` geçişleri kapatır, tek `<h1>` ve atlamasız hiyerarşi.
+
+Sabitler (`lib/company.ts`): `hello@sitemendo.com`, telefon yer tutucu `+49 155 12345678` (Impressum’daki adres gibi değiştirilecek), kişi adı Temmuz Çetiner. `public/portrait.jpg` gerçek fotoğrafla değiştirilmeli.
+
+Doğrulama (SSR HTML + Playwright Chromium, 360 / 390 / 1440):
+- JS kapalı / SSR: sayfa okunuyor; 6 SSS cevabı HTML’de; `<details>` JS’siz açılıyor
+- 360px: `scrollWidth === clientWidth` (yatay kaydırma yok)
+- Tab: skip → marka → dil → nav CTA → burger → `#hero-url`; odak `outline: 2px solid #090909; outline-offset: 2px`
+- TR/EN/DE: `tsc` `Record<Lang, Copy>` — eksik çeviri anahtarı yok; EN/DE SSS cevapları ve başlıklar doğrulandı
+
+Değişen dosyalar: `app/globals.css`, `components/Site.tsx`, `components/LanguageSwitch.tsx`, `components/LegalPage.tsx`, `lib/content.ts`, `lib/company.ts`, `public/portrait.jpg`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — GitHub’a push ve Vercel yayını
 
 - Durum: Yerel git deposu yoktu; GitHub CLI oturumu yoktu; SSH `tigerweirdo` olarak doğrulandı

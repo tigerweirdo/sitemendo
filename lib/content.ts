@@ -1,7 +1,7 @@
 export type Lang = 'tr' | 'en' | 'de';
 export type Check = { no: string; code: string; title: string; desc: string };
 export type Finding = { no: string; severity: string; level: 'crit' | 'med'; title: string; impact: string };
-export type Service = { no: string; name: string; price: string; items: string[]; cta?: string; featured?: boolean; note?: string };
+export type Service = { no: string; name: string; price: string; items: string[]; cta?: string; featured?: boolean; note?: string; showAfter?: boolean };
 export type FAQ = { q: string; a: string };
 export type ChecklistCell = { k: string; v: string; s: 'ok' | 'warn' | 'err' };
 export type LegalBlock = { h: string; p: string };
@@ -10,6 +10,10 @@ export type Copy = {
   nav: { how: string; checks: string; services: string; faq: string; cta: string; ctaShort: string; lang: string };
   a11y: { skip: string; mainNav: string; menu: string };
   hero: { label: string; a: string; b: string; c: string; d: string; e: string; support: string; sample: string; chrome: string };
+  about: {
+    title: string; p1: string; p2: string; photoAlt: string;
+    emailLabel: string; phoneLabel: string; whatsapp: string;
+  };
   sec: { checks: string; output: string; decision: string; services: string; process: string; start: string };
   checksTitle: string;
   checksSub: string;
@@ -23,6 +27,7 @@ export type Copy = {
   statementB: string;
   statementSub: string;
   servicesTitle: string;
+  servicesCta: string;
   after: string;
   talk: string;
   services: Service[];
@@ -47,7 +52,7 @@ export type Copy = {
     back: string; updated: string;
     privacyTitle: string; privacyLead: string; privacy: LegalBlock[];
     impressumTitle: string; impressumLead: string;
-    provider: string; address: string; country: string; represented: string; representedBy: string; emailLabel: string;
+    provider: string; address: string; country: string; represented: string; representedBy: string; emailLabel: string; phoneLabel: string;
     impressum: LegalBlock[];
   };
 };
@@ -57,11 +62,24 @@ export const content: Record<Lang, Copy> = {
     nav: { how: 'Nasıl çalışır', checks: 'Ne kontrol ediyoruz', services: 'Hizmetler', faq: 'SSS', cta: 'Ücretsiz kontrol', ctaShort: 'Kontrol', lang: 'Dil' },
     a11y: { skip: 'İçeriğe geç', mainNav: 'Ana menü', menu: 'Menü' },
     hero: {
-      label: 'Web sitenizi kontrol ediyoruz.',
-      a: 'Siteniz', b: 'çalışıyor.', c: 'Ama', d: 'iyi', e: 'çalışıyor mu?',
-      support: 'Teknik sorunları, mobil hataları ve müşteri kaybettirebilecek problemleri tespit ediyoruz. 48 saat içinde anlaşılır bir rapor gönderiyoruz.',
+      label: 'Berlin’de web sitesi denetimi.',
+      a: 'Web sitenizde müşteri kaybettiren sorunları buluyoruz.',
+      b: '',
+      c: '',
+      d: '',
+      e: '',
+      support: 'Teknik kontrol, anlaşılır rapor, 48 saat içinde — ücretsiz.',
       sample: 'Örnek veri',
-      chrome: 'SITEMENDO / WEB DENETİMİ · SÜR / 04',
+      chrome: '',
+    },
+    about: {
+      title: 'Kim bakıyor?',
+      p1: 'Ben Temmuz. Berlin’de çalışıyorum. Küçük işletmelerin web sitelerindeki teknik sorunları buluyor, isterseniz düzeltiyorum.',
+      p2: 'Formu doldurmak zorunda değilsiniz. Site adresinizi e-posta veya WhatsApp ile de gönderebilirsiniz.',
+      photoAlt: 'Temmuz Çetiner’in portresi',
+      emailLabel: 'E-posta',
+      phoneLabel: 'Telefon',
+      whatsapp: 'WhatsApp',
     },
     sec: { checks: 'Kontrol kapsamı', output: 'Çıktı', decision: 'Karar', services: 'Hizmetler', process: 'Süreç', start: 'Başlangıç' },
     checksTitle: 'Neye bakıyoruz?',
@@ -85,9 +103,9 @@ export const content: Record<Lang, Copy> = {
     ],
     sampleReport: { label: 'Örnek rapor', issues: 'sorun bulundu', impact: 'Etki', openList: 'Kontrol listesini aç', closeList: 'Kontrol listesini kapat', listLabel: 'Kontrol listesi — örnek veri' },
     checklist: [
-      { k: 'Mobil', v: 'Geçti', s: 'ok' },
+      { k: 'Mobil', v: 'Sorunlu', s: 'err' },
       { k: 'Hız', v: '41/100', s: 'warn' },
-      { k: 'Bağlantılar', v: '03 hata', s: 'err' },
+      { k: 'Kırık bağlantı', v: '03 hata', s: 'err' },
       { k: 'SSL', v: 'Geçti', s: 'ok' },
       { k: 'Formlar', v: 'Kontrol', s: 'warn' },
       { k: 'CMS', v: 'Eski sürüm', s: 'warn' },
@@ -98,13 +116,14 @@ export const content: Record<Lang, Copy> = {
     statementB: 'Düzeltmek gerekir.',
     statementSub: 'Raporu aldıktan sonra ne yapacağınıza siz karar verirsiniz. Sorunları kendiniz çözebilir veya bize bırakabilirsiniz.',
     servicesTitle: 'Sorunu buluyoruz. İsterseniz düzeltiyoruz.',
+    servicesCta: 'Önce ücretsiz kontrol isteyin',
     after: 'Rapordan sonra netleşir',
     talk: 'Rapordan sonra konuşalım',
     services: [
-      { no: '01', name: 'Denetim raporu', price: '0 €', items: ['Site kontrolü', 'Sorun listesi', 'Önceliklendirme', '48 saat içinde rapor'], cta: 'Ücretsiz kontrol' },
-      { no: '02', name: 'Acil düzeltme', price: '250 €', items: ['2–3 kritik teknik sorun', '2 iş günü'] },
-      { no: '03', name: 'Tam onarım', price: "450 €'dan · rapordan sonra netleşir", items: ['Teknik sorunların kapsamlı giderilmesi', 'Mobil uyumluluk', 'Performans ve kullanılabilirlik', '5 iş günü'] },
-      { no: '04', name: 'Sürekli bakım', price: '79 € / ay', featured: true, note: 'İsteğe bağlı — siteniz düzeldikten sonra →', items: ['Güncellemeler', 'Erişim sürekliliği', 'SSL kontrolü', 'Kırık bağlantı taraması', 'Yedekleme kontrolü', 'Ayda 30 dk küçük değişiklik', 'Aylık sağlık raporu'] },
+      { no: '01', name: 'Denetim raporu', price: '0 €', items: ['Site kontrolü', 'Sorun listesi', 'Önceliklendirme', '48 saat içinde rapor'], cta: 'Ücretsiz kontrol', featured: true },
+      { no: '02', name: 'Acil düzeltme', price: '250 €', items: ['2–3 kritik teknik sorun', '2 iş günü'], showAfter: true },
+      { no: '03', name: 'Tam onarım', price: "450 €'dan", items: ['Teknik sorunların kapsamlı giderilmesi', 'Mobil uyumluluk', 'Performans ve kullanılabilirlik', '5 iş günü'], showAfter: true },
+      { no: '04', name: 'Sürekli bakım', price: '79 € / ay', note: 'İsteğe bağlı — siteniz düzeldikten sonra', items: ['Güncellemeler', 'Erişim sürekliliği', 'SSL kontrolü', 'Kırık bağlantı taraması', 'Yedekleme kontrolü', 'Ayda 30 dk küçük değişiklik', 'Aylık sağlık raporu'] },
     ],
     howTitle: 'Üç adım. Hepsi bu.',
     steps: [
@@ -153,29 +172,29 @@ export const content: Record<Lang, Copy> = {
       privacy: 'Gizlilik',
       rights: 'Tüm hakları saklıdır',
       contact: 'İletişim',
-      contactHint: 'Site adresi gerekmez — doğrudan yazın.',
-      mark: 'SITEMENDO / WEB DENETİMİ',
+      contactHint: 'Site adresi gerekmez — doğrudan yazın veya arayın.',
+      mark: 'Sitemendo',
     },
     meta: {
-      title: 'SITEMENDO — Web sitenizi kontrol ediyoruz',
-      description: 'Sitemendo, işletme web sitelerindeki teknik sorunları, mobil hataları ve müşteri kaybettiren problemleri tespit eder. 48 saat içinde ücretsiz, anlaşılır bir rapor.',
-      ogTitle: 'SITEMENDO — Web sitenizi kontrol ediyoruz',
-      ogDescription: 'Teknik sorunları, mobil hataları ve müşteri kaybettirebilecek problemleri tespit ediyoruz. 48 saat içinde ücretsiz rapor.',
-      privacyTitle: 'Gizlilik — SITEMENDO',
+      title: 'Sitemendo — Web sitenizde müşteri kaybettiren sorunları buluyoruz',
+      description: 'Berlin’de küçük işletmeler için ücretsiz web sitesi denetimi. Teknik sorunları, mobil hataları ve müşteri kaybettiren problemleri 48 saat içinde anlaşılır bir raporda topluyoruz.',
+      ogTitle: 'Sitemendo — Web sitenizde müşteri kaybettiren sorunları buluyoruz',
+      ogDescription: 'Teknik kontrol, anlaşılır rapor, 48 saat içinde — ücretsiz. Satın alma zorunluluğu yok.',
+      privacyTitle: 'Gizlilik — Sitemendo',
       privacyDescription: 'Sitemendo gizlilik bilgileri. Site kontrolü talebinizde hangi verilerin işlendiğini açıklar.',
-      impressumTitle: 'Impressum — SITEMENDO',
+      impressumTitle: 'Impressum — Sitemendo',
       impressumDescription: 'Sitemendo yasal bilgileri ve iletişim.',
     },
     legal: {
       back: 'Ana sayfa',
-      updated: 'Son güncelleme: 30 Ağustos 2026',
+      updated: 'Son güncelleme: 9 Eylül 2026',
       privacyTitle: 'Gizlilik',
       privacyLead: 'Sitemendo, ücretsiz site kontrolü talebinizi yanıtlamak için yalnızca gerekli verileri işler.',
       privacy: [
         { h: 'Hangi verileri topluyoruz', p: 'Formu gönderdiğinizde web sitesi adresinizi ve e-posta adresinizi alırız. Bunlar talebinizi karşılamak ve raporu size iletmek için kullanılır.' },
         { h: 'Neden işliyoruz', p: 'Veriler, denetim talebini yerine getirmek, sizinle iletişim kurmak ve hizmeti iyileştirmek için işlenir. Verilerinizi satmayız ve pazarlama listelerine eklemeyiz.' },
         { h: 'Saklama', p: 'Taleple ilgili veriler, raporun iletilmesi ve olası takip soruları için makul bir süre saklanır; ardından silinir veya anonimleştirilir.' },
-        { h: 'Haklarınız', p: 'Verilerinize erişme, düzeltme veya silme talep edebilirsiniz. Bunun için hello@sitemendo.de adresine yazın. Site URL’si gerekmez.' },
+        { h: 'Haklarınız', p: 'Verilerinize erişme, düzeltme veya silme talep edebilirsiniz. Bunun için hello@sitemendo.com adresine yazın. Site URL’si gerekmez.' },
       ],
       impressumTitle: 'Impressum',
       impressumLead: 'Yasal bilgiler ve iletişim.',
@@ -183,8 +202,9 @@ export const content: Record<Lang, Copy> = {
       address: 'Adres',
       country: 'Almanya',
       represented: 'Temsilci',
-      representedBy: 'Geschäftsführung (yer tutucu)',
+      representedBy: 'Temmuz Çetiner',
       emailLabel: 'E-posta',
+      phoneLabel: 'Telefon',
       impressum: [
         { h: 'Sorumluluk', p: 'Bu sitedeki örnek raporlar tanıtım amaçlıdır. Bağlı sitelerin içeriğinden ilgili işletmeciler sorumludur.' },
       ],
@@ -194,11 +214,24 @@ export const content: Record<Lang, Copy> = {
     nav: { how: 'How it works', checks: 'What we check', services: 'Services', faq: 'FAQ', cta: 'Free check', ctaShort: 'Check', lang: 'Language' },
     a11y: { skip: 'Skip to content', mainNav: 'Main navigation', menu: 'Menu' },
     hero: {
-      label: 'We inspect your website.',
-      a: 'Your site', b: 'works.', c: 'But does it', d: 'work', e: 'well enough?',
-      support: 'We find technical problems, mobile errors and the issues that quietly cost you customers. You get a clear report within 48 hours.',
+      label: 'Website checks in Berlin.',
+      a: 'We find the problems on your website that cost you customers.',
+      b: '',
+      c: '',
+      d: '',
+      e: '',
+      support: 'A technical check, a clear report, within 48 hours — free.',
       sample: 'Sample data',
-      chrome: 'SITEMENDO / WEB INSPECTION · REV / 04',
+      chrome: '',
+    },
+    about: {
+      title: 'Who does this?',
+      p1: 'I’m Temmuz. I work in Berlin. I find technical problems on small-business websites, and I fix them if you want.',
+      p2: 'You don’t have to use the form. You can send your site address by email or WhatsApp.',
+      photoAlt: 'Portrait of Temmuz Çetiner',
+      emailLabel: 'Email',
+      phoneLabel: 'Phone',
+      whatsapp: 'WhatsApp',
     },
     sec: { checks: 'Scope of inspection', output: 'Output', decision: 'Decision', services: 'Services', process: 'Process', start: 'Start' },
     checksTitle: 'What do we check?',
@@ -222,9 +255,9 @@ export const content: Record<Lang, Copy> = {
     ],
     sampleReport: { label: 'Sample report', issues: 'issues found', impact: 'Impact', openList: 'Open checklist', closeList: 'Close checklist', listLabel: 'Checklist — sample data' },
     checklist: [
-      { k: 'Mobile', v: 'Pass', s: 'ok' },
+      { k: 'Mobile', v: 'Broken', s: 'err' },
       { k: 'Speed', v: '41/100', s: 'warn' },
-      { k: 'Links', v: '03 fail', s: 'err' },
+      { k: 'Broken link', v: '03 fail', s: 'err' },
       { k: 'SSL', v: 'Pass', s: 'ok' },
       { k: 'Forms', v: 'Check', s: 'warn' },
       { k: 'CMS', v: 'Outdated', s: 'warn' },
@@ -235,13 +268,14 @@ export const content: Record<Lang, Copy> = {
     statementB: 'It has to be fixed.',
     statementSub: 'Once you have the report, you decide what happens next. Fix the issues yourself, or leave them to us.',
     servicesTitle: 'We find the problem. We fix it if you want.',
+    servicesCta: 'Request a free check first',
     after: 'Confirmed after the report',
     talk: 'Let’s talk after the report',
     services: [
-      { no: '01', name: 'Audit report', price: '0 €', items: ['Site check', 'List of issues', 'Prioritisation', 'Report within 48 hours'], cta: 'Free check' },
-      { no: '02', name: 'Urgent fix', price: '250 €', items: ['2–3 critical technical issues', '2 working days'] },
-      { no: '03', name: 'Full repair', price: 'From 450 € · confirmed after the report', items: ['Comprehensive technical repair', 'Mobile compatibility', 'Performance and usability', '5 working days'] },
-      { no: '04', name: 'Ongoing maintenance', price: '79 € / month', featured: true, note: 'Optional — after your site is fixed →', items: ['Updates', 'Uptime monitoring', 'SSL checks', 'Broken-link scans', 'Backup checks', '30 min of small changes per month', 'Monthly health report'] },
+      { no: '01', name: 'Audit report', price: '0 €', items: ['Site check', 'List of issues', 'Prioritisation', 'Report within 48 hours'], cta: 'Free check', featured: true },
+      { no: '02', name: 'Urgent fix', price: '250 €', items: ['2–3 critical technical issues', '2 working days'], showAfter: true },
+      { no: '03', name: 'Full repair', price: 'From 450 €', items: ['Comprehensive technical repair', 'Mobile compatibility', 'Performance and usability', '5 working days'], showAfter: true },
+      { no: '04', name: 'Ongoing maintenance', price: '79 € / month', note: 'Optional — after your site is fixed', items: ['Updates', 'Uptime monitoring', 'SSL checks', 'Broken-link scans', 'Backup checks', '30 min of small changes per month', 'Monthly health report'] },
     ],
     howTitle: 'Three steps. That’s all.',
     steps: [
@@ -290,29 +324,29 @@ export const content: Record<Lang, Copy> = {
       privacy: 'Privacy',
       rights: 'All rights reserved',
       contact: 'Contact',
-      contactHint: 'No website URL needed — just write to us.',
-      mark: 'SITEMENDO / WEB INSPECTION',
+      contactHint: 'No website URL needed — write or call.',
+      mark: 'Sitemendo',
     },
     meta: {
-      title: 'SITEMENDO — We inspect your website',
-      description: 'Sitemendo finds technical problems, mobile errors and the issues that cost businesses customers. A clear free report within 48 hours.',
-      ogTitle: 'SITEMENDO — We inspect your website',
-      ogDescription: 'We find technical problems, mobile errors and issues that quietly cost you customers. Free report within 48 hours.',
-      privacyTitle: 'Privacy — SITEMENDO',
+      title: 'Sitemendo — We find the problems on your website that cost you customers',
+      description: 'Free website checks for small businesses in Berlin. Technical issues, mobile errors and problems that cost you customers — in a clear report within 48 hours.',
+      ogTitle: 'Sitemendo — We find the problems on your website that cost you customers',
+      ogDescription: 'A technical check, a clear report, within 48 hours — free. No purchase required.',
+      privacyTitle: 'Privacy — Sitemendo',
       privacyDescription: 'Sitemendo privacy information. What data we process for a site-check request.',
-      impressumTitle: 'Impressum — SITEMENDO',
+      impressumTitle: 'Impressum — Sitemendo',
       impressumDescription: 'Sitemendo legal notice and contact.',
     },
     legal: {
       back: 'Home',
-      updated: 'Last updated: 30 August 2026',
+      updated: 'Last updated: 9 September 2026',
       privacyTitle: 'Privacy',
       privacyLead: 'Sitemendo processes only the data needed to answer your free site-check request.',
       privacy: [
         { h: 'What we collect', p: 'When you submit the form we receive your website address and email address. We use them to fulfil the request and send you the report.' },
         { h: 'Why we process it', p: 'The data is processed to run the audit request, contact you, and improve the service. We do not sell your data or add it to marketing lists.' },
         { h: 'Retention', p: 'Request data is kept for a reasonable time to deliver the report and handle follow-up questions, then deleted or anonymised.' },
-        { h: 'Your rights', p: 'You may ask to access, correct, or delete your data. Write to hello@sitemendo.de. A website URL is not required.' },
+        { h: 'Your rights', p: 'You may ask to access, correct, or delete your data. Write to hello@sitemendo.com. A website URL is not required.' },
       ],
       impressumTitle: 'Impressum',
       impressumLead: 'Legal notice and contact.',
@@ -320,8 +354,9 @@ export const content: Record<Lang, Copy> = {
       address: 'Address',
       country: 'Germany',
       represented: 'Represented by',
-      representedBy: 'Managing director (placeholder)',
+      representedBy: 'Temmuz Çetiner',
       emailLabel: 'Email',
+      phoneLabel: 'Phone',
       impressum: [
         { h: 'Liability', p: 'Sample reports on this site are for illustration. Operators of linked websites are responsible for their own content.' },
       ],
@@ -331,11 +366,24 @@ export const content: Record<Lang, Copy> = {
     nav: { how: 'So funktioniert’s', checks: 'Was wir prüfen', services: 'Leistungen', faq: 'FAQ', cta: 'Kostenlose Prüfung', ctaShort: 'Prüfen', lang: 'Sprache' },
     a11y: { skip: 'Zum Inhalt', mainNav: 'Hauptnavigation', menu: 'Menü' },
     hero: {
-      label: 'Wir prüfen Ihre Website.',
-      a: 'Ihre Seite', b: 'läuft.', c: 'Aber läuft', d: 'sie', e: 'wirklich gut?',
-      support: 'Wir finden technische Probleme, mobile Fehler und die Punkte, die Ihnen still Kunden kosten. Innerhalb von 48 Stunden erhalten Sie einen klaren Bericht.',
+      label: 'Website-Prüfung in Berlin.',
+      a: 'Wir finden die Probleme auf Ihrer Website, die Sie Kunden kosten.',
+      b: '',
+      c: '',
+      d: '',
+      e: '',
+      support: 'Technische Prüfung, klarer Bericht, innerhalb von 48 Stunden — kostenlos.',
       sample: 'Beispieldaten',
-      chrome: 'SITEMENDO / WEBPRÜFUNG · REV / 04',
+      chrome: '',
+    },
+    about: {
+      title: 'Wer macht das?',
+      p1: 'Ich bin Temmuz. Ich arbeite in Berlin. Ich finde technische Probleme auf Websites kleiner Betriebe und behebe sie, wenn Sie das möchten.',
+      p2: 'Sie müssen das Formular nicht nutzen. Ihre Website-Adresse können Sie auch per E-Mail oder WhatsApp schicken.',
+      photoAlt: 'Porträt von Temmuz Çetiner',
+      emailLabel: 'E-Mail',
+      phoneLabel: 'Telefon',
+      whatsapp: 'WhatsApp',
     },
     sec: { checks: 'Prüfumfang', output: 'Ergebnis', decision: 'Entscheidung', services: 'Leistungen', process: 'Ablauf', start: 'Start' },
     checksTitle: 'Worauf schauen wir?',
@@ -359,9 +407,9 @@ export const content: Record<Lang, Copy> = {
     ],
     sampleReport: { label: 'Beispielbericht', issues: 'Probleme gefunden', impact: 'Wirkung', openList: 'Checkliste öffnen', closeList: 'Checkliste schließen', listLabel: 'Checkliste — Beispieldaten' },
     checklist: [
-      { k: 'Mobil', v: 'Bestanden', s: 'ok' },
+      { k: 'Mobil', v: 'Fehlerhaft', s: 'err' },
       { k: 'Tempo', v: '41/100', s: 'warn' },
-      { k: 'Links', v: '03 Fehler', s: 'err' },
+      { k: 'Kaputter Link', v: '03 Fehler', s: 'err' },
       { k: 'SSL', v: 'Bestanden', s: 'ok' },
       { k: 'Formulare', v: 'Prüfen', s: 'warn' },
       { k: 'CMS', v: 'Veraltet', s: 'warn' },
@@ -372,13 +420,14 @@ export const content: Record<Lang, Copy> = {
     statementB: 'Es muss behoben werden.',
     statementSub: 'Nach dem Bericht entscheiden Sie. Sie können die Punkte selbst lösen oder uns beauftragen.',
     servicesTitle: 'Wir finden das Problem. Wir beheben es, wenn Sie wollen.',
+    servicesCta: 'Zuerst eine kostenlose Prüfung anfordern',
     after: 'Nach dem Bericht konkret',
     talk: 'Nach dem Bericht sprechen',
     services: [
-      { no: '01', name: 'Prüfbericht', price: '0 €', items: ['Seitenprüfung', 'Problemliste', 'Priorisierung', 'Bericht innerhalb von 48 Stunden'], cta: 'Kostenlose Prüfung' },
-      { no: '02', name: 'Dringende Reparatur', price: '250 €', items: ['2–3 kritische technische Probleme', '2 Werktage'] },
-      { no: '03', name: 'Komplettreparatur', price: 'ab 450 € · nach dem Bericht konkret', items: ['Umfassende technische Instandsetzung', 'Mobile Darstellung', 'Leistung und Nutzbarkeit', '5 Werktage'] },
-      { no: '04', name: 'Laufende Wartung', price: '79 € / Monat', featured: true, note: 'Optional — nachdem Ihre Seite instand ist →', items: ['Updates', 'Erreichbarkeitsprüfung', 'SSL-Prüfung', 'Suche nach kaputten Links', 'Backup-Prüfung', '30 Min. kleine Änderungen pro Monat', 'Monatlicher Gesundheitsbericht'] },
+      { no: '01', name: 'Prüfbericht', price: '0 €', items: ['Seitenprüfung', 'Problemliste', 'Priorisierung', 'Bericht innerhalb von 48 Stunden'], cta: 'Kostenlose Prüfung', featured: true },
+      { no: '02', name: 'Dringende Reparatur', price: '250 €', items: ['2–3 kritische technische Probleme', '2 Werktage'], showAfter: true },
+      { no: '03', name: 'Komplettreparatur', price: 'ab 450 €', items: ['Umfassende technische Instandsetzung', 'Mobile Darstellung', 'Leistung und Nutzbarkeit', '5 Werktage'], showAfter: true },
+      { no: '04', name: 'Laufende Wartung', price: '79 € / Monat', note: 'Optional — nachdem Ihre Seite instand ist', items: ['Updates', 'Erreichbarkeitsprüfung', 'SSL-Prüfung', 'Suche nach kaputten Links', 'Backup-Prüfung', '30 Min. kleine Änderungen pro Monat', 'Monatlicher Gesundheitsbericht'] },
     ],
     howTitle: 'Drei Schritte. Das ist alles.',
     steps: [
@@ -427,29 +476,29 @@ export const content: Record<Lang, Copy> = {
       privacy: 'Datenschutz',
       rights: 'Alle Rechte vorbehalten',
       contact: 'Kontakt',
-      contactHint: 'Keine Website-URL nötig — schreiben Sie uns direkt.',
-      mark: 'SITEMENDO / WEBPRÜFUNG',
+      contactHint: 'Keine Website-URL nötig — schreiben oder anrufen.',
+      mark: 'Sitemendo',
     },
     meta: {
-      title: 'SITEMENDO — Wir prüfen Ihre Website',
-      description: 'Sitemendo findet technische Probleme, mobile Fehler und Punkte, die Unternehmen Kunden kosten. Ein klarer kostenloser Bericht innerhalb von 48 Stunden.',
-      ogTitle: 'SITEMENDO — Wir prüfen Ihre Website',
-      ogDescription: 'Wir finden technische Probleme, mobile Fehler und Punkte, die Ihnen still Kunden kosten. Kostenloser Bericht innerhalb von 48 Stunden.',
-      privacyTitle: 'Datenschutz — SITEMENDO',
+      title: 'Sitemendo — Wir finden die Probleme auf Ihrer Website, die Sie Kunden kosten',
+      description: 'Kostenlose Website-Prüfung für kleine Betriebe in Berlin. Technische Probleme, mobile Fehler und Punkte, die Kunden kosten — in einem klaren Bericht innerhalb von 48 Stunden.',
+      ogTitle: 'Sitemendo — Wir finden die Probleme auf Ihrer Website, die Sie Kunden kosten',
+      ogDescription: 'Technische Prüfung, klarer Bericht, innerhalb von 48 Stunden — kostenlos. Kein Kauf nötig.',
+      privacyTitle: 'Datenschutz — Sitemendo',
       privacyDescription: 'Sitemendo Datenschutzhinweise. Welche Daten wir bei einer Prüfungsanfrage verarbeiten.',
-      impressumTitle: 'Impressum — SITEMENDO',
+      impressumTitle: 'Impressum — Sitemendo',
       impressumDescription: 'Sitemendo Impressum und Kontakt.',
     },
     legal: {
       back: 'Startseite',
-      updated: 'Zuletzt aktualisiert: 30. August 2026',
+      updated: 'Zuletzt aktualisiert: 9. September 2026',
       privacyTitle: 'Datenschutz',
       privacyLead: 'Sitemendo verarbeitet nur die Daten, die nötig sind, um Ihre kostenlose Prüfungsanfrage zu beantworten.',
       privacy: [
         { h: 'Welche Daten wir erheben', p: 'Wenn Sie das Formular senden, erhalten wir Ihre Website-Adresse und E-Mail-Adresse. Wir nutzen sie, um die Anfrage zu erfüllen und Ihnen den Bericht zu senden.' },
         { h: 'Warum wir verarbeiten', p: 'Die Daten werden verarbeitet, um die Prüfung durchzuführen, Sie zu kontaktieren und den Dienst zu verbessern. Wir verkaufen Ihre Daten nicht und setzen sie nicht auf Marketinglisten.' },
         { h: 'Speicherung', p: 'Anfragedaten werden für eine angemessene Zeit aufbewahrt, um den Bericht zu liefern und Nachfragen zu klären, danach gelöscht oder anonymisiert.' },
-        { h: 'Ihre Rechte', p: 'Sie können Auskunft, Berichtigung oder Löschung verlangen. Schreiben Sie an hello@sitemendo.de. Eine Website-URL ist nicht erforderlich.' },
+        { h: 'Ihre Rechte', p: 'Sie können Auskunft, Berichtigung oder Löschung verlangen. Schreiben Sie an hello@sitemendo.com. Eine Website-URL ist nicht erforderlich.' },
       ],
       impressumTitle: 'Impressum',
       impressumLead: 'Rechtliche Angaben und Kontakt.',
@@ -457,8 +506,9 @@ export const content: Record<Lang, Copy> = {
       address: 'Anschrift',
       country: 'Deutschland',
       represented: 'Vertreten durch',
-      representedBy: 'Geschäftsführung (Platzhalter)',
+      representedBy: 'Temmuz Çetiner',
       emailLabel: 'E-Mail',
+      phoneLabel: 'Telefon',
       impressum: [
         { h: 'Haftung', p: 'Beispielberichte auf dieser Seite dienen der Illustration. Für Inhalte verlinkter Websites sind deren Betreiber verantwortlich.' },
       ],
