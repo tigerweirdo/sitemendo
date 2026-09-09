@@ -11,6 +11,24 @@
 
 ## Görevler
 
+### 2026-09-09 — Görünümü sıkılaştırma (mektup ritmi)
+
+Önceki ajans/stüdyo hissini azaltmak için palet ve keskin köşeler korundu; sayfa daraltıldı, siyah zeminler ve sarı yük kaldırıldı.
+
+Yapılanlar:
+1. `--max` 1520px → 1100px
+2. Hero 12 sütun grid kaldırıldı
+3. Rapor, hizmetler ve son CTA kâğıt zemine alındı; koyu kutu yalnızca hero örnek kartı ve footer
+4. URL alanı 1px çerçeveli kutu
+5. Sarı: ana CTA, logo noktası, güvence işaretleri, örnek-veri etiketi. Ücretsiz kart artık mürekkep çerçeve + açık zemin. Madde işaretleri mürekkep
+6. Buton hover kayan gölge kalktı; hover’da mürekkep dolgu
+7. Slogan bloğu sakin cümle; üç adım rakamları dolu ve küçük; bölüm boşlukları sıkılaştı
+8. Portre: gerçek fotoğraf yok; `portrait.jpg` daha sade gri yer tutucu (hâlâ gerçek kare fotoğrafla değiştirilmeli)
+
+Doğrulama: 1440 ve 360; `max-width: 1100px`; `.hero__grid` yok; `.sec--dark` yok; input `1px solid #090909`; 360px yatay kaydırma yok.
+
+Değişen dosyalar: `app/globals.css`, `components/Site.tsx`, `lib/content.ts`, `public/portrait.jpg`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Tasarım ve UX revizyonu (landing)
 
 Canlı sitedeki defektler, dil/ton temizliği, yeni hero vaadi, güven bölümü, hizmet kartları, erişilebilirlik ve tipografi. Palet, keskin köşeler ve hairline çizgiler korundu; yeni font, gölge, yuvarlak köşe, emoji ve scroll fade-in eklenmedi.

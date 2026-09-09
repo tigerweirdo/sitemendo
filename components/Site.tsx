@@ -193,7 +193,6 @@ export function Site({ initialLang }: { initialLang: Lang }) {
 
       <main id="main">
         <section className="hero" id="top">
-          <Grid/>
           <div className="wrap hero__wrap">
             <div className="hero__copy">
               <h1 className="display hero__title">{c.hero.a}</h1>
@@ -248,7 +247,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           </div>
         </Section>
 
-        <Section dark id="report">
+        <Section id="report">
           <div className="report-layout">
             <div className="report-copy">
               <h2 className="display d2">{c.reportTitle}</h2>
@@ -261,12 +260,11 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <section className="sec statement">
           <div className="wrap">
             <h2 className="display d2">{c.statementA}</h2>
-            <p className="display d2 statement__b"><span className="hl">{c.statementB}</span></p>
             <p className="lead statement__sub">{c.statementSub}</p>
           </div>
         </section>
 
-        <Section dark id="services">
+        <Section id="services">
           <h2 className="display d3 services-heading">{c.servicesTitle}</h2>
           <div className="services">
             {c.services.map(s => (
@@ -297,7 +295,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               </div>
             ))}
           </div>
-          <p className="display d3 assure">{c.assure}</p>
+          <p className="lead assure">{c.assure}</p>
         </Section>
 
         <Section id="faq">
@@ -305,7 +303,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           <FAQList items={c.faq}/>
         </Section>
 
-        <Section dark id="start">
+        <Section id="start">
           <div className="final">
             <div className="final__copy">
               <h2 className="display d1">{c.final}<span className="dot">.</span></h2>
@@ -320,10 +318,6 @@ export function Site({ initialLang }: { initialLang: Lang }) {
       <Footer lang={lang} setLang={setLang} privacyHref={privacyHref} impressumHref={impressumHref} navItems={navItems}/>
     </AuditFormProvider>
   );
-}
-
-function Grid() {
-  return <div className="hero__grid" aria-hidden="true">{Array.from({ length: 12 }, (_, i) => <i key={i}/>)}</div>;
 }
 
 function Section({ dark, id, children }: { dark?: boolean; id?: string; children: ReactNode }) {
