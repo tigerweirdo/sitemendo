@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — Çakı silueti ve katman
+
+Hero aleti sabit 440×440 sahnede ölçekleniyor. Sap katmanlı kabza + çelik astar; aletler SVG siluet (bıçak, testere, tornavida, tirbuşon vb.), menteşeden açılıyor. Animasyon aynı: açılış, idle, imlekle eğilme.
+
+Değişen dosyalar: `components/HeroKnife.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Hero 3D çok amaçlı alet
 
 Hero sağına CSS 3D + GSAP ile açılan çok amaçlı çakı (İsveç/İsviçre aleti metaforu) eklendi: mürekkep gövde, sülfür işaret, kâğıt metal ağızlar. Açılış animasyonu, yavaş idle, imlekle eğilme. `prefers-reduced-motion` açıkken durağan açık poz. Palet ve keskin köşeler korundu.

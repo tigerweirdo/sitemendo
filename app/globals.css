@@ -311,161 +311,148 @@ html[data-lang-pending] body { visibility: hidden; }
   background: var(--paper);
 }
 
+/* Hero'daki çok amaçlı alet: 440×440 birimlik sabit sahne, --k ile ölçeklenir. */
 .knife {
+  --k: .7;
   position: relative;
-  width: min(100%, 420px);
-  height: clamp(260px, 46vw, 400px);
+  width: calc(440px * var(--k));
+  height: calc(440px * var(--k));
   margin: 0;
   user-select: none;
+  -webkit-user-select: none;
+}
+.knife-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.knife__fit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 440px;
+  height: 440px;
+  transform: scale(var(--k));
+  transform-origin: 0 0;
 }
 .knife__shadow {
   position: absolute;
-  left: 50%;
-  bottom: 8%;
-  width: 58%;
-  height: 22px;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse, rgba(9, 9, 9, .28), transparent 72%);
+  left: 216px;
+  top: 416px;
+  width: 268px;
+  height: 40px;
+  margin: -20px 0 0 -134px;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(9, 9, 9, .24), rgba(9, 9, 9, .09) 56%, transparent 74%);
   pointer-events: none;
 }
 .knife__stage {
   position: absolute;
-  inset: 0;
-  perspective: 640px;
-  perspective-origin: 48% 38%;
-}
-.knife__tilt,
-.knife__orbit,
-.knife-handle,
-.knife-tool {
-  transform-style: preserve-3d;
+  left: 0;
+  top: 0;
+  width: 440px;
+  height: 440px;
+  perspective: 1200px;
+  perspective-origin: 50% 44%;
 }
 .knife__tilt,
 .knife__orbit {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 440px;
+  height: 440px;
+  transform-style: preserve-3d;
   will-change: transform;
 }
+
+/* Sap: üst üste dizilmiş katmanlarla kalınlık kazanır.
+   Ara katmanlar çelik astar, en öndeki ve en arkadaki koyu kabzadır. */
 .knife-handle {
-  --hw: 64px;
-  --hh: 210px;
-  --hd: 28px;
+  position: absolute;
+  left: 187px;
+  top: 60px;
+  width: 66px;
+  height: 212px;
+  transform-style: preserve-3d;
+}
+.knife-handle__layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #e0ded4, #a8a69e 62%, #8d8b84);
+  transform: translateZ(var(--dz));
+}
+.knife-handle__layer--scale {
+  inset: 3.5px;
+  border-radius: 21px;
+  background: linear-gradient(178deg, #232320, #0d0d0c 42%, #060605);
+}
+.knife-handle__layer--front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(118deg, rgba(243, 241, 234, .22), rgba(243, 241, 234, .05) 30%, transparent 56%);
+}
+.knife-handle__cross {
   position: absolute;
   left: 50%;
-  top: 52%;
-  width: var(--hw);
-  height: var(--hh);
-  margin: calc(var(--hh) / -2) 0 0 calc(var(--hw) / -2);
-}
-.knife-handle__face {
-  position: absolute;
-  background: var(--ink);
-}
-.knife-handle__face--front,
-.knife-handle__face--back { inset: 0; }
-.knife-handle__face--front {
-  background:
-    linear-gradient(115deg, rgba(243, 241, 234, .16), transparent 36%),
-    linear-gradient(180deg, #2a2a26, #090909 46%, #050505);
-  transform: translateZ(14px);
-}
-.knife-handle__face--back {
-  background: linear-gradient(180deg, #1a1a17, #090909);
-  transform: rotateY(180deg) translateZ(14px);
-}
-.knife-handle__face--east,
-.knife-handle__face--west {
-  top: 0;
-  bottom: 0;
-  width: var(--hd);
-  left: 50%;
-  margin-left: -14px;
-  background: #161613;
-}
-.knife-handle__face--east {
-  background: linear-gradient(#3a3a34, #121210);
-  transform: rotateY(90deg) translateZ(32px);
-}
-.knife-handle__face--west { transform: rotateY(-90deg) translateZ(32px); }
-.knife-handle__face--north,
-.knife-handle__face--south {
-  left: 0;
-  right: 0;
-  height: var(--hd);
-  top: 50%;
-  margin-top: -14px;
-  background: #0c0c0b;
-}
-.knife-handle__face--north { transform: rotateX(90deg) translateZ(105px); }
-.knife-handle__face--south { transform: rotateX(-90deg) translateZ(105px); }
-.knife-handle__mark {
-  position: absolute;
-  left: 50%;
-  top: 20%;
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 -8px;
+  top: 42%;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
   background: var(--sulfur);
-  display: block;
+  clip-path: polygon(35% 0, 65% 0, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0 65%, 0 35%, 35% 35%);
 }
+
+/* Aletler: menteşe (220, 250) etrafında döner, kapalıyken sapın içindedir. */
 .knife-tool {
   position: absolute;
-  left: 50%;
-  top: 52%;
-  width: 18px;
-  margin-left: -9px;
-  margin-top: -98px;
-  transform-origin: 50% 10px;
+  left: 220px;
+  top: 250px;
+  width: 44px;
+  height: var(--h);
+  margin-left: -22px;
+  margin-top: calc(16px - var(--h));
+  transform-origin: 22px calc(var(--h) - 16px);
   transform-style: preserve-3d;
   will-change: transform;
 }
-.knife-slab {
-  --sw: 18px;
-  --sh: 164px;
-  --sd: 6px;
-  width: var(--sw);
-  height: var(--sh);
+.knife-tool__stack {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(var(--z));
   transform-style: preserve-3d;
 }
-.knife-slab--short { --sh: 116px; }
-.knife-slab--saw { --sh: 140px; }
-.knife-slab--driver { --sw: 12px; --sh: 128px; }
-.knife-tool__z--front { transform: translateZ(10px); }
-.knife-tool__z--mid { transform: translateZ(3px); }
-.knife-tool__z--back { transform: translateZ(-10px); }
-.knife-slab__face { position: absolute; }
-.knife-slab__face--front,
-.knife-slab__face--back {
+.knife-tool__layer {
+  --kt-fill: #82807a;
+  --kt-edge: #82807a;
+  --kt-rivet: transparent;
+  --kt-detail: transparent;
+  --kt-bevel: transparent;
+  position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #b4b2a8, #f3f1ea 40%, #c8c6bc);
+  transform: translateZ(var(--dz));
 }
-.knife-slab--saw .knife-slab__face--front,
-.knife-slab--saw .knife-slab__face--back {
-  background:
-    repeating-linear-gradient(180deg, #eceae2 0 6px, #8f8d85 6px 8px);
+.knife-tool__layer--back {
+  --kt-fill: #6b6963;
+  --kt-edge: #5a5853;
 }
-.knife-slab__face--front { transform: translateZ(3px); }
-.knife-slab__face--back { transform: rotateY(180deg) translateZ(3px); background: #9c9a92; }
-.knife-slab__face--east,
-.knife-slab__face--west {
-  top: 0;
-  bottom: 0;
-  width: var(--sd);
-  left: 50%;
-  margin-left: -3px;
-  background: #6e6c66;
+.knife-tool__layer--face {
+  --kt-fill: url(#kt-steel);
+  --kt-edge: #121210;
+  --kt-rivet: #43413b;
+  --kt-detail: #8a887e;
+  --kt-bevel: #ffffff;
 }
-.knife-slab__face--east { transform: rotateY(90deg) translateZ(9px); background: #d8d6cc; }
-.knife-slab__face--west { transform: rotateY(-90deg) translateZ(9px); }
-.knife-slab--driver .knife-slab__face--east { transform: rotateY(90deg) translateZ(6px); }
-.knife-slab--driver .knife-slab__face--west { transform: rotateY(-90deg) translateZ(6px); }
-.knife-slab--blade .knife-slab__face--front,
-.knife-slab--blade .knife-slab__face--back {
-  clip-path: polygon(16% 0, 84% 0, 100% 8%, 84% 90%, 50% 100%, 16% 90%, 0 8%);
+.knife-tool__layer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
-@media (max-width: 767px) {
-  .knife { height: 260px; }
-}
+
+@media (min-width: 520px) { .knife { --k: .82; } }
+@media (min-width: 768px) { .knife { --k: .9; } }
+@media (min-width: 1000px) { .knife { --k: .88; } }
+@media (min-width: 1200px) { .knife { --k: .95; } }
 
 .tag {
   border: 1px solid var(--ink);
