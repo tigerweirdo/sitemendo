@@ -17,22 +17,27 @@ Open `http://localhost:3000`.
 Set these in `.env.local` or your hosting provider:
 
 ```env
-NEXT_PUBLIC_AUDIT_ENDPOINT=https://your-n8n-webhook.example
 NEXT_PUBLIC_PRIVACY_URL=/privacy
 NEXT_PUBLIC_IMPRESSUM_URL=/impressum
 NEXT_PUBLIC_DEMO_MODE=false
+RESEND_API_KEY=re_xxxxxxxx
+AUDIT_FROM_EMAIL=Sitemendo <hello@sitemendo.com>
+AUDIT_NOTIFY_EMAIL=hello@sitemendo.com
 ```
 
-When `NEXT_PUBLIC_AUDIT_ENDPOINT` is empty and demo mode is true, the form explicitly reports that no data was sent. It never fakes a successful live request.
+The form posts to `/api/audit`. If `RESEND_API_KEY` is set, two emails are sent: one to `AUDIT_NOTIFY_EMAIL` and a confirmation to the visitor. If the key is missing and demo mode is true, the form reports that nothing was sent. It never fakes a successful live request.
+
+Before going live, verify `sitemendo.com` in [Resend](https://resend.com) and use that domain in `AUDIT_FROM_EMAIL`. The onboarding sender (`beth.t@example.com`) can only reach the Resend account email.
 
 ## Structure
 
 - `app/layout.tsx` — metadata, fonts, global shell
 - `app/page.tsx` — homepage entry
+- `app/api/audit/route.ts` — form intake and Resend mail
 - `app/globals.css` — responsive Sitemendo design system
 - `components/Site.tsx` — page components and interactions
-- `lib/content.ts` — Turkish/English content model
+- `lib/content.ts` — Turkish/English/German content model
 
 ## Before launch
 
-Add real Privacy and Impressum pages/URLs, configure the n8n webhook, test CORS from the deployed domain, and add canonical URL / OG image once the final domain is known.
+Add the Resend key on Vercel, turn demo mode off, finish Privacy and Impressum, and add a canonical URL / OG image once the final domain is known.

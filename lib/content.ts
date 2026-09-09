@@ -178,12 +178,13 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Ana sayfa',
-      updated: 'Son güncelleme: 9 Eylül 2026',
+      updated: 'Son güncelleme: 10 Eylül 2026',
       privacyTitle: 'Gizlilik',
       privacyLead: 'Size cevap yazmak için gereken bilgiler dışında hiçbir şey kullanmıyoruz.',
       privacy: [
         { h: 'Neyi alıyoruz', p: 'Formu gönderdiğinizde site adresinizi ve e-posta adresinizi alıyoruz. Bunları sadece raporu hazırlayıp size göndermek için kullanıyoruz.' },
         { h: 'Neden kullanıyoruz', p: 'Kontrolü yapmak ve size ulaşmak için. Bilgilerinizi satmıyoruz ve reklam listelerine eklemiyoruz.' },
+        { h: 'Kim görüyor', p: 'İsteği size iletmek için Resend adlı e-posta servisini kullanıyoruz. Reklam için kullanılmaz.' },
         { h: 'Ne kadar saklıyoruz', p: 'Raporu gönderip sorularınızı yanıtlayacak kadar bir süre. Sonra siliyoruz.' },
         { h: 'Haklarınız', p: 'Bilgilerinizi görmek, düzelttirmek veya sildirmek isterseniz hello@sitemendo.com adresine yazmanız yeterli. Site adresi gerekmez.' },
       ],
@@ -319,12 +320,13 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Home',
-      updated: 'Last updated: 9 September 2026',
+      updated: 'Last updated: 10 September 2026',
       privacyTitle: 'Privacy',
       privacyLead: 'We use nothing beyond what we need to write back to you.',
       privacy: [
         { h: 'What we receive', p: 'When you send the form we receive your website address and your email address. We use them only to prepare the report and send it to you.' },
         { h: 'Why we use it', p: 'To run the check and to reach you. We don’t sell your details and we don’t add them to marketing lists.' },
+        { h: 'Who sees it', p: 'We use an email service called Resend to pass the request on to us. It is not used for advertising.' },
         { h: 'How long we keep it', p: 'Long enough to send the report and answer your questions. Then we delete it.' },
         { h: 'Your rights', p: 'If you want to see, correct or delete your details, just write to hello@sitemendo.com. No website address needed.' },
       ],
@@ -460,12 +462,13 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Startseite',
-      updated: 'Zuletzt aktualisiert: 9. September 2026',
+      updated: 'Zuletzt aktualisiert: 10. September 2026',
       privacyTitle: 'Datenschutz',
       privacyLead: 'Wir nutzen nichts über das hinaus, was wir brauchen, um Ihnen zu antworten.',
       privacy: [
         { h: 'Was wir bekommen', p: 'Wenn Sie das Formular senden, erhalten wir Ihre Website-Adresse und Ihre E-Mail-Adresse. Wir nutzen sie nur, um den Bericht zu erstellen und Ihnen zu senden.' },
         { h: 'Wofür wir sie nutzen', p: 'Um die Prüfung durchzuführen und Sie zu erreichen. Wir verkaufen Ihre Angaben nicht und setzen sie nicht auf Werbelisten.' },
+        { h: 'Wer es sieht', p: 'Um die Anfrage an uns weiterzuleiten, nutzen wir den E-Mail-Dienst Resend. Er wird nicht für Werbung genutzt.' },
         { h: 'Wie lange wir sie behalten', p: 'So lange, wie wir für den Bericht und Ihre Rückfragen brauchen. Danach löschen wir sie.' },
         { h: 'Ihre Rechte', p: 'Wenn Sie Ihre Angaben sehen, ändern oder löschen lassen möchten, schreiben Sie an hello@sitemendo.com. Eine Website-Adresse ist nicht nötig.' },
       ],

@@ -5,11 +5,55 @@
 - Next.js / React tabanlı Sitemendo landing page
 - Yerel çalıştırma: `npm install`, `.env.example` → `.env.local`, `npm run dev`
 - Adres: `http://localhost:3000`
-- Canlı: https://sitemendo.vercel.app
+- Canlı: https://sitemendo.com (`www` da açık; eski: https://sitemendo.vercel.app)
 - GitHub: https://github.com/tigerweirdo/sitemendo
-- Ortam değişkenleri: `NEXT_PUBLIC_AUDIT_ENDPOINT`, `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_IMPRESSUM_URL`, `NEXT_PUBLIC_DEMO_MODE`
+- Alan adı: Cloudflare Registrar (`gail` / `rajeev` NS). Nameserver’ı Vercel’e taşıma; mail yönlendirme Cloudflare’da kalacak.
+- Ortam değişkenleri: `RESEND_API_KEY`, `AUDIT_FROM_EMAIL`, `AUDIT_NOTIFY_EMAIL`, `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_IMPRESSUM_URL`, `NEXT_PUBLIC_DEMO_MODE`
 
 ## Görevler
+
+### 2026-09-10 — Resend bağlandı (canlı form)
+
+`sitemendo.com` Resend’de verified. API anahtarı yalnızca `.env.local` + Vercel (production/development). Demo kapalı. Gönderen `hello@sitemendo.com`. Canlıya `/api/audit` gitmesi için bu turda kod yayınlanır. Anahtar sohbette paylaşıldı; iş bitince Resend’de yenilenmeli.
+
+### 2026-09-10 — hello@ yönlendirme çalışıyor
+
+Cloudflare Email Routing: `hello@sitemendo.com` → kişisel Gmail. MX/SPF Cloudflare’da; Vercel A kaydı duruyor. Aynı Gmail’den teste düşmez; başka hesaptan geldi. Sırada Resend (formun gerçek mail atması).
+
+### 2026-09-10 — sitemendo.com açıldı
+
+Cloudflare A + CNAME (DNS only) doğru. Kullanıcı doğruladı: `https://sitemendo.com` ve `www` açılıyor. Sırada Email Routing (`hello@` → Gmail), sonra Resend.
+
+### 2026-09-10 — sitemendo.com Vercel’e eklendi (DNS sırada)
+
+Cloudflare’dan alınan `sitemendo.com` Vercel projesine bağlandı (`sitemendo` + `www`). Nameserver Cloudflare’da kaldı (doğru). Site henüz açılmaz; Cloudflare DNS’te kayıt yok.
+
+Cloudflare → sitemendo.com → DNS → Records. Varsa parking A/AAAA sil. Proxy kapalı (gri bulut):
+
+| Type | Name | Content |
+| A | @ | 10.0.1.2 |
+| CNAME | www | cname.vercel-dns.com |
+
+Sonra Email → Email Routing: hedef Gmail doğrula, `hello@sitemendo.com` yönlendir. Resend sonra.
+
+Değişen dosyalar: `DOKUMANTASYON.md`. Vercel: domain eklendi.
+
+### 2026-09-10 — Form isteği: /api/audit + Resend
+
+Form artık tarayıcıdan dış webhook’a gitmiyor. `POST /api/audit` site adresini, e-postayı ve dili doğrular; anahtar varsa iki mail atar (sana bildirim, ziyaretçiye onay). Anahtar yoksa ve demo açıksa “bilgi gönderilmedi” der; canlı başarı uydurmaz.
+
+Yapılanlar:
+1. `lib/auditRequest.ts` — URL/e-posta doğrulama (form + API ortak)
+2. `lib/auditMail.ts` — TR/EN/DE onay + Türkçe iç bildirim
+3. `app/api/audit/route.ts` — Resend, 10 dakikada 5 istek/IP
+4. Form `fetch('/api/audit')`
+5. Gizlilik metnine Resend notu; `NEXT_PUBLIC_AUDIT_ENDPOINT` kalktı
+
+Canlıya almak için: Resend hesabı, `sitemendo.com` doğrulama, Vercel’de `RESEND_API_KEY` + `AUDIT_FROM_EMAIL=Sitemendo <hello@sitemendo.com>`, `NEXT_PUBLIC_DEMO_MODE=false`.
+
+Doğrulama: `tsc --noEmit`; `POST /api/audit` geçersiz gövde → 400; anahtar yok + demo → 200 `{ mode: "demo" }`; `/` ve `/privacy` 200; gizlilikte Resend notu var. Anahtar olmadığı için gerçek mail atılmadı. Tarayıcı otomasyonu bu oturumda yoktu.
+
+Değişen dosyalar: `app/api/audit/route.ts`, `lib/auditRequest.ts`, `lib/auditMail.ts`, `lib/auditRateLimit.ts`, `components/Site.tsx`, `lib/content.ts`, `.env.example`, `.env.local`, `package.json`, `README.md`, `DOKUMANTASYON.md`.
 
 ### 2026-09-09 — Çakı açılışı net
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
+import { normalizeWebsite, validEmail } from '@/lib/auditRequest';
 import { content, type Lang } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
 import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMode, type FormStep } from '@/lib/formPersist';
@@ -330,39 +331,20 @@ function Section({ dark, id, children }: { dark?: boolean; id?: string; children
   );
 }
 
-function normalizeWebsite(value: string) {
-  let s = value.trim();
-  if (!s || /\s/.test(s)) return null;
-  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) s = 'https://' + s;
-  try {
-    const u = new URL(s);
-    if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password || !u.hostname) return null;
-    return u.toString();
-  } catch {
-    return null;
-  }
-}
-function validEmail(v: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/u.test(v.trim());
-}
 async function submitAuditRequest(payload: { websiteUrl: string; email: string; language: Lang }) {
-  const endpoint = process.env.NEXT_PUBLIC_AUDIT_ENDPOINT;
-  const demo = process.env.NEXT_PUBLIC_DEMO_MODE !== 'false';
-  if (!endpoint) {
-    if (demo) return { mode: 'demo' as const };
-    throw new Error('NOT_CONFIGURED');
-  }
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 12000);
+  const timer = setTimeout(() => controller.abort(), 15000);
   try {
-    const res = await fetch(endpoint, {
+    const res = await fetch('/api/audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ ...payload, submittedAt: new Date().toISOString(), source: 'sitemendo.web' }),
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
+    const data = await res.json().catch(() => null) as { mode?: string } | null;
     if (!res.ok) throw new Error('REQUEST_FAILED');
-    return { mode: 'live' as const };
+    if (data?.mode === 'demo' || data?.mode === 'live') return { mode: data.mode as 'demo' | 'live' };
+    throw new Error('REQUEST_FAILED');
   } finally {
     clearTimeout(timer);
   }
