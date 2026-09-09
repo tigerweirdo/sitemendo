@@ -11,6 +11,18 @@
 
 ## Görevler
 
+### 2026-09-09 — Çakı açılışı net
+
+Açılışta siluet gölgesi her karede `blur` yiyor ve 3D ağacın içinde gerçek aleti de yumuşatıyordu. Gölge sahnenin 2D katmanına alındı, açık pozda bekliyor, aletler bitince beliriyor. Orbit girişi duruşa yaklaştı; `will-change` kalktı.
+
+Değişen dosyalar: `app/globals.css`, `components/HeroKnife.tsx`, `DOKUMANTASYON.md`.
+
+### 2026-09-09 — Hizmet satır hizası
+
+Öne çıkan kartın border + iç boşluğu fiyat ve madde sütununu kaydırıyordu. Çerçeve dışa taştı (`margin-inline` negatif); metin diğer satırlarla aynı ızgarada. 12px dikey boşluk kalktı. Mobilde çerçeve `--pad` kadar taşır (yatay kaydırma yok).
+
+Değişen dosyalar: `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Dil sırası TR / DE / EN
 
 Dil değiştiricide sıra TR → DE → EN. Kaynak: `LANGS` (`lib/lang.ts`).

@@ -350,17 +350,19 @@ html[data-lang-pending] body { visibility: hidden; }
   width: 440px;
   height: 440px;
   transform-style: preserve-3d;
-  will-change: transform;
 }
-/* Duruş pozu CSS'te; giriş de CSS'te oynadığı için JS'siz de çalışır. */
+.knife__tilt { z-index: 1; }
+/* Duruş pozu CSS'te; giriş de CSS'te oynadığı için JS'siz de çalışır.
+   Açılış açısı duruşa yakın: büyük 3D dönüş tarayıcıda sahneyi düşük çözünürlükte
+   rasterize edip bıçağı bulanık gösteriyordu. */
 .knife__orbit {
   transform: rotateX(9deg) rotateY(-14deg) rotateZ(-4deg) translateY(0);
-  animation: knife-orbit-in 1.4s cubic-bezier(.16, .82, .28, 1) both;
+  animation: knife-orbit-in .7s cubic-bezier(.16, .82, .28, 1) both;
 }
-.knife__drift { animation: knife-drift 5.6s 2.4s ease-in-out infinite alternate; }
+.knife__drift { animation: knife-drift 5.6s 1.6s ease-in-out infinite alternate; }
 
 @keyframes knife-orbit-in {
-  from { transform: rotateX(19deg) rotateY(-34deg) rotateZ(-10deg) translateY(16px); }
+  from { transform: rotateX(11deg) rotateY(-18deg) rotateZ(-5deg) translateY(4px); }
   to { transform: rotateX(9deg) rotateY(-14deg) rotateZ(-4deg) translateY(0); }
 }
 @keyframes knife-drift {
@@ -368,15 +370,22 @@ html[data-lang-pending] body { visibility: hidden; }
   to { transform: rotateX(3deg) rotateY(10deg) translateY(-5px); }
 }
 
-/* Gölge, nesnenin kendi siluetinin koyu, bulanık ve geride duran kopyası.
-   Konumu GSAP ile imlece bağlı: imleç ışık kaynağı gibi davranır. */
+/* Gölge 3D ağacın dışında: filter, açık aleti de bitmap yapıp açılışı
+   yumuşatmasın. Aletler bitince belirir; açılırken her karede yeniden
+   bulanıklaşmaz. */
 .knife__cast {
   position: absolute;
   inset: 0;
-  transform: translate3d(15px, 22px, -40px);
-  filter: blur(8px);
-  opacity: .24;
+  z-index: 0;
+  transform: translate3d(15px, 22px, 0);
+  transform-style: flat;
+  filter: blur(6px);
+  opacity: 0;
   pointer-events: none;
+  animation: knife-cast-in .4s 1.15s ease-out forwards;
+}
+@keyframes knife-cast-in {
+  to { opacity: .2; }
 }
 .knife__cast-handle {
   position: absolute;
@@ -404,11 +413,10 @@ html[data-lang-pending] body { visibility: hidden; }
   height: 100%;
   overflow: visible;
 }
-/* Gölgedeki aletler açılışı paylaşır ama boştaki nefesi paylaşmaz: her karede
-   yeniden bulanıklaştırmak pahalı, farkı da görünmüyor. */
+/* Gölge silueti baştan açık pozda; açılışta yeniden çizilmez. */
 .knife__cast .knife-tool {
-  animation: knife-unfold var(--dur) var(--delay) cubic-bezier(.22, .9, .28, 1.08) both;
-  will-change: auto;
+  animation: none;
+  transform: rotate(var(--open));
 }
 
 /* Sap: üst üste dizilmiş katmanlarla kalınlık kazanır.
@@ -491,10 +499,9 @@ html[data-lang-pending] body { visibility: hidden; }
   transform: rotate(var(--open));
   transform-origin: 22px calc(var(--h) - 16px);
   transform-style: preserve-3d;
-  will-change: transform;
   animation:
     knife-unfold var(--dur) var(--delay) cubic-bezier(.22, .9, .28, 1.08) both,
-    knife-tool-idle 5.6s 2.4s ease-in-out infinite alternate;
+    knife-tool-idle 5.6s 1.6s ease-in-out infinite alternate;
 }
 @keyframes knife-unfold {
   from { transform: rotate(0deg); }
@@ -547,7 +554,9 @@ html[data-lang-pending] body { visibility: hidden; }
   .knife__orbit,
   .knife__drift,
   .knife-tool,
+  .knife__cast,
   .knife__cast .knife-tool { animation: none; }
+  .knife__cast { opacity: .2; }
 }
 
 @media (min-width: 520px) { .knife { --k: .78; } }
@@ -824,9 +833,10 @@ html[data-lang-pending] body { visibility: hidden; }
 .services-heading { margin-bottom: clamp(24px, 3vw, 40px); max-width: 28ch; }
 .services { border-top: 1px solid var(--line); }
 .service {
+  --service-inset: 0px;
   display: grid;
   gap: 14px;
-  padding: 24px 0;
+  padding: 24px var(--service-inset);
   border-bottom: 1px solid var(--line);
 }
 .service__price {
@@ -860,10 +870,11 @@ html[data-lang-pending] body { visibility: hidden; }
   max-width: 65ch;
 }
 .service.featured {
+  --service-inset: 20px;
   background: #EBE9E2;
   border: 1px solid var(--ink);
-  padding: 24px 20px;
-  margin: 12px 0;
+  margin-inline: calc(-1 * var(--service-inset) - 1px);
+  margin-block: -1px 0;
 }
 .service.featured .service__items li { color: var(--ink); }
 .services-cta { margin-top: 32px; }
@@ -873,11 +884,11 @@ html[data-lang-pending] body { visibility: hidden; }
     grid-template-columns: minmax(200px, 0.9fr) 1.3fr;
     gap: 24px 40px;
     align-items: start;
-    padding: 32px 0;
+    padding: 32px var(--service-inset);
   }
   .service__head { grid-column: 1; grid-row: 1; }
   .service__items { grid-column: 2; grid-row: 1; }
-  .service.featured { padding: 28px 24px; }
+  .service.featured { --service-inset: 24px; }
 }
 
 .how-heading { margin-bottom: clamp(28px, 4vw, 50px); }
@@ -1019,7 +1030,7 @@ html[data-lang-pending] body { visibility: hidden; }
   .audit-form__field .btn { width: 100%; min-height: 52px; order: 3; }
   .micro { gap: 10px 16px; }
   .sec { padding: 44px 0; }
-  .service.featured { margin-inline: 0; }
+  .service.featured { --service-inset: calc(var(--pad) - 1px); }
   .step {
     display: grid;
     grid-template-columns: 50px 1fr;

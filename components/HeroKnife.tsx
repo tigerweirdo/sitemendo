@@ -287,7 +287,8 @@ export function HeroKnife({ label }: { label: string }) {
   /* Giriş ve boştaki salınım tamamen CSS'te: sunucudan gelen ilk boyama da
      animasyonu oynatır, GSAP yüklenemese bile alet açık kalır ve hidrasyonda
      "açık → kapalı → açık" sıçraması olmaz. GSAP yalnız imleçle gelen iki şeyi
-     sürüyor: nesnenin eğimi ve ışık yönüne bağlı gölge kayması. */
+     sürüyor: nesnenin eğimi ve gölgenin x/y kayması. Gölge 3D ağacın dışında;
+     açılışta filter gerçek aleti yumuşatmaz. */
   useGSAP((_, contextSafe) => {
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference) and (hover: hover)', () => {
@@ -297,7 +298,7 @@ export function HeroKnife({ label }: { label: string }) {
       const yTo = gsap.quickTo('.knife__tilt', 'rotateY', { duration: 0.6, ease: 'power3' });
       const xTo = gsap.quickTo('.knife__tilt', 'rotateX', { duration: 0.6, ease: 'power3' });
       /* İmleç ışık kaynağı gibi davranıyor: gölge her zaman imlecin tersine düşer. */
-      gsap.set('.knife__cast', { x: 15, y: 22, z: -40 });
+      gsap.set('.knife__cast', { x: 15, y: 22 });
       const castX = gsap.quickTo('.knife__cast', 'x', { duration: 0.8, ease: 'power3' });
       const castY = gsap.quickTo('.knife__cast', 'y', { duration: 0.8, ease: 'power3' });
 
@@ -363,34 +364,30 @@ export function HeroKnife({ label }: { label: string }) {
 
       <div className="knife__fit">
         <div className="knife__stage">
+          {/* Gölge 3D ağacın dışında: açılışta filter gerçek aleti yumuşatmasın. */}
+          <div className="knife__cast" aria-hidden="true">
+            <div className="knife__cast-handle"/>
+            {TOOLS.map((t) => (
+              <div
+                key={t.id}
+                className="knife-tool"
+                style={{
+                  '--h': `${t.h}px`,
+                  '--open': `${t.open}deg`,
+                } as CSSProperties}
+              >
+                <div className="knife__cast-layer">
+                  <svg viewBox={`0 0 ${TOOL_W} ${t.h}`} aria-hidden="true" focusable="false">
+                    <use href={`#kt-${t.id}`}/>
+                  </svg>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="knife__tilt">
             <div className="knife__drift">
               <div className="knife__orbit">
-                {/* Gölge, nesnenin kendi siluetinden türüyor: aynı şekiller tek
-                    katman hâlinde, koyu, bulanık ve arkada. Aletlerin açılışını
-                    da aynı CSS animasyonuyla paylaşıyor. */}
-                <div className="knife__cast" aria-hidden="true">
-                  <div className="knife__cast-handle"/>
-                  {TOOLS.map((t) => (
-                    <div
-                      key={t.id}
-                      className="knife-tool"
-                      style={{
-                        '--h': `${t.h}px`,
-                        '--open': `${t.open}deg`,
-                        '--delay': `${t.delay}s`,
-                        '--dur': `${t.dur}s`,
-                      } as CSSProperties}
-                    >
-                      <div className="knife__cast-layer">
-                        <svg viewBox={`0 0 ${TOOL_W} ${t.h}`} aria-hidden="true" focusable="false">
-                          <use href={`#kt-${t.id}`}/>
-                        </svg>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
                 <div className="knife-handle" aria-hidden="true">
                   {handleLayers.map((l, i) => (
                     <div
