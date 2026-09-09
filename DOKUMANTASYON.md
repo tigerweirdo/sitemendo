@@ -5,6 +5,8 @@
 - Next.js / React tabanlı Sitemendo landing page
 - Yerel çalıştırma: `npm install`, `.env.example` → `.env.local`, `npm run dev`
 - Adres: `http://localhost:3000`
+- Canlı: https://sitemendo.vercel.app
+- GitHub: https://github.com/tigerweirdo/sitemendo
 - Ortam değişkenleri: `NEXT_PUBLIC_AUDIT_ENDPOINT`, `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_IMPRESSUM_URL`, `NEXT_PUBLIC_DEMO_MODE`
 
 ## Görevler
@@ -21,8 +23,14 @@
   6. Üretim ortam değişkenleri `.env.example` ile hizalandı (demo mode açık)
 - İlk Vercel production build (`dpl_AbU1isHYUiKXnrtFYtRUgAoFbJMT`) `VULNERABLE_NEXTJS_VERSION` (CVE-2025-66478) ile reddedildi
 - `next` 15.2.4 → 15.5.25 yükseltildi (15.2 satırındaki yama yetmedi; Vercel güncel 15.5 yamasını istiyor)
-- Sonuç: Aşağıdaki “Yayın sonuçları” satırında güncellenir
-- Not: `.env.local` commit edilmedi
+- Production env: `NEXT_PUBLIC_DEMO_MODE=true`, `NEXT_PUBLIC_PRIVACY_URL=/privacy`, `NEXT_PUBLIC_IMPRESSUM_URL=/impressum`
+- Sonuç:
+  - GitHub: https://github.com/tigerweirdo/sitemendo
+  - Canlı: https://sitemendo.vercel.app
+  - Dashboard: https://vercel.com/tigerweirdos-projects/sitemendo
+  - Production deploy: `dpl_FXqpp4nq7tFQcMA8nPMqDf5UCvYc` (READY)
+- Doğrulama: `/` `/privacy` `/impressum` ve `?lang=en|de` → 200; TR/EN/DE başlıklar doğru; runtime hata yok. Tarayıcı otomasyonu bu oturumda yoktu; HTTP + HTML ile kontrol edildi.
+- Not: `.env.local` commit edilmedi. `NEXT_PUBLIC_AUDIT_ENDPOINT` boş; form demo modunda.
 
 ### 2026-09-09 — Projeyi başlat
 
