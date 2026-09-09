@@ -11,6 +11,12 @@
 
 ## Görevler
 
+### 2026-09-09 — Çakı gölgesi siluet
+
+Eliptik gölge kalktı. Gölge artık nesnenin kendi siluetinin bulanık kopyası; imleç ışık gibi davranınca gölge ters yöne kayıyor.
+
+Değişen dosyalar: `components/HeroKnife.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-09 — Çakı ışığı ve siluet
 
 Tek sahne ışığı (sol üst) sap ve tüm aletlerde ortak. Tirbuşon sarmalı parçalandı; çelik parlaması aletin açısına göre kayıyor. Açılış gecikmeleri içeriden dışarı.

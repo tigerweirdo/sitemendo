@@ -277,7 +277,8 @@ export function HeroKnife({ label }: { label: string }) {
 
   /* Giriş ve boştaki salınım tamamen CSS'te: sunucudan gelen ilk boyama da
      animasyonu oynatır, GSAP yüklenemese bile alet açık kalır ve hidrasyonda
-     "açık → kapalı → açık" sıçraması olmaz. GSAP yalnız imleç parallax'ını sürüyor. */
+     "açık → kapalı → açık" sıçraması olmaz. GSAP yalnız imleçle gelen iki şeyi
+     sürüyor: nesnenin eğimi ve ışık yönüne bağlı gölge kayması. */
   useGSAP((_, contextSafe) => {
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference) and (hover: hover)', () => {
@@ -286,8 +287,10 @@ export function HeroKnife({ label }: { label: string }) {
 
       const yTo = gsap.quickTo('.knife__tilt', 'rotateY', { duration: 0.6, ease: 'power3' });
       const xTo = gsap.quickTo('.knife__tilt', 'rotateX', { duration: 0.6, ease: 'power3' });
-      const shadowX = gsap.quickTo('.knife__shadows', 'x', { duration: 0.7, ease: 'power3' });
-      const shadowY = gsap.quickTo('.knife__shadows', 'y', { duration: 0.7, ease: 'power3' });
+      /* İmleç ışık kaynağı gibi davranıyor: gölge her zaman imlecin tersine düşer. */
+      gsap.set('.knife__cast', { x: 15, y: 22, z: -40 });
+      const castX = gsap.quickTo('.knife__cast', 'x', { duration: 0.8, ease: 'power3' });
+      const castY = gsap.quickTo('.knife__cast', 'y', { duration: 0.8, ease: 'power3' });
 
       const onMove = contextSafe((e: PointerEvent) => {
         const r = el.getBoundingClientRect();
@@ -295,14 +298,14 @@ export function HeroKnife({ label }: { label: string }) {
         const py = (e.clientY - r.top) / r.height - 0.5;
         yTo(px * 20);
         xTo(-py * 12);
-        shadowX(-px * 14);
-        shadowY(-py * 6);
+        castX(15 - px * 44);
+        castY(22 - py * 22);
       });
       const onLeave = contextSafe(() => {
         yTo(0);
         xTo(0);
-        shadowX(0);
-        shadowY(0);
+        castX(15);
+        castY(22);
       });
 
       el.addEventListener('pointermove', onMove);
@@ -345,14 +348,34 @@ export function HeroKnife({ label }: { label: string }) {
       </svg>
 
       <div className="knife__fit">
-        <div className="knife__shadows" aria-hidden="true">
-          <div className="knife__shadow knife__shadow--fan"/>
-          <div className="knife__shadow knife__shadow--core"/>
-        </div>
         <div className="knife__stage">
           <div className="knife__tilt">
             <div className="knife__drift">
               <div className="knife__orbit">
+                {/* Gölge, nesnenin kendi siluetinden türüyor: aynı şekiller tek
+                    katman hâlinde, koyu, bulanık ve arkada. Aletlerin açılışını
+                    da aynı CSS animasyonuyla paylaşıyor. */}
+                <div className="knife__cast" aria-hidden="true">
+                  <div className="knife__cast-handle"/>
+                  {TOOLS.map((t) => (
+                    <div
+                      key={t.id}
+                      className="knife-tool"
+                      style={{
+                        '--h': `${t.h}px`,
+                        '--open': `${t.open}deg`,
+                        '--delay': `${t.delay}s`,
+                      } as CSSProperties}
+                    >
+                      <div className="knife__cast-layer">
+                        <svg viewBox={`0 0 ${TOOL_W} ${t.h}`} aria-hidden="true" focusable="false">
+                          <use href={`#kt-${t.id}`}/>
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 <div className="knife-handle" aria-hidden="true">
                   {handleLayers.map((l, i) => (
                     <div

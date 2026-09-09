@@ -333,60 +333,6 @@ html[data-lang-pending] body { visibility: hidden; }
   transform-origin: 0 0;
 }
 
-/* Gölge iki parçalı: sapın altında yoğun çekirdek, yelpazenin ayak izinde
-   geniş yumuşak hale. Işık sol üstten geldiği için ikisi de sağ alta kaçık. */
-.knife__shadows {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.knife__shadow {
-  position: absolute;
-  pointer-events: none;
-}
-.knife__shadow--fan {
-  left: 216px;
-  top: 408px;
-  width: 330px;
-  height: 54px;
-  margin: -27px 0 0 -165px;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(9, 9, 9, .15), rgba(9, 9, 9, .06) 54%, transparent 78%);
-  transform: scaleX(1) scaleY(1);
-  animation:
-    knife-shadow-fan-in 1.5s .3s cubic-bezier(.16, .82, .28, 1) both,
-    knife-shadow-fan-idle 5.6s 2.4s ease-in-out infinite alternate;
-}
-.knife__shadow--core {
-  left: 229px;
-  top: 402px;
-  width: 168px;
-  height: 34px;
-  margin: -17px 0 0 -84px;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(9, 9, 9, .22), rgba(9, 9, 9, .09) 52%, transparent 76%);
-  transform: scale(1);
-  animation:
-    knife-shadow-core-in 1.3s .1s cubic-bezier(.16, .82, .28, 1) both,
-    knife-shadow-core-idle 5.6s 2.4s ease-in-out infinite alternate;
-}
-
-/* Gölge yelpazeyle birlikte açılır, sonra salınımla birlikte nefes alır. */
-@keyframes knife-shadow-fan-in {
-  from { transform: scaleX(.36) scaleY(.82); opacity: .28; }
-  to { transform: scaleX(1) scaleY(1); opacity: 1; }
-}
-@keyframes knife-shadow-fan-idle {
-  from { transform: scaleX(1) scaleY(1); opacity: 1; }
-  to { transform: scaleX(.95) scaleY(1); opacity: .82; }
-}
-@keyframes knife-shadow-core-in {
-  from { transform: scale(.78); opacity: .5; }
-  to { transform: scale(1); opacity: 1; }
-}
-@keyframes knife-shadow-core-idle {
-  from { transform: scale(1); opacity: 1; }
-  to { transform: scale(.94); opacity: .86; }
-}
-
 .knife__stage {
   position: absolute;
   left: 0;
@@ -421,6 +367,49 @@ html[data-lang-pending] body { visibility: hidden; }
 @keyframes knife-drift {
   from { transform: rotateX(0deg) rotateY(0deg) translateY(0); }
   to { transform: rotateX(3deg) rotateY(10deg) translateY(-5px); }
+}
+
+/* Gölge, nesnenin kendi siluetinin koyu, bulanık ve geride duran kopyası.
+   Konumu GSAP ile imlece bağlı: imleç ışık kaynağı gibi davranır. */
+.knife__cast {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(15px, 22px, -40px);
+  filter: blur(8px);
+  opacity: .24;
+  pointer-events: none;
+}
+.knife__cast-handle {
+  position: absolute;
+  left: 187px;
+  top: 48px;
+  width: 66px;
+  height: 212px;
+  border-radius: 24px;
+  background: #0b0b0a;
+}
+.knife__cast-layer {
+  --kt-fill: #0b0b0a;
+  --kt-edge: #0b0b0a;
+  --kt-rod-back: #0b0b0a;
+  --kt-rivet: transparent;
+  --kt-detail: transparent;
+  --kt-bevel: transparent;
+  --kt-ao: transparent;
+  position: absolute;
+  inset: 0;
+}
+.knife__cast-layer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* Gölgedeki aletler açılışı paylaşır ama boştaki nefesi paylaşmaz: her karede
+   yeniden bulanıklaştırmak pahalı, farkı da görünmüyor. */
+.knife__cast .knife-tool {
+  animation: knife-unfold .95s var(--delay) cubic-bezier(.22, .9, .28, 1.08) both;
+  will-change: auto;
 }
 
 /* Sap: üst üste dizilmiş katmanlarla kalınlık kazanır.
@@ -554,7 +543,7 @@ html[data-lang-pending] body { visibility: hidden; }
   .knife__orbit,
   .knife__drift,
   .knife-tool,
-  .knife__shadow { animation: none; }
+  .knife__cast .knife-tool { animation: none; }
 }
 
 @media (min-width: 520px) { .knife { --k: .78; } }
