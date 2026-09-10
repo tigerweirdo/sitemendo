@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
+import { Fragment, createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
 import { normalizeWebsite, validEmail } from '@/lib/auditRequest';
 import { content, type Lang } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
@@ -8,6 +8,7 @@ import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMod
 import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
+import { useScrollMotion } from '@/lib/useScrollMotion';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { HeroKnife } from '@/components/HeroKnife';
 
@@ -91,9 +92,11 @@ export function Site({ initialLang }: { initialLang: Lang }) {
   const burgerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(false);
   const compactNavCta = useSyncExternalStore(subscribeCompactNav, getCompactNav, () => false);
   useLangDocument(lang);
+  useScrollMotion(mainRef, lang);
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen);
@@ -193,7 +196,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         </div>
       </header>
 
-      <main id="main">
+      <main id="main" ref={mainRef}>
         <section className="hero" id="top">
           <div className="wrap hero__wrap">
             <div className="hero__copy">
@@ -213,18 +216,18 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           <div className="wrap about__wrap">
             <div className="about__copy">
               <h2 className="h2">{c.about.title}</h2>
-              <p className="lead">{c.about.p1}</p>
-              <p className="lead">{c.about.p2}</p>
+              <p className="lead" data-reveal>{c.about.p1}</p>
+              <p className="lead" data-reveal>{c.about.p2}</p>
               <ul className="about__contacts">
-                <li>
+                <li data-reveal>
                   <span className="about__k">{c.about.emailLabel}</span>
                   <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
                 </li>
-                <li>
+                <li data-reveal>
                   <span className="about__k">{c.about.phoneLabel}</span>
                   <a href={`tel:${CONTACT_PHONE_E164}`}>{CONTACT_PHONE_DISPLAY}</a>
                 </li>
-                <li>
+                <li data-reveal>
                   <span className="about__k">{c.about.whatsapp}</span>
                   <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer">{CONTACT_PHONE_DISPLAY}</a>
                 </li>
@@ -236,7 +239,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <Section id="checks">
           <div className="section-intro">
             <h2 className="h2">{c.checksTitle}</h2>
-            <p className="lead">{c.checksSub}</p>
+            <p className="lead" data-reveal>{c.checksSub}</p>
           </div>
           <div className="checks">
             {c.checks.map(x => (
@@ -252,7 +255,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           <div className="report-layout">
             <div className="report-copy">
               <h2 className="h2">{c.reportTitle}</h2>
-              <p className="lead">{c.reportSub}</p>
+              <p className="lead" data-reveal>{c.reportSub}</p>
             </div>
             <SampleReport lang={lang}/>
           </div>
@@ -260,8 +263,12 @@ export function Site({ initialLang }: { initialLang: Lang }) {
 
         <section className="sec statement">
           <div className="wrap">
-            <h2 className="h2">{c.statementA}</h2>
-            <p className="lead statement__sub">{c.statementSub}</p>
+            <h2 className="h2 statement__title">
+              {c.statementA.split(' ').map((word, i) => (
+                <Fragment key={i}>{i > 0 && ' '}<span className="statement__word">{word}</span></Fragment>
+              ))}
+            </h2>
+            <p className="lead statement__sub" data-reveal>{c.statementSub}</p>
           </div>
         </section>
 
@@ -280,7 +287,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               </div>
             ))}
           </div>
-          <div className="services-cta">
+          <div className="services-cta" data-reveal>
             <button className="btn" type="button" onClick={jumpToForm}>{c.servicesCta}</button>
           </div>
         </Section>
@@ -296,7 +303,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               </div>
             ))}
           </div>
-          <p className="lead assure">{c.assure}</p>
+          <p className="lead assure" data-reveal>{c.assure}</p>
         </Section>
 
         <Section id="faq">
@@ -475,19 +482,21 @@ function SampleReport({ lang }: { lang: Lang }) {
           <b>03</b>
           <p>{c.sampleReport.issues}</p>
         </div>
-        {c.findings.map(f => (
-          <div className="finding" key={f.no}>
-            <div className="finding__top">
-              <span className={`severity severity--${f.level}`}>{f.severity}</span>
+        <div className="findings">
+          {c.findings.map(f => (
+            <div className="finding" key={f.no}>
+              <div className="finding__top">
+                <span className={`severity severity--${f.level}`}>{f.severity}</span>
+              </div>
+              <h3 className="finding__title">{f.title}</h3>
+              <div className="finding__meta">
+                <span>{c.sampleReport.impact}</span>
+                <span>{f.impact}</span>
+              </div>
             </div>
-            <h3 className="finding__title">{f.title}</h3>
-            <div className="finding__meta">
-              <span>{c.sampleReport.impact}</span>
-              <span>{f.impact}</span>
-            </div>
-          </div>
-        ))}
-        <button className="btn btn--ghost btn--sm report-toggle" type="button" onClick={() => setOpen(v => !v)} aria-expanded={open}>
+          ))}
+        </div>
+        <button className="btn btn--ghost btn--sm report-toggle" data-reveal type="button" onClick={() => setOpen(v => !v)} aria-expanded={open}>
           {open ? c.sampleReport.closeList : c.sampleReport.openList}
         </button>
         <div className={`report-checklist ${open ? 'is-open' : ''}`} aria-hidden={!open}>

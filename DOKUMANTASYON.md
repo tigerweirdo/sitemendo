@@ -12,6 +12,26 @@
 
 ## Görevler
 
+### 2026-09-10 — Kaydırma hareketleri (ilk paket)
+
+Site düz duruyordu. Önceki revizyonda bilinçli olarak eklenmeyen kaydırma hareketi, tasarım diline uygun ölçüde geldi: çizgiler çiziliyor, başlıklar maskeden yükseliyor, zıplama yok. GSAP + ScrollTrigger (zaten kuruluydu); tek kaynak `lib/useScrollMotion.ts`.
+
+Yapılanlar:
+1. Hairline'lar çizilerek geliyor: bölüm üstleri, kontrol / hizmet / adım / SSS satırları, rapor bulguları. Çizgi artık şeffaf border + arka plan; `--rule` (0–1, `@property`, kalıtılmaz) soldan sağa çiziyor. Liste çizgileri satırın üstüne, kapanış çizgisi kapsayıcıya taşındı; ölçüler aynı. Adımlarda ayırıcılar yukarıdan aşağı.
+2. h2'ler kendi alt kenarındaki maskeden yükseliyor (`yPercent` + `clip-path` birlikte). SplitText yok: dil değişince React metni DOM'da günceller, bölünmüş satırlar bunu bozardı. Başlığın alt metni kısa kaymayla geliyor (`data-reveal`).
+3. Kontrol, hizmet, adım ve SSS satırları: önce üst çizgi, sonra içerik.
+4. Örnek rapor: belge gelir, mürekkep çizgi çizilir, sayaç `00 → 03`, bulgular sırayla, önem etiketi damga gibi iner.
+5. Karar cümlesi: kelimeler kaydırdıkça griden mürekkebe dolar (scrub).
+6. SSS cevabı yumuşak açılıp kapanıyor (`::details-content` + `interpolate-size`; desteklemeyen tarayıcıda bugünkü gibi anında), ok dönerek.
+
+Kurallar: yalnız ilk boyamada ekranda olmayan öğeler gizlenir; JS yoksa ya da hareket azaltılmışsa hiçbir şey gizlenmez. Gizleme `opacity` ile, klavye odağı kesilmez. Her öğenin tek, duraklatılmış bir hareketi var, tetik yalnız oynatır; böylece dil değişiminde geri alma öğeyi temiz bırakır. Form adımı, SSS ve rapor listesi sayfa boyunu değiştirince tetikler `ResizeObserver` ile yenilenir. Hero'ya dokunulmadı.
+
+Doğrulama: `tsc --noEmit`; headless Chromium (CDP), 1440×900 ve 375×812: ilk ekranda gizlenen öğe yok, tam kaydırmadan sonra gizli öğe 0, yatay kaydırma yok. Sayfa ortasında TR → DE: başlıklar Almanca, ekrandaki öğeler görünür, konsolda yeni hata yok. `prefers-reduced-motion: reduce`: gizli öğe yok, sayaç 03. JS kapalı: çizgiler tam. Test sırasında iki hata çıktı ve düzeltildi: `contextSafe` iki GSAP bağlamını birbirine ekleyip dil değişiminde sonsuz döngüye sokuyordu; ayrı `set` + `to` dil değişiminde öğeleri gizli bırakıyordu.
+
+Bu işten önce de vardı: `BrandMark` hydration uyarısı (daire `cx` değeri sunucu ve tarayıcıda son basamakta farklı), autoprefixer `align-items: end` uyarısı.
+
+Değişen dosyalar: `lib/useScrollMotion.ts` (yeni), `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Impressum kişi adı
 
 Diensteanbieter: `Mete Han Çetiner`, altında Sitemendo, sonra Baerwaldstraße. Ana sayfada isim yok.

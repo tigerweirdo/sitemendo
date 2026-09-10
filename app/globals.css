@@ -35,6 +35,17 @@
   --lh-heading: 1.3;
   --track: -0.015em;
   --space-section: clamp(44px, 5.5vw, 72px);
+  /* Hairline çizgisi. Yer ve kalınlık border'da (şeffaf); çizgi bu arka planla
+     --rule oranında soldan sağa çizilir, bkz. lib/useScrollMotion.ts. */
+  --hair: linear-gradient(var(--line), var(--line));
+}
+
+/* Çizginin çizilmiş oranı. Kaydırma hareketi 0'dan 1'e götürür; JS yoksa ya da
+   hareket azaltılmışsa 1'de kalır. Kalıtılmaz: bölümün değeri satırlarınkini etkilemez. */
+@property --rule {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -253,7 +264,8 @@ html[data-lang-pending] body { visibility: hidden; }
 .sec {
   position: relative;
   padding: var(--space-section) 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid transparent;
+  background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
 }
 .sec--dark {
   background: var(--ink);
@@ -709,12 +721,18 @@ html[data-lang-pending] body { visibility: hidden; }
   font-size: 14px;
 }
 
-.checks { border-top: 1px solid var(--line); }
+/* Listelerde çizgi satırın üstünde, listenin kapanış çizgisi kapsayıcıda:
+   satır ekrana girdiği anda kendi çizgisi de görünür. */
+.checks {
+  border-bottom: 1px solid transparent;
+  background: var(--hair) 0 100% / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
 .check {
   display: grid;
   gap: 6px;
   padding: 20px 0;
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid transparent;
+  background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
 }
 .check__title {
   font-size: var(--fs-h3);
@@ -743,7 +761,6 @@ html[data-lang-pending] body { visibility: hidden; }
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--ink);
 }
 .doc-domain { font-family: var(--mono); font-size: var(--fs-mono); }
 .doc-label { margin-top: 6px; font-size: var(--fs-ui); color: var(--muted); }
@@ -753,7 +770,8 @@ html[data-lang-pending] body { visibility: hidden; }
   align-items: end;
   gap: 16px;
   padding: 26px 0 22px;
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid transparent;
+  background: linear-gradient(var(--ink), var(--ink)) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
 }
 .doc__count b {
   font-family: var(--mono);
@@ -762,9 +780,14 @@ html[data-lang-pending] body { visibility: hidden; }
   font-weight: var(--fw-medium);
 }
 .doc__count p { padding-bottom: 6px; }
+.findings {
+  border-bottom: 1px solid transparent;
+  background: var(--hair) 0 100% / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
 .finding {
   padding: 22px 0;
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid transparent;
+  background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
   display: grid;
   gap: 10px;
 }
@@ -827,13 +850,17 @@ html[data-lang-pending] body { visibility: hidden; }
 .statement__sub { margin-top: 16px; }
 
 .services-heading { margin-bottom: clamp(24px, 3vw, 40px); max-width: 28ch; }
-.services { border-top: 1px solid var(--line); }
+.services {
+  border-bottom: 1px solid transparent;
+  background: var(--hair) 0 100% / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
 .service {
   --service-inset: 0px;
   display: grid;
   gap: 14px;
   padding: 24px var(--service-inset);
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid transparent;
+  background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
 }
 .service__price {
   font-family: var(--mono);
@@ -870,8 +897,9 @@ html[data-lang-pending] body { visibility: hidden; }
   background: #EBE9E2;
   border: 1px solid var(--ink);
   margin-inline: calc(-1 * var(--service-inset) - 1px);
-  margin-block: -1px 0;
 }
+/* Kartın mürekkep alt kenarı zaten ayırıcı: alttaki satır kendi çizgisini onun altına sokar. */
+.service.featured + .service { margin-top: -1px; background: none; }
 .service.featured .service__items li { color: var(--ink); }
 .services-cta { margin-top: 32px; }
 
@@ -888,8 +916,16 @@ html[data-lang-pending] body { visibility: hidden; }
 }
 
 .how-heading { margin-bottom: clamp(28px, 4vw, 50px); }
-.steps { display: grid; border-top: 1px solid var(--line); }
-.step { padding: 24px 0; border-bottom: 1px solid var(--line); }
+.steps {
+  display: grid;
+  border-bottom: 1px solid transparent;
+  background: var(--hair) 0 100% / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
+.step {
+  padding: 24px 0;
+  border-top: 1px solid transparent;
+  background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
 .step__no {
   display: block;
   margin-bottom: 10px;
@@ -906,18 +942,30 @@ html[data-lang-pending] body { visibility: hidden; }
 }
 .assure { margin-top: 28px; }
 @media (min-width: 840px) {
-  .steps { grid-template-columns: repeat(3, 1fr); }
+  .steps { grid-template-columns: repeat(3, 1fr); border-bottom: 0; background: none; }
+  /* Üst çizgi üç parçada soldan sağa, ayırıcılar yukarıdan aşağı çizilir. */
   .step {
     padding: 26px 24px 44px;
-    border-bottom: 0;
-    border-right: 1px solid var(--line);
+    border-right: 1px solid transparent;
+    background:
+      var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box,
+      var(--hair) 100% 0 / 1px calc(var(--rule, 1) * 100%) no-repeat border-box;
   }
-  .step:last-child { border-right: 0; }
+  .step:last-child {
+    border-right: 0;
+    background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+  }
 }
 
 .faq-heading { margin-bottom: clamp(24px, 3vw, 44px); }
-.faq { border-top: 1px solid var(--line); }
-.faq__item { border-bottom: 1px solid var(--line); }
+.faq {
+  border-bottom: 1px solid transparent;
+  background: var(--hair) 0 100% / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
+.faq__item {
+  border-top: 1px solid transparent;
+  background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
 .faq__q {
   width: 100%;
   min-height: 48px;
@@ -944,12 +992,24 @@ html[data-lang-pending] body { visibility: hidden; }
   transform: rotate(45deg);
   margin-left: auto;
   flex: none;
+  transition: transform .25s ease;
 }
 .faq__item[open] > .faq__q::after { transform: rotate(225deg); }
 .faq__answer {
   max-width: 65ch;
   padding: 0 0 20px;
   color: var(--muted);
+}
+/* Cevap yüksekliği yumuşak açılıp kapanır. Desteklemeyen tarayıcıda <details>
+   bugünkü gibi anında açılır; JS gerekmez. */
+@supports (interpolate-size: allow-keywords) {
+  .faq__item { interpolate-size: allow-keywords; }
+  .faq__item::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size .35s cubic-bezier(.2, .7, .2, 1), content-visibility .35s allow-discrete;
+  }
+  .faq__item[open]::details-content { block-size: auto; }
 }
 
 .final { display: grid; gap: 34px; }
