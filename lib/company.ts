@@ -10,3 +10,6 @@ export const COMPANY = {
   legalName: 'Sitemendo',
   city: 'Berlin',
 } as const;
+
+/** Mutlak bağlantılar için (e-postalar). */
+export const SITE_URL = 'https://sitemendo.com';

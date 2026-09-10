@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { CONTACT_EMAIL } from '@/lib/company';
-import { confirmEmail, fromAddress, mailHeaders, notifyAddresses, notifyEmail } from '@/lib/auditMail';
+import { confirmEmail, fromAddress, mailHeaders, notifyAddresses, notifyEmail, requestMeta } from '@/lib/auditMail';
 import { clientIp, tooManyRequests } from '@/lib/auditRateLimit';
 import { parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
 
@@ -46,11 +46,11 @@ export async function POST(request: Request) {
     return json({ error: 'NOT_CONFIGURED' }, 503);
   }
 
-  const receivedAt = new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Berlin' });
+  const meta = requestMeta();
   const from = fromAddress();
   const notifyTo = notifyAddresses();
-  const owner = notifyEmail(payload, receivedAt);
-  const customer = confirmEmail(payload);
+  const owner = notifyEmail(payload, meta);
+  const customer = confirmEmail(payload, meta);
   const resend = new Resend(apiKey);
 
   const host = new URL(payload.websiteUrl).hostname.replace(/^www\./, '');

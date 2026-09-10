@@ -12,6 +12,16 @@
 
 ## Görevler
 
+### 2026-09-10 — Mail tasarımı: onay ve bildirim yeniden
+
+Onay maili fişten mektuba döndü: referans numarası (`SM-…`), kesin teslim tarihi, 3 adımlı “sırada ne var”, raporda bakılacak 8 başlık (`content.ts`’teki başlıklar, tek kaynak), iletişim (e-posta / telefon / WhatsApp), footer’da Impressum ve Gizlilik bağlantıları. Bildirim maili: site adı başlıkta, vurgulu teslim tarihi, müşterinin dilinde açılan “Müşteriye yanıt yaz” taslağı, PageSpeed / SSL Labs / W3C / Google bağlantıları. Beyaz zemin, görselsiz metin ağırlıklı düzen ve tablo tabanlı yerleşim korundu; telefonda tek sütun.
+
+Teslim 2 iş günü: cumartesi-pazar sayılmaz, hafta sonu gelen istek pazartesi 09:00’da başlar (Berlin saati). Perşembe 14:32 → pazartesi 14:32. Sitedeki “48 saat” metni değişmedi.
+
+Doğrulama: `tsc --noEmit`, `npm run build`; WebKit ile 640 / 375 px tam boy render; kötü niyetli e-posta / URL girdisi kaçışlı; HTML 13–19 KB (Gmail 102 KB’ta keser). Gerçek gönderim (Gmail / Outlook) bu oturumda test edilmedi.
+
+Değişen dosyalar: `lib/auditMail.ts`, `app/api/audit/route.ts`, `lib/company.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Mail: siyah / beyaz / sarı
 
 Onay ve admin mailleri krem zeminden çıktı. Beyaz sayfa, 1px mürekkep çerçeve, üstte 6px sülfür şerit, `SITEMENDO.`, sarı etiket (48 saat / Yeni istek), veri satırında sarı sol çizgi. Gmail’de krem palet durmuyordu.
