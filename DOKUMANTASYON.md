@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Mail: siyah / beyaz / sarı
+
+Onay ve admin mailleri krem zeminden çıktı. Beyaz sayfa, 1px mürekkep çerçeve, üstte 6px sülfür şerit, `SITEMENDO.`, sarı etiket (48 saat / Yeni istek), veri satırında sarı sol çizgi. Gmail’de krem palet durmuyordu.
+
+Değişen dosyalar: `lib/auditMail.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Admin mail hello@ döngüsünde kalıyordu
 
 Resend `from=hello@` `to=hello@` gönderiyordu; Cloudflare yönlendirme bunu bırakıyor (`sent`, Gmail’e düşmez). Bildirim artık doğrudan gelen kutuya. Mail, sitedeki rapor belgesi: kâğıt `#F3F1EA`, mürekkep çerçeve, `SITEMENDO.`; sarı blok yok.

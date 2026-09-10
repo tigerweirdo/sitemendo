@@ -8,11 +8,10 @@ const LANG_LABEL: Record<Lang, string> = {
   de: 'Deutsch',
 };
 
-const PAPER = '#F3F1EA';
+const WHITE = '#FFFFFF';
 const INK = '#090909';
 const SULFUR = '#E8F000';
 const MUTED = '#4A4A46';
-const LINE = '#C6C5BE';
 const SANS = 'Arial, Helvetica, sans-serif';
 const MONO = "Consolas, 'Courier New', monospace";
 
@@ -32,7 +31,11 @@ function hostOf(websiteUrl: string) {
   }
 }
 
-function wrapDoc(lang: Lang, preview: string, rows: string) {
+function chip(label: string) {
+  return `<span style="display:inline-block;padding:5px 8px;border:1px solid ${INK};background:${SULFUR};color:${INK};font:600 12px/1 ${SANS};letter-spacing:0.04em;text-transform:uppercase;">${escapeHtml(label)}</span>`;
+}
+
+function wrapLetter(lang: Lang, preview: string, chipLabel: string, body: string) {
   return `<!doctype html>
 <html lang="${lang}">
 <head>
@@ -43,19 +46,30 @@ function wrapDoc(lang: Lang, preview: string, rows: string) {
   <title>Sitemendo</title>
   <style>
     :root { color-scheme: light only; }
-    body, table, td { color-scheme: light only; }
+    body, table, td, p, a, h1 { color-scheme: light only; }
   </style>
 </head>
-<body bgcolor="${PAPER}" style="margin:0;padding:0;background:${PAPER};background-color:${PAPER};color:${INK};">
+<body bgcolor="${WHITE}" style="margin:0;padding:0;background:${WHITE};background-color:${WHITE};color:${INK};">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preview)}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="background:${PAPER};background-color:${PAPER};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${WHITE}" style="background:${WHITE};background-color:${WHITE};">
     <tr>
-      <td align="center" bgcolor="${PAPER}" style="padding:28px 16px;background:${PAPER};background-color:${PAPER};">
-        <table role="presentation" width="560" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="width:100%;max-width:560px;background:${PAPER};background-color:${PAPER};border:1px solid ${INK};">
+      <td align="center" bgcolor="${WHITE}" style="padding:32px 16px;background:${WHITE};background-color:${WHITE};">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" bgcolor="${WHITE}" style="width:100%;max-width:560px;background:${WHITE};background-color:${WHITE};border:1px solid ${INK};">
           <tr>
-            <td bgcolor="${PAPER}" style="padding:28px 28px 32px;background:${PAPER};background-color:${PAPER};color:${INK};">
-              <p style="margin:0 0 18px;padding:0 0 16px;border-bottom:1px solid ${INK};font:600 16px/1.2 ${SANS};letter-spacing:0.06em;text-transform:uppercase;color:${INK};">SITEMENDO<span style="color:${SULFUR};">.</span></p>
-              ${rows}
+            <td bgcolor="${SULFUR}" height="6" style="height:6px;line-height:6px;font-size:0;background:${SULFUR};background-color:${SULFUR};">&nbsp;</td>
+          </tr>
+          <tr>
+            <td bgcolor="${WHITE}" style="padding:28px 32px 32px;background:${WHITE};background-color:${WHITE};color:${INK};">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+                <tr>
+                  <td valign="middle" style="font:600 16px/1.2 ${SANS};letter-spacing:0.08em;text-transform:uppercase;color:${INK};">SITEMENDO<span style="color:${SULFUR};">.</span></td>
+                  <td valign="middle" align="right">${chip(chipLabel)}</td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr><td bgcolor="${INK}" height="1" style="height:1px;line-height:1px;font-size:0;background:${INK};">&nbsp;</td></tr>
+              </table>
+              ${body}
             </td>
           </tr>
         </table>
@@ -67,30 +81,21 @@ function wrapDoc(lang: Lang, preview: string, rows: string) {
 }
 
 function h1(text: string) {
-  return `<h1 style="margin:0 0 12px;font:600 22px/1.3 ${SANS};letter-spacing:-0.015em;color:${INK};">${escapeHtml(text)}</h1>`;
+  return `<h1 style="margin:22px 0 10px;font:600 26px/1.25 ${SANS};letter-spacing:-0.02em;color:${INK};">${escapeHtml(text)}</h1>`;
 }
 
-function p(text: string) {
-  return `<p style="margin:0 0 16px;font:400 17px/1.55 ${SANS};color:${INK};">${text}</p>`;
+function p(html: string) {
+  return `<p style="margin:0 0 16px;font:400 16px/1.55 ${SANS};color:${INK};">${html}</p>`;
 }
 
-function muted(text: string) {
-  return `<p style="margin:22px 0 0;padding-top:16px;border-top:1px solid ${LINE};font:400 13px/1.45 ${SANS};color:${MUTED};">${escapeHtml(text)}</p>`;
+function note(text: string) {
+  return `<p style="margin:24px 0 0;padding-top:16px;border-top:1px solid ${INK};font:400 12px/1.45 ${SANS};color:${MUTED};">${escapeHtml(text)}</p>`;
 }
 
-function box(label: string, valueHtml: string) {
-  return `<p style="margin:0 0 6px;font:500 13px/1.3 ${SANS};color:${MUTED};">${escapeHtml(label)}</p>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${PAPER}" style="margin:0 0 18px;border:1px solid ${INK};background:${PAPER};background-color:${PAPER};">
-    <tr>
-      <td bgcolor="${PAPER}" style="padding:12px 14px;font:400 13px/1.45 ${MONO};color:${INK};word-break:break-all;background:${PAPER};background-color:${PAPER};">${valueHtml}</td>
-    </tr>
-  </table>`;
-}
-
-function row(label: string, valueHtml: string) {
+function fact(label: string, valueHtml: string) {
   return `<tr>
-    <td valign="top" style="padding:10px 12px 10px 0;border-top:1px solid ${LINE};font:500 13px/1.4 ${SANS};color:${MUTED};width:96px;">${escapeHtml(label)}</td>
-    <td valign="top" style="padding:10px 0;border-top:1px solid ${LINE};font:400 15px/1.45 ${SANS};color:${INK};">${valueHtml}</td>
+    <td valign="top" width="92" style="padding:12px 0;border-top:1px solid ${INK};font:600 11px/1.4 ${SANS};letter-spacing:0.06em;text-transform:uppercase;color:${INK};">${escapeHtml(label)}</td>
+    <td valign="top" style="padding:12px 0 12px 16px;border-top:1px solid ${INK};border-left:3px solid ${SULFUR};font:400 15px/1.45 ${MONO};color:${INK};word-break:break-all;">${valueHtml}</td>
   </tr>`;
 }
 
@@ -110,22 +115,23 @@ export function notifyEmail(payload: AuditPayload, receivedAt: string) {
       '',
       'Yanıtlayınca müşteriye gidersiniz.',
     ].join('\n'),
-    html: wrapDoc('tr', `${host} — ${payload.email}`, `
+    html: wrapLetter('tr', `${host} — ${payload.email}`, 'Yeni istek', `
       ${h1('Yeni kontrol isteği')}
-      ${p('Formdan bir istek geldi. 48 saat içinde rapor yazılacak.')}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 8px;">
-        ${row('Site', site)}
-        ${row('E-posta', mail)}
-        ${row('Dil', escapeHtml(LANG_LABEL[payload.language]))}
-        ${row('Saat', escapeHtml(receivedAt))}
+      ${p('Formdan bir istek geldi. 48 saat içinde rapor yazılacak. Bu maili yanıtlayınca müşteriye gidersiniz.')}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 4px;">
+        ${fact('Site', site)}
+        ${fact('E-posta', mail)}
+        ${fact('Dil', escapeHtml(LANG_LABEL[payload.language]))}
+        ${fact('Saat', escapeHtml(receivedAt))}
       </table>
-      ${muted('Sitemendo · Berlin')}
+      ${note('Sitemendo · Berlin')}
     `),
   };
 }
 
 const CONFIRM: Record<Lang, {
   subject: string;
+  chip: string;
   preview: (host: string) => string;
   title: string;
   lead: string;
@@ -137,11 +143,12 @@ const CONFIRM: Record<Lang, {
 }> = {
   tr: {
     subject: 'Kontrol isteğiniz alındı',
+    chip: '48 saat',
     preview: host => `${host} için isteğiniz bize ulaştı. Rapor 48 saat içinde.`,
     title: 'Aldık.',
     lead: 'Kontrol isteğiniz bize ulaştı. Raporu 48 saat içinde bu e-postaya gönderiyoruz.',
     siteLabel: 'Site',
-    hours: '48 saat içinde.',
+    hours: 'Satın alma yok. Raporu okuduktan sonra karar sizin.',
     ask: `Bir şey sormak isterseniz bu maili yanıtlayın veya <a href="mailto:${CONTACT_EMAIL}" style="color:${INK};text-decoration:underline;">${CONTACT_EMAIL}</a> yazın.`,
     footer: 'Sitemendo · Berlin',
     text: url => [
@@ -155,11 +162,12 @@ const CONFIRM: Record<Lang, {
   },
   en: {
     subject: 'We received your check request',
+    chip: '48 hours',
     preview: host => `We received your request for ${host}. The report comes within 48 hours.`,
     title: 'Got it.',
     lead: 'We received your check request. We will send the report to this email within 48 hours.',
     siteLabel: 'Website',
-    hours: 'Within 48 hours.',
+    hours: 'Nothing to buy. After the report, the decision is yours.',
     ask: `If you have a question, reply to this email or write to <a href="mailto:${CONTACT_EMAIL}" style="color:${INK};text-decoration:underline;">${CONTACT_EMAIL}</a>.`,
     footer: 'Sitemendo · Berlin',
     text: url => [
@@ -173,11 +181,12 @@ const CONFIRM: Record<Lang, {
   },
   de: {
     subject: 'Ihre Prüfungsanfrage ist angekommen',
+    chip: '48 Stunden',
     preview: host => `Ihre Anfrage für ${host} ist da. Der Bericht kommt innerhalb von 48 Stunden.`,
     title: 'Angekommen.',
     lead: 'Ihre Prüfungsanfrage ist bei uns angekommen. Den Bericht senden wir innerhalb von 48 Stunden an diese E-Mail.',
     siteLabel: 'Website',
-    hours: 'Innerhalb von 48 Stunden.',
+    hours: 'Nichts zu kaufen. Nach dem Bericht entscheiden Sie.',
     ask: `Bei Fragen antworten Sie auf diese E-Mail oder schreiben Sie an <a href="mailto:${CONTACT_EMAIL}" style="color:${INK};text-decoration:underline;">${CONTACT_EMAIL}</a>.`,
     footer: 'Sitemendo · Berlin',
     text: url => [
@@ -198,13 +207,15 @@ export function confirmEmail(payload: AuditPayload) {
   return {
     subject: copy.subject,
     text: copy.text(payload.websiteUrl),
-    html: wrapDoc(payload.language, copy.preview(host), `
+    html: wrapLetter(payload.language, copy.preview(host), copy.chip, `
       ${h1(copy.title)}
       ${p(copy.lead)}
-      ${box(copy.siteLabel, site)}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 16px;">
+        ${fact(copy.siteLabel, site)}
+      </table>
       ${p(escapeHtml(copy.hours))}
       ${p(copy.ask)}
-      ${muted(copy.footer)}
+      ${note(copy.footer)}
     `),
   };
 }
