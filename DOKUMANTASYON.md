@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Gerçek telefon
+
+Yer tutucu `+49 155 12345678` kalktı. Site, Impressum, WhatsApp ve onay maili `lib/company.ts` üzerinden `+49 155 10913380` (`tel:+4915510913380`, `wa.me/4915510913380`).
+
+Değişen dosyalar: `lib/company.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Sekme ikonu: siyah kare kalktı
 
 Vercel sarı kutu gösteriyordu: C, siyah kareyi dolduruyordu. Kullanıcı sekmede siyah zemin istemedi. `icon.svg` / `favicon.ico` yine şeffaf; sarı C + mürekkep kontur (açık sekmede okunur). Apple ikonu kâğıt zemin (iOS şeffaf ikon istemez). OG kartı siyah kalır, o sekme değil.
@@ -413,11 +419,11 @@ Düşük:
 15–16. Meta/OG/title dile uyuyor; dil değişiminde form korunur, `?lang=` yazılır, kaydırma mümkünse sabitlenir.
 17. Almanca (`de`) tam içerik: nav, hero, form, hizmetler, SSS, yasal, meta. Dil: TR / EN / DE.
 
-Yer tutucu iletişim (`lib/company.ts`):
+İletişim (`lib/company.ts`):
 - Unvan: Sitemendo
 - Konum (sokak yok): Berlin
 - E-posta: hello@sitemendo.com
-- Telefon yer tutucu: +49 155 12345678
+- Telefon: +49 155 10913380
 - Kişi adı ve sokak adresi yayınlanmaz
 
 Doğrulama: Playwright Chromium, 1440 / 820 / 390 / 320. 76 UX + regresyon (kontrast, başlık çakışması, rozet boşluğu, form senkron, gizlilik turu, DE, menü, SSS, mailto). Commit/push yok.
