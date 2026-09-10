@@ -12,6 +12,14 @@
 
 ## Görevler
 
+### 2026-09-10 — İkon sistemi (Vercel / sekme / Apple / paylaşım)
+
+Vercel ve koyu zeminlerde şeffaf C’nin içi boş yay gibi duruyordu. Tek kaynak `lib/mark.json`: mürekkep kare, kalın sarı puan halkası (C). `scripts/build-icons.mjs` → `icon.svg`, `favicon.ico` (16/32/48), `apple-icon.png` (180), `opengraph-image.png` (1200×630). Çakı amblemi aynı yoldan (`BrandMark`). `metadataBase` `https://sitemendo.com`.
+
+Doğrulama: 16/32/48/180 PNG; OG kartı; `tsc`; production build; `/favicon.ico` `/icon.svg` `/apple-icon.png` `/opengraph-image`.
+
+Değişen dosyalar: `lib/mark.json`, `lib/mark.ts`, `components/BrandMark.tsx`, `components/HeroKnife.tsx`, `scripts/build-icons.mjs`, `app/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `app/opengraph-image.png`, `app/opengraph-image.alt.txt`, `app/manifest.ts`, `app/layout.tsx`, `app/globals.css`, `middleware.ts`, `package.json`, `README.md`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Mail tasarımı: onay ve bildirim yeniden
 
 Onay maili fişten mektuba döndü: referans numarası (`SM-…`), kesin teslim tarihi, 3 adımlı “sırada ne var”, raporda bakılacak 8 başlık (`content.ts`’teki başlıklar, tek kaynak), iletişim (e-posta / telefon / WhatsApp), footer’da Impressum ve Gizlilik bağlantıları. Bildirim maili: site adı başlıkta, vurgulu teslim tarihi, müşterinin dilinde açılan “Müşteriye yanıt yaz” taslağı, PageSpeed / SSL Labs / W3C / Google bağlantıları. Beyaz zemin, görselsiz metin ağırlıklı düzen ve tablo tabanlı yerleşim korundu; telefonda tek sütun.

@@ -35,9 +35,10 @@ Before going live, verify `sitemendo.com` in [Resend](https://resend.com) and us
 - `app/page.tsx` — homepage entry
 - `app/api/audit/route.ts` — form intake and Resend mail
 - `app/globals.css` — responsive Sitemendo design system
+- `app/icon.svg` / `app/favicon.ico` / `app/apple-icon.png` / `app/opengraph-image.png` — mark from `lib/mark.json` (`npm run icons`)
 - `components/Site.tsx` — page components and interactions
 - `lib/content.ts` — Turkish/English/German content model
 
 ## Before launch
 
-Add the Resend key on Vercel, turn demo mode off, finish Privacy and Impressum, and add a canonical URL / OG image once the final domain is known.
+Add the Resend key on Vercel, turn demo mode off, and finish Privacy and Impressum.

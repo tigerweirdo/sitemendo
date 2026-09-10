@@ -3,6 +3,7 @@
 import { useRef, type CSSProperties, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { BrandMark } from '@/components/BrandMark';
 
 gsap.registerPlugin(useGSAP);
 
@@ -400,9 +401,7 @@ export function HeroKnife({ label }: { label: string }) {
                       style={{ '--dz': `${l.dz.toFixed(2)}px` } as CSSProperties}
                     >
                       {l.front ? (
-                        <svg className="knife-handle__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                          <circle cx="16" cy="16" r="10.5" strokeDasharray="50 16" transform="rotate(-58 16 16)"/>
-                        </svg>
+                        <BrandMark className="knife-handle__mark" fill="url(#kt-mark)" />
                       ) : null}
                     </div>
                   ))}
