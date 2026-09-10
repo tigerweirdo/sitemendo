@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Impressum kişi adı
+
+Diensteanbieter: `Mete Han Çetiner`, altında Sitemendo, sonra Baerwaldstraße. Ana sayfada isim yok.
+
+Değişen dosyalar: `lib/company.ts`, `components/LegalPage.tsx`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Impressum adresi
 
 Hizmet sağlayıcı bloğuna `Baerwaldstraße 70, 10961 Berlin` (Kreuzberg PLZ). Footer’da yalnızca Berlin kaldı. Kişi adı hâlâ yok.
@@ -427,10 +433,10 @@ Düşük:
 
 İletişim (`lib/company.ts`):
 - Unvan: Sitemendo
+- Kişi: Mete Han Çetiner
 - Adres: Baerwaldstraße 70, 10961 Berlin
 - E-posta: hello@sitemendo.com
 - Telefon: +49 155 10913380
-- Kişi adı yayınlanmaz
 
 Doğrulama: Playwright Chromium, 1440 / 820 / 390 / 320. 76 UX + regresyon (kontrast, başlık çakışması, rozet boşluğu, form senkron, gizlilik turu, DE, menü, SSS, mailto). Commit/push yok.
 

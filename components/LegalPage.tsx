@@ -60,6 +60,7 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
               <>
                 <section>
                   <h2>{legal.provider}</h2>
+                  <p>{COMPANY.ownerName}</p>
                   <p>{COMPANY.legalName}</p>
                   <p>
                     {COMPANY.street}<br />
