@@ -2,6 +2,8 @@ import spec from './mark.json';
 
 export const MARK = spec;
 
+export type MarkBackground = 'none' | 'ink' | 'paper';
+
 function rotPt(x: number, y: number, deg: number, cx: number, cy: number): [number, number] {
   const a = (deg * Math.PI) / 180;
   const dx = x - cx;
@@ -24,10 +26,10 @@ export function markDasharray() {
 }
 
 /** Filled C (annular sector). Rotation is baked in so OG/Satori needs no transform. */
-export function markCPath() {
-  const { cx, cy, r, stroke, rot } = MARK;
+export function markCPath(stroke = MARK.stroke) {
+  const { cx, cy, r, rot } = MARK;
   const rO = r + stroke / 2;
-  const rI = r - stroke / 2;
+  const rI = Math.max(0.4, r - stroke / 2);
   const sweep = markSweep();
   const large = sweep > Math.PI ? 1 : 0;
   const rp = (radius: number, t: number) => rotPt(cx + radius * Math.cos(t), cy + radius * Math.sin(t), rot, cx, cy);
@@ -47,15 +49,24 @@ export function markCapCenters(): [number, number][] {
   ];
 }
 
-export function markIconSvg() {
-  const path = markCPath();
+function glyphLayers(stroke: number, fill: string) {
+  const path = markCPath(stroke);
   const caps = markCapCenters();
-  const capR = MARK.stroke / 2;
+  const capR = stroke / 2;
+  return `  <path fill="${fill}" d="${path}"/>
+  <circle cx="${fmt(caps[0][0])}" cy="${fmt(caps[0][1])}" r="${fmt(capR)}" fill="${fill}"/>
+  <circle cx="${fmt(caps[1][0])}" cy="${fmt(caps[1][1])}" r="${fmt(capR)}" fill="${fill}"/>`;
+}
+
+/** Tab/Vercel mark: transparent canvas, ink outline, sulfur C. Apple may pass a paper tile. */
+export function markIconSvg(background: MarkBackground = 'none') {
+  const bgFill = background === 'ink' ? MARK.ink : background === 'paper' ? MARK.paper : null;
+  const bg = bgFill
+    ? `  <rect width="${MARK.viewBox}" height="${MARK.viewBox}" fill="${bgFill}"/>\n`
+    : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK.viewBox} ${MARK.viewBox}" role="img" aria-label="Sitemendo">
-  <rect width="${MARK.viewBox}" height="${MARK.viewBox}" fill="${MARK.ink}"/>
-  <path fill="${MARK.sulfur}" d="${path}"/>
-  <circle cx="${fmt(caps[0][0])}" cy="${fmt(caps[0][1])}" r="${fmt(capR)}" fill="${MARK.sulfur}"/>
-  <circle cx="${fmt(caps[1][0])}" cy="${fmt(caps[1][1])}" r="${fmt(capR)}" fill="${MARK.sulfur}"/>
+${bg}${glyphLayers(MARK.stroke + MARK.outline, MARK.ink)}
+${glyphLayers(MARK.stroke, MARK.sulfur)}
 </svg>
 `;
 }

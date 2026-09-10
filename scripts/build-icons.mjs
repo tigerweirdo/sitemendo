@@ -30,10 +30,10 @@ function sweep() {
   return ((circ - MARK.gap) / circ) * 2 * Math.PI;
 }
 
-function cPath() {
-  const { cx, cy, r, stroke, rot } = MARK;
+function cPath(stroke = MARK.stroke) {
+  const { cx, cy, r, rot } = MARK;
   const rO = r + stroke / 2;
-  const rI = r - stroke / 2;
+  const rI = Math.max(0.4, r - stroke / 2);
   const sw = sweep();
   const large = sw > Math.PI ? 1 : 0;
   const rp = (radius, t) => rotPt(cx + radius * Math.cos(t), cy + radius * Math.sin(t), rot, cx, cy);
@@ -53,15 +53,23 @@ function capCenters() {
   ];
 }
 
-function iconSvg() {
-  const path = cPath();
+function glyphLayers(stroke, fill) {
+  const path = cPath(stroke);
   const caps = capCenters();
-  const capR = MARK.stroke / 2;
+  const capR = stroke / 2;
+  return `  <path fill="${fill}" d="${path}"/>
+  <circle cx="${fmt(caps[0][0])}" cy="${fmt(caps[0][1])}" r="${fmt(capR)}" fill="${fill}"/>
+  <circle cx="${fmt(caps[1][0])}" cy="${fmt(caps[1][1])}" r="${fmt(capR)}" fill="${fill}"/>`;
+}
+
+function iconSvg(background = 'none') {
+  const bgFill = background === 'ink' ? MARK.ink : background === 'paper' ? MARK.paper : null;
+  const bg = bgFill
+    ? `  <rect width="${MARK.viewBox}" height="${MARK.viewBox}" fill="${bgFill}"/>\n`
+    : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK.viewBox} ${MARK.viewBox}" role="img" aria-label="Sitemendo">
-  <rect width="${MARK.viewBox}" height="${MARK.viewBox}" fill="${MARK.ink}"/>
-  <path fill="${MARK.sulfur}" d="${path}"/>
-  <circle cx="${fmt(caps[0][0])}" cy="${fmt(caps[0][1])}" r="${fmt(capR)}" fill="${MARK.sulfur}"/>
-  <circle cx="${fmt(caps[1][0])}" cy="${fmt(caps[1][1])}" r="${fmt(capR)}" fill="${MARK.sulfur}"/>
+${bg}${glyphLayers(MARK.stroke + MARK.outline, MARK.ink)}
+${glyphLayers(MARK.stroke, MARK.sulfur)}
 </svg>
 `;
 }
@@ -114,19 +122,20 @@ const CHROME =
     'Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
   );
 
-async function rasterSvg(browser, svg, size) {
+async function rasterSvg(browser, svg, size, { transparent = false, pageBg = '#ffffff' } = {}) {
   const page = await browser.newPage({
     viewport: { width: size, height: size },
     deviceScaleFactor: 1,
   });
   const b64 = Buffer.from(svg).toString('base64');
+  const bg = transparent ? 'transparent' : pageBg;
   await page.setContent(`<!doctype html><html><head><style>
     *{margin:0;padding:0}
-    html,body{width:${size}px;height:${size}px;background:#090909}
+    html,body{width:${size}px;height:${size}px;background:${bg}}
     img{width:${size}px;height:${size}px;display:block}
   </style></head><body><img src="data:image/svg+xml;base64,${b64}" alt=""></body></html>`);
   await page.waitForTimeout(40);
-  const buf = await page.screenshot({ type: 'png', omitBackground: false });
+  const buf = await page.screenshot({ type: 'png', omitBackground: transparent });
   await page.close();
   return buf;
 }
@@ -163,17 +172,22 @@ async function rasterOg(browser, svg) {
   return buf;
 }
 
-const svg = iconSvg();
-writeFileSync(join(root, 'app/icon.svg'), svg);
+const tabSvg = iconSvg('none');
+const appleSvg = iconSvg('paper');
+writeFileSync(join(root, 'app/icon.svg'), tabSvg);
 
 const { chromium } = loadChromium();
 const browser = await chromium.launch({ executablePath: CHROME, headless: true });
 
-const png16 = await rasterSvg(browser, svg, 16);
-const png32 = await rasterSvg(browser, svg, 32);
-const png48 = await rasterSvg(browser, svg, 48);
-const png180 = await rasterSvg(browser, svg, 180);
-const og = await rasterOg(browser, svg);
+const png16 = await rasterSvg(browser, tabSvg, 16, { transparent: true });
+const png32 = await rasterSvg(browser, tabSvg, 32, { transparent: true });
+const png48 = await rasterSvg(browser, tabSvg, 48, { transparent: true });
+const png180 = await rasterSvg(browser, appleSvg, 180, { pageBg: MARK.paper });
+const og = await rasterOg(browser, tabSvg);
+
+const onPaper32 = await rasterSvg(browser, tabSvg, 64, { pageBg: MARK.paper });
+const onDark32 = await rasterSvg(browser, tabSvg, 64, { pageBg: '#111111' });
+const onWhite32 = await rasterSvg(browser, tabSvg, 64, { pageBg: '#ffffff' });
 
 await browser.close();
 
@@ -193,6 +207,8 @@ writeFileSync('/tmp/sitemendo-icon-32.png', png32);
 writeFileSync('/tmp/sitemendo-icon-48.png', png48);
 writeFileSync('/tmp/sitemendo-icon-180.png', png180);
 writeFileSync('/tmp/sitemendo-og.png', og);
-writeFileSync('/tmp/sitemendo-icon-dark.png', png32);
+writeFileSync('/tmp/sitemendo-icon-paper.png', onPaper32);
+writeFileSync('/tmp/sitemendo-icon-dark.png', onDark32);
+writeFileSync('/tmp/sitemendo-icon-white.png', onWhite32);
 
 console.log('Wrote app/icon.svg, app/favicon.ico, app/apple-icon.png, app/opengraph-image.png');

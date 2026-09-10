@@ -12,6 +12,14 @@
 
 ## Görevler
 
+### 2026-09-10 — Sekme ikonu: siyah kare kalktı
+
+Vercel sarı kutu gösteriyordu: C, siyah kareyi dolduruyordu. Kullanıcı sekmede siyah zemin istemedi. `icon.svg` / `favicon.ico` yine şeffaf; sarı C + mürekkep kontur (açık sekmede okunur). Apple ikonu kâğıt zemin (iOS şeffaf ikon istemez). OG kartı siyah kalır, o sekme değil.
+
+Doğrulama: 16/32 şeffaf PNG; kâğıt / beyaz / koyu zemin; `tsc`.
+
+Değişen dosyalar: `lib/mark.json`, `lib/mark.ts`, `scripts/build-icons.mjs`, `app/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `app/opengraph-image.png`, `components/BrandMark.tsx`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — İkon sistemi (Vercel / sekme / Apple / paylaşım)
 
 Vercel ve koyu zeminlerde şeffaf C’nin içi boş yay gibi duruyordu. Tek kaynak `lib/mark.json`: mürekkep kare, kalın sarı puan halkası (C). `scripts/build-icons.mjs` → `icon.svg`, `favicon.ico` (16/32/48), `apple-icon.png` (180), `opengraph-image.png` (1200×630). Çakı amblemi aynı yoldan (`BrandMark`). `metadataBase` `https://sitemendo.com`.
