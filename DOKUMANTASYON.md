@@ -12,6 +12,12 @@
 
 ## Görevler
 
+### 2026-09-10 — Impressum adresi
+
+Hizmet sağlayıcı bloğuna `Baerwaldstraße 70, 10961 Berlin` (Kreuzberg PLZ). Footer’da yalnızca Berlin kaldı. Kişi adı hâlâ yok.
+
+Değişen dosyalar: `lib/company.ts`, `components/LegalPage.tsx`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Gerçek telefon
 
 Yer tutucu `+49 155 12345678` kalktı. Site, Impressum, WhatsApp ve onay maili `lib/company.ts` üzerinden `+49 155 10913380` (`tel:+4915510913380`, `wa.me/4915510913380`).
@@ -421,10 +427,10 @@ Düşük:
 
 İletişim (`lib/company.ts`):
 - Unvan: Sitemendo
-- Konum (sokak yok): Berlin
+- Adres: Baerwaldstraße 70, 10961 Berlin
 - E-posta: hello@sitemendo.com
 - Telefon: +49 155 10913380
-- Kişi adı ve sokak adresi yayınlanmaz
+- Kişi adı yayınlanmaz
 
 Doğrulama: Playwright Chromium, 1440 / 820 / 390 / 320. 76 UX + regresyon (kontrast, başlık çakışması, rozet boşluğu, form senkron, gizlilik turu, DE, menü, SSS, mailto). Commit/push yok.
 

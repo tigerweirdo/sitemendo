@@ -61,6 +61,10 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
                 <section>
                   <h2>{legal.provider}</h2>
                   <p>{COMPANY.legalName}</p>
+                  <p>
+                    {COMPANY.street}<br />
+                    {`${COMPANY.postalCode} ${COMPANY.city}`}
+                  </p>
                 </section>
                 <section>
                   <h2>{legal.emailLabel}</h2>

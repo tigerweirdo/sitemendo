@@ -1,4 +1,4 @@
-/** Public contact details — keep consistent across UI. No personal name or street address. */
+/** Public contact details — keep consistent across UI. Personal name is not published. */
 export const CONTACT_EMAIL = 'hello@sitemendo.com';
 /** Display form with spaces; keep in sync with CONTACT_PHONE_E164. */
 export const CONTACT_PHONE_DISPLAY = '+49 155 10913380';
@@ -8,6 +8,8 @@ export const SAMPLE_DOMAIN = 'siteniz.com';
 
 export const COMPANY = {
   legalName: 'Sitemendo',
+  street: 'Baerwaldstraße 70',
+  postalCode: '10961',
   city: 'Berlin',
 } as const;
 
