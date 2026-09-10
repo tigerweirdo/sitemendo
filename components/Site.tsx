@@ -9,6 +9,7 @@ import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
 import { useScrollMotion } from '@/lib/useScrollMotion';
+import { useActiveSection } from '@/lib/useActiveSection';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { HeroKnife } from '@/components/HeroKnife';
 
@@ -96,7 +97,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
   const wasOpen = useRef(false);
   const compactNavCta = useSyncExternalStore(subscribeCompactNav, getCompactNav, () => false);
   useLangDocument(lang);
-  useScrollMotion(mainRef, lang);
+  useScrollMotion(mainRef, navRef, lang);
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen);
@@ -157,6 +158,8 @@ export function Site({ initialLang }: { initialLang: Lang }) {
     { href: '#how', label: c.nav.how },
     { href: '#faq', label: c.nav.faq },
   ] as const;
+  const activeSection = useActiveSection(navItems.map(item => item.href.slice(1)));
+  const current = (href: string) => (activeSection === href.slice(1) ? 'true' : undefined);
   const navCta = compactNavCta ? c.nav.ctaShort : c.nav.cta;
 
   return (
@@ -166,7 +169,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <div className="wrap nav__in">
           <a className="brand" href="#top">SITEMENDO<b>.</b></a>
           <nav className="nav__links" aria-label={c.a11y.mainNav}>
-            {navItems.map(item => <a key={item.href} href={item.href}>{item.label}</a>)}
+            {navItems.map(item => <a key={item.href} href={item.href} aria-current={current(item.href)}>{item.label}</a>)}
           </nav>
           <div className="nav__right">
             <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
@@ -189,7 +192,9 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         </div>
         <div className="menu" id="mobile-menu" ref={menuRef} hidden={!menuOpen} aria-hidden={!menuOpen}>
           <div className="wrap">
-            {navItems.map(item => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>)}
+            {navItems.map(item => (
+              <a key={item.href} href={item.href} aria-current={current(item.href)} onClick={() => setMenuOpen(false)}>{item.label}</a>
+            ))}
             <button className="btn" type="button" onClick={jumpToForm}>{c.nav.cta}</button>
             <LanguageSwitch lang={lang} setLang={setLang} onPick={() => setMenuOpen(false)} label={c.nav.lang}/>
           </div>

@@ -46,13 +46,26 @@ function reveal(
    klavyeyle odaklanan gizli öğe ekrana kaydırılır ve orada açılır. Hairline'lar
    globals.css'te --rule (0–1) oranında soldan sağa çizilir. Dil değişince her şey
    geri alınıp yeniden kurulur; karar cümlesinin kelime sayısı dile göre değişiyor. */
-export function useScrollMotion(scope: RefObject<HTMLElement | null>, lang: Lang) {
+export function useScrollMotion(
+  scope: RefObject<HTMLElement | null>,
+  nav: RefObject<HTMLElement | null>,
+  lang: Lang,
+) {
   useGSAP(() => {
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       const root = scope.current;
       if (!root) return;
       const q = (selector: string) => gsap.utils.toArray<HTMLElement>(selector, root);
+
+      /* Okuma çubuğu: menünün alt çizgisi sayfa ilerledikçe sülfürle dolar. */
+      if (nav.current) {
+        gsap.fromTo(nav.current, { '--progress': 0 }, {
+          '--progress': 1,
+          ease: 'none',
+          scrollTrigger: { start: 0, end: 'max', scrub: true },
+        });
+      }
 
       reveal(unseen(q('.sec')), 'top 92%', el =>
         gsap.fromTo(el, { '--rule': 0 }, { '--rule': 1, duration: 1.1, ease: LINE, paused: true }), 0);
@@ -147,6 +160,17 @@ export function useScrollMotion(scope: RefObject<HTMLElement | null>, lang: Lang
           tally.textContent = total;
         }
       };
+    }, scope);
+
+    /* Çakı, hero kaydırılırken biraz geride kalır ve hafifçe döner. Yalnız iki sütunlu
+       düzende: tek sütunda altındaki formun üstüne binerdi. */
+    mm.add('(prefers-reduced-motion: no-preference) and (min-width: 1000px)', () => {
+      gsap.to('.knife', {
+        y: 80,
+        rotation: -4,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
+      });
     }, scope);
     return () => mm.revert();
   }, { scope, dependencies: [lang], revertOnUpdate: true });

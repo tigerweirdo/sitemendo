@@ -12,6 +12,20 @@
 
 ## Görevler
 
+### 2026-09-10 — Hero ve menü hareketleri (ikinci paket)
+
+İlk paketten sonra hareketsiz kalan tek yer hero'ydu; menü de sayfanın neresinde olunduğunu göstermiyordu.
+
+Yapılanlar:
+1. Hero açılışı saf CSS (`hero-rise`, `hero-fade-up`, `rule-draw`): başlık bölüm başlıkları gibi maskeden yükseliyor, alt metin ve form kısa kaymayla geliyor, formun üst çizgisi çiziliyor. Sunucudan gelen ilk boyamada oynuyor, JS'i beklemiyor; hareket azaltılmışsa kapalı. Formun çizgisi de artık `--rule` ile çizilen arka plan.
+2. Çakı parallax'ı: hero kaydırılırken çakı 80px geride kalıyor ve 4° dönüyor (GSAP scrub). Yalnız ≥1000px, iki sütunlu düzende; tek sütunda altındaki formun üstüne binerdi. Yakın planda dönüşte keskinlik kaybı görülmedi.
+3. Okuma çubuğu: menünün alt çizgisi sayfa ilerledikçe 2px sülfürle doluyor (`--progress`, `.nav::after`). Mobil menü açıkken gizli.
+4. Aktif bölüm: `lib/useActiveSection.ts` (IntersectionObserver, ekranın üstten %40 hizası). Menüde ve mobil menüde `aria-current="true"`, dil seçicideki gibi sülfür alt çizgi. Hareket değil konum bilgisi; hareket azaltılmışken de çalışır. Hero, hakkımızda, rapor, karar cümlesi ve son formda hiçbir bağlantı işaretli değil.
+
+Doğrulama: `tsc --noEmit`; headless Chromium (CDP): hero açılışı düz yüklemede ilk karede başlıyor (masaüstü ve mobil), karelerde yatay kaydırma yok. Çakı 0 → 34px / -1.7° (300px kaydırma) → 78px / -3.9° (600px); mobilde ve hareket azaltılmışken sabit. Okuma çubuğu 0 → 0.5 → 1, hareket azaltılmışken yok. Aktif bölüm her bölümde doğru, DE'ye geçince de. İlk paketin kontrolü değişmedi.
+
+Değişen dosyalar: `lib/useActiveSection.ts` (yeni), `lib/useScrollMotion.ts`, `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-10 — Kaydırma hareketleri (ilk paket)
 
 Site düz duruyordu. Önceki revizyonda bilinçli olarak eklenmeyen kaydırma hareketi, tasarım diline uygun ölçüde geldi: çizgiler çiziliyor, başlıklar maskeden yükseliyor, zıplama yok. GSAP + ScrollTrigger (zaten kuruluydu); tek kaynak `lib/useScrollMotion.ts`.
