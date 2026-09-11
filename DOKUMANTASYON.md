@@ -10,7 +10,201 @@
 - Alan adı: Cloudflare Registrar (`gail` / `rajeev` NS). Nameserver’ı Vercel’e taşıma; mail yönlendirme Cloudflare’da kalacak.
 - Ortam değişkenleri: `RESEND_API_KEY`, `AUDIT_FROM_EMAIL`, `AUDIT_NOTIFY_EMAIL`, `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_IMPRESSUM_URL`, `NEXT_PUBLIC_DEMO_MODE`
 
+## Metin ve içerik kuralları (2026-09-11)
+
+Sitemendo metinleri adım adım yenilenirken:
+
+- Sitemendo hizmet markası olarak öne çıkar. Kurucu hikâyesi, kişisel fotoğraf veya bireysel portfolyo yok.
+- Marka “biz” diliyle konuşabilir. Ekip büyüklüğü, uzman kadro, müşteri sayısı veya referans uydurulmaz.
+- Dil sakin, açık, özenli ve somut olur.
+- “Ne bozuk”, “sitelere bakıyoruz”, “satın alma yok” gibi ifadeler kullanılmaz.
+- “Dijital çözümler”, “işinizi geleceğe taşıyoruz”, “kusursuz performans” gibi genel veya kanıtlanamayan ifadeler kullanılmaz.
+- Ana hizmet: web sitesi kontrolü, düzeltme ve bakım. Ücretsiz kontrol bu hizmete giriş adımıdır.
+- Berlin konum bilgisidir, ikinci plandadır. Yalnız Berlin’e hizmet izlenimi yaratılmaz.
+- Küçük işletme hedefi her bölümde tekrarlanmaz.
+- Görsel kimlik, renkler, logo ve çalışan özellikler korunur.
+- TR / DE / EN arasında anlam ve hizmet kapsamı tutarlıdır.
+- Fiyat, teslim süresi, garanti veya hizmet koşulu uydurulmaz (mevcut 0 / 250 / 450 / 79 €, 48 saat, 2–5 iş günü korunur).
+- Mevcut kullanıcı değişiklikleri ezilmez. Deploy, push veya gerçek form gönderimi yapılmaz.
+
 ## Görevler
+
+### 2026-09-11 — Bütüncül kontrol: içerik, SEO, görsel
+
+Doğrulanan hatalar düzeltildi. URL yapısı aynı kaldı (`?lang=`). Deploy / push yok.
+
+İçerik:
+- EN hero son cümle ve meta description TR/DE ile aynı hizmeti anlatacak şekilde hizalandı.
+- EN CTA metinleri “Request a free check” olarak birleştirildi.
+- DE kapsam notu “Verwaltungsmenü” → “Verwaltungsbereich” (SSS ile aynı).
+- Kullanılmayan `sec.checks` “bakıyoruz” ifadesi çıkarıldı.
+- Onay maili: “satın alma yok”, “tüm site”, “bakıyoruz” kalktı; teslim site ile aynı 48 saat. 2 iş günü yalnız acil düzeltme kartında duruyor.
+- OG görseli “Berlin · web kontrolü” yerine “kontrol · düzeltme · bakım”. Alt metin aynı konumlandırma.
+
+SEO (mevcut `?lang=` yapısı, göç yok):
+- `app/robots.ts`, `app/sitemap.ts` eklendi. Sitemap: `/`, `/privacy`, `/impressum` ve EN/DE `?lang=` karşılıkları. `/api/` yok. `?lang=tr` yok (kanonik TR parametresiz).
+- Canonical + hreflang + x-default gerçek URL’lere bağlandı. Next metadata API kök yolda sorgu dizgisini düşürdüğü için bağlantılar `SeoLinks` ile basılıyor.
+- Dil seçici taranabilir `<a href="?lang=…">`; tıklanınca mevcut istemci seçimi duruyor.
+- `html lang` istekteki `?lang=` ile uyumlu (middleware başlığı).
+
+Görsel / işlev:
+- Mobil menü açıkken bölüm bağlantısı kaydıramıyordu (`body` kilidi). Menü kapanınca anında hedefe gidiyor.
+- 375 / 390 / 768 / 1440 taşma, menü, dil, form adımları Brave’de denendi.
+
+Doğrulama: `tsc --noEmit`; `scripts/verify-form-faq.ts`; `scripts/verify-review-pass.mjs` (robots, sitemap, hreflang, tarayıcı); `next build` geçti. `next lint` ESLint config olmadığı için sihirbaz açtı; lint kurulmadı, lint geçti diye sayılmadı. Gerçek e-posta teslimatı yok.
+
+Değişen dosyalar: `lib/content.ts`, `lib/seo.ts`, `lib/auditMail.ts`, `app/layout.tsx`, `app/page.tsx`, `app/privacy/page.tsx`, `app/impressum/page.tsx`, `app/robots.ts`, `app/sitemap.ts`, `app/opengraph-image.png`, `app/opengraph-image.alt.txt`, `app/globals.css`, `middleware.ts`, `components/LanguageSwitch.tsx`, `components/SeoLinks.tsx`, `components/Site.tsx`, `scripts/verify-review-pass.mjs`, `scripts/build-og.mjs`, `DOKUMANTASYON.md`.
+
+### 2026-09-11 — Form mikro metinleri ve SSS
+
+Form ve sık sorulan sorular yeni marka diline çekildi. Üç dil (TR / EN / DE) güncellendi. Fiyat, süre ve kapsam uydurulmadı. Desteklenen altyapı listesi genişletilmedi (yalnız mevcut WordPress ifadesi). Güvenlik garantisi eklenmedi.
+
+Form:
+1. Başta site adresi ve e-postanın ikisinin de gerektiği açık (hero ve `#start`).
+2. Hata / gönderim / başarı metinleri istenen dilde. Canlı başarı yalnız `mode === 'live'` iken: “Talebiniz alındı.” + 48 saat açıklaması.
+3. Demo yanıtı canlı başvuru gibi gösterilmiyor; “canlı başvuru alınmadı / hiçbir bilgi gönderilmedi”.
+4. Hata olunca url ve e-posta korunuyor. Gönderim kilidi çift başvuruyu kesiyor.
+5. Etiket (`htmlFor` / `id`), `aria-required`, `aria-invalid`, `role="alert"`, gönderimde `aria-live`, başarıda `role="status"` ve odak yönetimi (yalnız gönderilen form örneği).
+
+SSS (7 soru): ücretsiz kontrol içeriği; rapor süresi (48 saat, belirtilen e-posta); düzeltmenin zorunlu olmadığı; ücret (250 € / 450 €’dan / 79 €/ay, mevcut koşullar); erişim (ücretsiz için adres yeter; panel / yedek / e-posta teslimatı ek erişim isteyebilir); desteklenen siteler (dışarıdan erişilebilen işletme siteleri, WordPress dahil); diller (TR / EN / DE).
+
+Doğrulama:
+- `tsc --noEmit`
+- `scripts/verify-form-faq.ts` — url/e-posta hataları, alanların korunması, demo ≠ canlı başarı, gönderim kilidi, mock `fetch` (demo / live / 502)
+- SSR GET TR/EN/DE: 7 SSS ve “iki alan gerekir” metni HTML’de
+- Headless Brave: boş url → hata + odak/aria; geçerli url → e-posta adımı; geçersiz e-posta → hata, bilgiler duruyor; mock demo → canlı başarı yok; mock live → “Talebiniz alındı.” + 48 saat; mock 502 → fail + mailto, bilgiler duruyor; çift tık → tek istek; 375 px taşma yok; EN/DE url hatası
+
+Gerçek `/api/audit` çağrısı yok. **Gerçek e-posta teslimat testi yapılmadı.** Deploy / push yok.
+
+Değişen dosyalar: `lib/content.ts`, `lib/formFlow.ts`, `lib/auditRequest.ts`, `components/Site.tsx`, `app/globals.css`, `scripts/verify-form-faq.ts`, `scripts/verify-form-browser.mjs`, `tsconfig.json`, `DOKUMANTASYON.md`.
+
+### 2026-09-11 — Kontrol kapsamı ve hizmet kartları
+
+Fiyatlar doğrulandı ve değiştirilmedi: 0 €, 250 €, 450 €’dan, 79 € / ay. Süreler aynı: 48 saat, 2 iş günü, 5 iş günü, ayda 30 dakika.
+
+Yapılanlar:
+1. Ücretsiz kontrol sekiz maddesi dışarıdan doğrulanabilir kapsama çekildi. “Her bağlantı”, “altyapı güncel”, “mesaj gelen kutusuna ulaştı” kalktı.
+2. Kapsam notu eklendi: dışarıdan erişilen bölümler; panel, yedek, e-posta teslimatı ek erişim isteyebilir.
+3. Ücretsiz kart çıktısı: rapor + öncelik listesi + 48 saat.
+4. 250 € sabit paket; “fiyat rapordan sonra belli olur” bu karttan çıktı. Not: kapsam işlem öncesinde netleşir. 2–3 sorun sınırı duruyor.
+5. Tam onarım: “teklifte belirlenen düzeltmeler”, başlangıç fiyatı 450 €’dan, 5 iş günü. “Bütün sorunlar” kalktı.
+6. Bakım: izleme / bildirim / müdahale ayrıldı. Yedek = durum kontrolü, yedekleme hizmeti değil. 30 dakika duruyor.
+
+Doğrulama: `tsc --noEmit`. SSR TR/EN/DE: fiyatlar aynı; “fiyat rapordan sonra” yok; 250 € kartında bir kez “kapsam işlem öncesinde”; 450 € kartında bir kez “başlangıç fiyatı / teklif”. Form gönderilmedi; deploy/push yok.
+
+Değişen dosyalar: `lib/content.ts`, `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
+Kaynakta olmayan, bu turda uydurulmayan işletme kararları: KDV / vergi ifadesi; bakım iptal ve ihbar süresi; kesintiye müdahale süresi (yalnız bildirim var); 30 dakikayı aşan işin ücreti; ücretsiz kontrolde sayfa sayısı; yazılım güncellemesinin hangi sistemleri ve hangi erişimi kapsadığı; 250 € paketinin KDV’si ve 2 gün aşılırsa ne olacağı; 450 € tavanı.
+
+### 2026-09-11 — Bölüm sırası, yaklaşım, örnek rapor, süreç
+
+Ana sayfa istenen sıraya çekildi. Yeni bölüm eklenmedi; karar cümlesi ve “nasıl çalışır” altındaki tekrar güvence satırı kaldırıldı (ücretsiz / satın alma her yerde tekrarlanmasın diye). İletişim yaklaşım bloğundan çıktı; footer’da duruyor.
+
+Sıra ve ID’ler: `#top` → `#report` → `#about` → `#checks` → `#how` → `#services` → `#faq` → `#start` → `#contact`. Menü: Kontrol kapsamı, Nasıl çalışır, Hizmetler, Sorular (sayfa sırasıyla).
+
+Metin:
+- Yaklaşım (`#about`): “Önce tespit. Sonra net bir plan.” + inceleme / düzeltme / bakım + iş, ücret, süre netleşir.
+- Örnek rapor: yeni açıklama; “temsili örnek, gerçek müşteri sonucu değil”; 03 bulgu = 03 sayaç; “iki bağlantı” = 02 hata; 4,8 sn ve 41/100 kalktı.
+- Nasıl çalışır: paylaşın → raporu alın → sonraki adımı seçin.
+- Footer: “Web sitesi kontrolü, düzeltme ve bakım.”
+- Bölüm başlıkları: Kontrol kapsamı, Hizmetler ve fiyatlar, Sık sorulan sorular. TR/EN/DE aynı anlam.
+
+Doğrulama: `tsc --noEmit`. SSR HTML: ID sırası ve menü bağlantıları doğru; Hakkımızda / karar cümlesi yok. EN/DE yaklaşım, örnek not, süreç ve footer doğrulandı. Form gönderilmedi; deploy/push yok. Cursor tarayıcısı yoktu; tıklayarak kaydırma bu turda ölçülmedi (bağlantı hedefleri HTML’de duruyor).
+
+Değişen dosyalar: `components/Site.tsx`, `lib/content.ts`, `app/globals.css`, `lib/useActiveSection.ts`, `DOKUMANTASYON.md`.
+
+Kalan belirsizlik: kontrol maddeleri hâlâ “bakıyoruz” dilinde. SSS ücretsiz/satın alma sorularını tutuyor (o bölümün işi). Onay maili ve 48 saat / 2 iş günü farkı duruyor.
+
+### 2026-09-11 — İlk ekran metinleri (hero + form)
+
+Ana sayfanın ilk ekranı yeni hizmet diline çekildi. Form adımları, palet ve çalışan özellikler aynı.
+
+Yapılanlar:
+1. Hero: “Web siteniz için kontrol, düzeltme ve bakım.” + iki cümlelik açıklama. Zorunlu satır sonu yok. Berlin yalnızca küçük konum satırı: “Berlin merkezli” / “Based in Berlin” / “Sitz in Berlin”.
+2. Form (yalnız hero): başlık “Ücretsiz site kontrolüyle başlayın.”, açıklama (adres + e-posta, 48 saat). İlk adım düğmesi “Devam et”. E-posta düğmesi “Kontrol talebini gönder”. Güvence: “Ücretsiz rapor. Düzeltme hizmeti isteğe bağlı.” İkincil bağlantı `#report`: “Örnek raporu inceleyin”.
+3. Menü CTA: “Ücretsiz kontrol isteyin”. 401–1023 px’te kısa etiket (“Kontrol”) — uzun metin header’ı sıkıştırmasın diye.
+4. EN/DE doğal hizmet dili; kelimesi kelimesine değil. Sekme/OG/manifest “ne bozuk” ve Berlin+küçük işletme vaadinden çıktı; ilk ekranla aynı kapsam.
+5. Yerleşim: hero metin sütunu biraz genişledi, form başlığı/güvence/bağlantı için küçük bloklar, mobilde alan ve düğme tam genişlik, taşma yok.
+
+Doğrulama: `tsc --noEmit`. Headless Brave: 1440 / 375 / 320, TR/EN/DE. Yatay kaydırma yok; h1’de `<br>` yok. Örnek rapor bağlantısı `#report` (rapor üstü ~134 px). URL → e-posta: “Kontrol talebini gönder”, 375’te taşma yok. Form gönderilmedi, deploy/push yok.
+
+Değişen dosyalar: `lib/content.ts`, `components/Site.tsx`, `app/globals.css`, `app/manifest.ts`, `app/opengraph-image.alt.txt`, `DOKUMANTASYON.md`.
+
+Kalan belirsizlik: hakkımızda / footer / SSS / onay maili hâlâ eski dilde (“bakıyoruz”, “satın alma yok”, Berlin+küçük işletme). Alt form (`#start`) aynı düğme ve güvenceyi kullanır; hero başlığı/örnek linki orada yok. 48 saat (site) ile 2 iş günü (mail hesabı) duruyor.
+
+### 2026-09-11 — Metin iyileştirme: keşif ve plan (kod yok)
+
+Amaç: metin ve içerik yapısını adım adım yenilemek. Bu turda kod değişmedi; dosyalar ve plan çıkarıldı.
+
+#### Mimari (metin nerede)
+
+Tek içerik modeli: `lib/content.ts` (`Record<Lang, Copy>`, `tr` / `en` / `de`). Ayrı JSON/i18n dosyası yok.
+
+Ana sayfa tek bileşende: `components/Site.tsx`
+
+| Bölüm | id | Kaynak |
+|---|---|---|
+| Menü + CTA | header | `nav`, `a11y` |
+| Hero + form | `#top` | `hero`, `form` |
+| Hakkımızda | `#about` | `about` + `lib/company.ts` iletişim |
+| Kontrol kapsamı | `#checks` | `checksTitle`, `checksSub`, `checks[]` |
+| Rapor örneği | `#report` | `reportTitle`, `findings`, `sampleReport`, `checklist` |
+| Karar cümlesi | (id yok) | `statementA`, `statementSub` |
+| Hizmetler | `#services` | `servicesTitle`, `services[]`, `after`, `servicesCta` |
+| Süreç | `#how` | `howTitle`, `steps`, `assure` |
+| SSS | `#faq` | `faqTitle`, `faq[]` |
+| Son form | `#start` | `final` + aynı `form` |
+| Footer | `#contact` | `footer` + sabit `Berlin, {country}` |
+
+Yasal sayfalar: `app/privacy/page.tsx`, `app/impressum/page.tsx` → `components/LegalPage.tsx` → `content.legal` + `content.meta`. Impressum’da kişi adı ve Berlin adresi yasal blokta (`lib/company.ts`); ana sayfada kişi yok.
+
+Form akışı (kod, metin değil):
+
+1. `AuditFormProvider` — hero ve `#start` aynı state (`url` → `email` → `done`)
+2. `sessionStorage` (`lib/formPersist.ts`); yasal sayfadan dönüşte `#start`
+3. `POST /api/audit` (`lib/auditRequest.ts` doğrulama, `lib/auditRateLimit.ts`)
+4. Canlı: Resend — ziyaretçiye `confirmEmail`, iç bildirim `notifyEmail` (`lib/auditMail.ts`)
+5. Demo: `{ mode: "demo" }`, gerçek gönderim yok
+
+Metadata:
+
+- `app/layout.tsx` — çerez diline göre `title` / `description` / OG / Twitter
+- `app/page.tsx`, `privacy`, `impressum` — `?lang` + çerez (`lib/lang.ts` `resolveLang`)
+- İstemci dil değişince `lib/useLangDocument.ts` `document.title` ve meta günceller
+- `middleware.ts` `?lang` → `sitemendo.lang` çerezi
+- Dil dışı / tek dil: `app/manifest.ts`, `app/opengraph-image.alt.txt`
+
+`content.sec` ve `content.talk` tanımlı, bileşende kullanılmıyor.
+
+#### Kurala takılan mevcut metinler
+
+Üç dilde aynı sorunlar:
+
+- Hero / sekme / OG: “ne bozuk” / “what’s broken” / “was … kaputt ist”
+- Hakkımızda + meta: Berlin + küçük işletme birlikte, hizmet alanı gibi
+- Nav / bölüm / adım: “bakıyoruz” / “look after” / “sehen nach”
+- Form mikro + SSS + onay maili: “Satın alma yok” / “Nothing to buy” / “Nichts zu kaufen”
+- Footer etiketi: küçük işletme tekrarı
+- Hizmet başlığı “Kontrol ve düzeltme” — bakım üçüncü ana hizmet olarak görünmüyor
+- `manifest.ts` ve OG alt metni yalnız TR ve Berlin merkezli
+- Onay maili dipnotu sabit `Sitemendo · Berlin`; konu “bakmaya başlıyoruz”
+
+Korunacaklar: palet, logo, çakı, form mantığı, fiyatlar, mevcut süreler, Impressum yasal kimlik, çalışan özellikler.
+
+#### Uygulama planı (sonraki adımlar)
+
+Her adımda önce TR, sonra aynı anlamda DE/EN. CSS / form gönderimi / deploy / push yok.
+
+1. **Hero, menü, metadata** — marka + ana hizmet; “bozuk/kaputt” kalkar; ücretsiz kontrol giriş adımıdır.
+2. **Hakkımızda + footer** — “biz” marka dili; Berlin ikinci planda; küçük işletme her yerde tekrarlanmaz.
+3. **Kontrol kapsamı + nasıl çalışır** — “bakıyoruz” kalkar; sekiz madde ve üç adım aynı kapsamda kalır.
+4. **Hizmetler + karar + SSS + form mikro** — kontrol / düzeltme / bakım; ücretsiz kontrol giriş; “satın alma yok” kalkar; fiyat ve süre uydurulmaz.
+5. **Onay maili + manifest + OG alt** — sitedeki vaatle aynı; Berlin dipnotu konum düzeyinde.
+6. **Tutarlılık taraması** — üç dil, kullanılmayan anahtarlar, 48 saat (site) ile 2 iş günü (mail hesabı) belirsizliği.
+
+Bu tur: kod yok. Değişen dosya: `DOKUMANTASYON.md`. Kontrol: kaynak okuma. Form gönderilmedi, deploy/push yok.
+
+Kalan belirsizlik: sitedeki “48 saat” ile maildeki “2 iş günü” hesabı zaten farklı; yeni süre uydurulmayacak, sonraki adımda hangisinin ziyaretçiye söyleneceği netleşmeli. `talk` / `sec` silinsin mi, kalsın mı ayrı karar.
 
 ### 2026-09-10 — Hero ve menü hareketleri (ikinci paket)
 

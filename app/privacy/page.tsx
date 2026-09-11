@@ -1,23 +1,17 @@
-import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { LegalPage } from '@/components/LegalPage';
-import { content } from '@/lib/content';
 import { LANG_COOKIE, resolveLang } from '@/lib/lang';
+import { routeMetadata } from '@/lib/seo';
 
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: Promise<{ lang?: string }>;
-}): Promise<Metadata> {
+}) {
   const params = await searchParams;
   const cookieStore = await cookies();
   const lang = resolveLang(params.lang, cookieStore.get(LANG_COOKIE)?.value);
-  const m = content[lang].meta;
-  return {
-    title: m.privacyTitle,
-    description: m.privacyDescription,
-    robots: { index: true, follow: true },
-  };
+  return routeMetadata('/privacy', lang);
 }
 
 export default async function PrivacyPage({

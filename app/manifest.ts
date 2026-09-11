@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Sitemendo',
     short_name: 'Sitemendo',
-    description: 'Berlin’de küçük işletmeler için ücretsiz web sitesi kontrolü.',
+    description: 'Web siteniz için kontrol, düzeltme ve bakım.',
     start_url: '/',
     display: 'browser',
     background_color: '#F3F1EA',

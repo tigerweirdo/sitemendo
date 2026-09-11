@@ -18,10 +18,8 @@ const SANS = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helv
 
 const LOCALE: Record<Lang, string> = { tr: 'tr-TR', en: 'en-GB', de: 'de-DE' };
 const TZ = 'Europe/Berlin';
-/* Teslim 2 iş günü sonra, aynı saatte. Cumartesi-pazar sayılmaz; hafta sonu gelen
-   istek pazartesi 09:00'da başlamış sayılır. Hepsi Berlin saatiyle. */
-const REPORT_BUSINESS_DAYS = 2;
-const WEEKEND_START_HOUR = 9;
+/* Site ve form ile aynı teslim: 48 saat. Yeni süre uydurulmaz. */
+const REPORT_HOURS = 48;
 
 export type RequestMeta = { ref: string; receivedAt: Date };
 
@@ -64,41 +62,8 @@ function when(date: Date, lang: Lang) {
   return lang === 'de' ? `${day}, ${time} Uhr` : `${day}, ${time}`;
 }
 
-type Wall = { y: number; m: number; d: number; h: number; mi: number };
-
-function berlinWall(date: Date): Wall {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(date);
-  const get = (type: string) => Number(parts.find(p => p.type === type)?.value);
-  return { y: get('year'), m: get('month'), d: get('day'), h: get('hour'), mi: get('minute') };
-}
-
-/* Berlin duvar saatini gerçek ana çevirir (yaz/kış saati farkı dahil). */
-function fromBerlinWall(w: Wall) {
-  const guess = Date.UTC(w.y, w.m - 1, w.d, w.h, w.mi);
-  const seen = berlinWall(new Date(guess));
-  const offset = Date.UTC(seen.y, seen.m - 1, seen.d, seen.h, seen.mi) - guess;
-  return new Date(guess - offset);
-}
-
 function dueOf(received: Date) {
-  let { y, m, d, h, mi } = berlinWall(received);
-  const weekend = () => [0, 6].includes(new Date(Date.UTC(y, m - 1, d)).getUTCDay());
-  const nextDay = () => {
-    const t = new Date(Date.UTC(y, m - 1, d + 1));
-    y = t.getUTCFullYear(); m = t.getUTCMonth() + 1; d = t.getUTCDate();
-  };
-  if (weekend()) {
-    while (weekend()) nextDay();
-    h = WEEKEND_START_HOUR;
-    mi = 0;
-  }
-  for (let left = REPORT_BUSINESS_DAYS; left > 0;) {
-    nextDay();
-    if (!weekend()) left -= 1;
-  }
-  return fromBerlinWall({ y, m, d, h, mi });
+  return new Date(received.getTime() + REPORT_HOURS * 60 * 60 * 1000);
 }
 
 function legalLink(path: 'impressum' | 'privacy', lang: Lang) {
@@ -311,17 +276,17 @@ type ConfirmCopy = {
 const CONFIRM: Record<Lang, ConfirmCopy> = {
   tr: {
     subject: host => `Kontrol isteğiniz alındı — ${host}`,
-    preview: due => `Raporunuz en geç ${due} e-postanızda. Satın alma yok.`,
+    preview: due => `Raporunuz 48 saat içinde e-postanızda. En geç ${due}.`,
     meta: ref => `Kontrol isteği · ${ref}`,
     badge: 'Alındı',
-    title: 'Aldık. Sitenize bakmaya başlıyoruz.',
-    lead: host => `<b style="color:${INK};font-weight:600;">${esc(host)}</b> için isteğiniz bize ulaştı. Sitenizi baştan sona inceleyip bulduğumuz her şeyi sade bir raporda topluyoruz.`,
+    title: 'Talebiniz alındı.',
+    lead: host => `<b style="color:${INK};font-weight:600;">${esc(host)}</b> için isteğiniz bize ulaştı. Dışarıdan erişilebilen sayfalarda sekiz noktayı inceleriz; raporu ve öncelik listesini 48 saat içinde göndeririz.`,
     rows: { site: 'Site', email: 'Rapor gidecek adres', due: 'En geç', ref: 'Referans' },
     nextTitle: 'Sırada ne var',
-    steps: ['İstek alındı', 'Sitenizi inceliyoruz', 'Rapor e-postanızda'],
-    review: 'Sekiz başlıkta kontrol ediyoruz',
-    checksTitle: 'Raporda neye bakıyoruz',
-    promise: ['Satın alma yok.', 'Raporu okuduktan sonra karar sizin. Düzeltmek zorunda değilsiniz.'],
+    steps: ['İstek alındı', 'Siteyi inceliyoruz', 'Rapor e-postanızda'],
+    review: 'Dışarıdan erişilebilen sayfalarda sekiz nokta',
+    checksTitle: 'Kontrol kapsamı',
+    promise: ['Düzeltme hizmeti isteğe bağlı.', 'Raporu okuduktan sonra düzeltmeyi kendiniz yaptırabilir veya bizden teklif isteyebilirsiniz.'],
     askTitle: 'Sorunuz mu var?',
     ask: 'Bu e-postayı yanıtlamanız yeterli, doğrudan bize ulaşır. İsterseniz arayın ya da WhatsApp’tan yazın.',
     footer: 'Bu e-postayı sitemendo.com’daki formu doldurduğunuz için aldınız.',
@@ -329,17 +294,17 @@ const CONFIRM: Record<Lang, ConfirmCopy> = {
   },
   en: {
     subject: host => `We received your check request — ${host}`,
-    preview: due => `Your report will be in your inbox by ${due}. Nothing to buy.`,
+    preview: due => `Your report will be in your inbox within 48 hours. By ${due} at the latest.`,
     meta: ref => `Check request · ${ref}`,
     badge: 'Received',
-    title: 'Got it. We’re starting on your site.',
-    lead: host => `We received your request for <b style="color:${INK};font-weight:600;">${esc(host)}</b>. We’ll go through your whole site and put everything we find into one clear report.`,
+    title: 'Your request has been received.',
+    lead: host => `We received your request for <b style="color:${INK};font-weight:600;">${esc(host)}</b>. We review eight points on the publicly reachable pages and send the report with a priority list within 48 hours.`,
     rows: { site: 'Website', email: 'Report goes to', due: 'At the latest', ref: 'Reference' },
     nextTitle: 'What happens next',
-    steps: ['Request received', 'We check your site', 'Report in your inbox'],
-    review: 'We look at eight things',
-    checksTitle: 'What the report covers',
-    promise: ['Nothing to buy.', 'After reading the report, the decision is yours. You don’t have to fix anything.'],
+    steps: ['Request received', 'We review the site', 'Report in your inbox'],
+    review: 'Eight points on the publicly reachable pages',
+    checksTitle: 'What the check covers',
+    promise: ['Repair work is optional.', 'After the report you can have the repairs done yourself or ask us for a quote.'],
     askTitle: 'Any questions?',
     ask: 'Just reply to this email — it comes straight to us. You can also call or message us on WhatsApp.',
     footer: 'You’re receiving this email because you filled in the form on sitemendo.com.',
@@ -347,17 +312,17 @@ const CONFIRM: Record<Lang, ConfirmCopy> = {
   },
   de: {
     subject: host => `Ihre Prüfungsanfrage ist angekommen — ${host}`,
-    preview: due => `Ihr Bericht kommt bis ${due}. Nichts zu kaufen.`,
+    preview: due => `Ihr Bericht kommt innerhalb von 48 Stunden. Spätestens ${due}.`,
     meta: ref => `Prüfungsanfrage · ${ref}`,
     badge: 'Angekommen',
-    title: 'Angekommen. Wir sehen uns Ihre Seite an.',
-    lead: host => `Ihre Anfrage für <b style="color:${INK};font-weight:600;">${esc(host)}</b> ist bei uns. Wir sehen uns Ihre ganze Seite an und fassen alles, was wir finden, in einem verständlichen Bericht zusammen.`,
+    title: 'Ihre Anfrage ist eingegangen.',
+    lead: host => `Ihre Anfrage für <b style="color:${INK};font-weight:600;">${esc(host)}</b> ist bei uns. Wir prüfen acht Punkte auf den öffentlich erreichbaren Seiten und senden Bericht und Prioritätenliste innerhalb von 48 Stunden.`,
     rows: { site: 'Website', email: 'Bericht geht an', due: 'Spätestens', ref: 'Referenz' },
     nextTitle: 'Wie es weitergeht',
-    steps: ['Anfrage erhalten', 'Wir prüfen Ihre Seite', 'Bericht im Postfach'],
-    review: 'Wir prüfen acht Punkte',
-    checksTitle: 'Was der Bericht abdeckt',
-    promise: ['Nichts zu kaufen.', 'Nach dem Bericht entscheiden Sie. Sie müssen nichts reparieren lassen.'],
+    steps: ['Anfrage erhalten', 'Wir prüfen die Seite', 'Bericht im Postfach'],
+    review: 'Acht Punkte auf den öffentlich erreichbaren Seiten',
+    checksTitle: 'Was die Prüfung umfasst',
+    promise: ['Die Reparatur bleibt optional.', 'Nach dem Bericht können Sie die Korrekturen selbst erledigen lassen oder uns um ein Angebot bitten.'],
     askTitle: 'Fragen?',
     ask: 'Antworten Sie einfach auf diese E-Mail — sie kommt direkt bei uns an. Sie können uns auch anrufen oder per WhatsApp schreiben.',
     footer: 'Sie erhalten diese E-Mail, weil Sie das Formular auf sitemendo.com ausgefüllt haben.',
@@ -471,7 +436,7 @@ export function notifyEmail(payload: AuditPayload, meta: RequestMeta) {
       ${badge('Yeni istek')}
       ${title(host)}
       ${lead(`Formdan yeni kontrol isteği geldi · ${esc(received)}`)}
-      ${deadline('Rapor teslimi', `${esc(due)} <span style="font-weight:400;color:${SOFT};">· ${REPORT_BUSINESS_DAYS} iş günü</span>`)}
+      ${deadline('Rapor teslimi', `${esc(due)} <span style="font-weight:400;color:${SOFT};">· ${REPORT_HOURS} saat</span>`)}
       ${summary([
         ['Site', link(payload.websiteUrl, prettyUrl(payload.websiteUrl))],
         ['Müşteri', link(`mailto:${payload.email}`, payload.email)],
@@ -494,7 +459,7 @@ export function notifyEmail(payload: AuditPayload, meta: RequestMeta) {
     `Yeni kontrol isteği — ${host}`,
     '',
     `Geldi: ${received}`,
-    `Teslim: ${due} (${REPORT_BUSINESS_DAYS} iş günü)`,
+    `Teslim: ${due} (${REPORT_HOURS} saat)`,
     '',
     `Site: ${payload.websiteUrl}`,
     `Müşteri: ${payload.email}`,

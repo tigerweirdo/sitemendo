@@ -1,9 +1,10 @@
 'use client';
 
-import { Fragment, createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
-import { normalizeWebsite, validEmail } from '@/lib/auditRequest';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
+import { normalizeWebsite } from '@/lib/auditRequest';
 import { content, type Lang } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
+import { createSendLock, formDoneView, nextEmailStep, nextUrlStep, submitAuditRequest } from '@/lib/formFlow';
 import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMode, type FormStep } from '@/lib/formPersist';
 import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
@@ -28,11 +29,13 @@ type SharedForm = {
   setMode: (mode: FormMode) => void;
   resetForm: () => void;
   editForm: () => void;
+  tryBeginSend: () => boolean;
+  endSend: () => void;
 };
 
 const AuditFormContext = createContext<SharedForm | null>(null);
 
-const COMPACT_NAV_MQ = '(max-width: 767px) and (min-width: 401px)';
+const COMPACT_NAV_MQ = '(max-width: 1023px) and (min-width: 401px)';
 
 function subscribeCompactNav(onChange: () => void) {
   const mq = window.matchMedia(COMPACT_NAV_MQ);
@@ -50,6 +53,7 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<FormMode>(null);
+  const sendLock = useRef(createSendLock());
 
   useLayoutEffect(() => {
     const saved = readPersistedForm();
@@ -64,7 +68,8 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
     writePersistedForm({ step, url, email, mode });
   }, [step, url, email, mode]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
+    sendLock.current.unlock();
     setStep('url');
     setUrl('');
     setEmail('');
@@ -72,16 +77,25 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
     setBusy(false);
     setMode(null);
     clearPersistedForm();
-  };
-  const editForm = () => {
+  }, []);
+  const editForm = useCallback(() => {
     setStep('url');
     setError('');
-  };
+  }, []);
+  const tryBeginSend = useCallback(() => {
+    if (!sendLock.current.tryLock()) return false;
+    setBusy(true);
+    return true;
+  }, []);
+  const endSend = useCallback(() => {
+    sendLock.current.unlock();
+    setBusy(false);
+  }, []);
 
   const value = useMemo(() => ({
     step, url, email, error, busy, mode,
-    setStep, setUrl, setEmail, setError, setBusy, setMode, resetForm, editForm,
-  }), [step, url, email, error, busy, mode]);
+    setStep, setUrl, setEmail, setError, setBusy, setMode, resetForm, editForm, tryBeginSend, endSend,
+  }), [step, url, email, error, busy, mode, resetForm, editForm, tryBeginSend, endSend]);
 
   return <AuditFormContext.Provider value={value}>{children}</AuditFormContext.Provider>;
 }
@@ -150,12 +164,28 @@ export function Site({ initialLang }: { initialLang: Lang }) {
     }, reduce ? 40 : 250);
   };
 
+  const closeMenuAndGo = (href: string) => {
+    document.body.classList.remove('menu-open');
+    setMenuOpen(false);
+    if (!href.startsWith('#')) return;
+    const go = () => {
+      const el = document.getElementById(href.slice(1));
+      const root = document.documentElement;
+      const prev = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+      el?.scrollIntoView({ block: 'start' });
+      root.style.scrollBehavior = prev;
+      history.replaceState(null, '', href);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(go));
+  };
+
   const privacyHref = withLangParam(process.env.NEXT_PUBLIC_PRIVACY_URL || '/privacy', lang);
   const impressumHref = withLangParam(process.env.NEXT_PUBLIC_IMPRESSUM_URL || '/impressum', lang);
   const navItems = [
     { href: '#checks', label: c.nav.checks },
-    { href: '#services', label: c.nav.services },
     { href: '#how', label: c.nav.how },
+    { href: '#services', label: c.nav.services },
     { href: '#faq', label: c.nav.faq },
   ] as const;
   const activeSection = useActiveSection(navItems.map(item => item.href.slice(1)));
@@ -193,7 +223,15 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         <div className="menu" id="mobile-menu" ref={menuRef} hidden={!menuOpen} aria-hidden={!menuOpen}>
           <div className="wrap">
             {navItems.map(item => (
-              <a key={item.href} href={item.href} aria-current={current(item.href)} onClick={() => setMenuOpen(false)}>{item.label}</a>
+              <a
+                key={item.href}
+                href={item.href}
+                aria-current={current(item.href)}
+                onClick={event => {
+                  event.preventDefault();
+                  closeMenuAndGo(item.href);
+                }}
+              >{item.label}</a>
             ))}
             <button className="btn" type="button" onClick={jumpToForm}>{c.nav.cta}</button>
             <LanguageSwitch lang={lang} setLang={setLang} onPick={() => setMenuOpen(false)} label={c.nav.lang}/>
@@ -207,15 +245,27 @@ export function Site({ initialLang }: { initialLang: Lang }) {
             <div className="hero__copy">
               <h1 className="h1 hero__title">{c.hero.a}</h1>
               <p className="lead">{c.hero.support}</p>
+              {c.hero.place && <p className="hero__place">{c.hero.place}</p>}
             </div>
             <div className="hero__art">
               <HeroKnife label={c.a11y.knife}/>
             </div>
             <div className="hero__form">
-              <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref}/>
+              <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref} intro/>
             </div>
           </div>
         </section>
+
+        <Section id="report">
+          <div className="report-layout">
+            <div className="report-copy">
+              <h2 className="h2">{c.reportTitle}</h2>
+              <p className="lead" data-reveal>{c.reportSub}</p>
+              <p className="report-note" data-reveal>{c.sampleReport.note}</p>
+            </div>
+            <SampleReport lang={lang}/>
+          </div>
+        </Section>
 
         <section className="sec about" id="about">
           <div className="wrap about__wrap">
@@ -223,20 +273,6 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               <h2 className="h2">{c.about.title}</h2>
               <p className="lead" data-reveal>{c.about.p1}</p>
               <p className="lead" data-reveal>{c.about.p2}</p>
-              <ul className="about__contacts">
-                <li data-reveal>
-                  <span className="about__k">{c.about.emailLabel}</span>
-                  <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-                </li>
-                <li data-reveal>
-                  <span className="about__k">{c.about.phoneLabel}</span>
-                  <a href={`tel:${CONTACT_PHONE_E164}`}>{CONTACT_PHONE_DISPLAY}</a>
-                </li>
-                <li data-reveal>
-                  <span className="about__k">{c.about.whatsapp}</span>
-                  <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer">{CONTACT_PHONE_DISPLAY}</a>
-                </li>
-              </ul>
             </div>
           </div>
         </section>
@@ -254,28 +290,21 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               </div>
             ))}
           </div>
+          <p className="checks-note" data-reveal>{c.checksNote}</p>
         </Section>
 
-        <Section id="report">
-          <div className="report-layout">
-            <div className="report-copy">
-              <h2 className="h2">{c.reportTitle}</h2>
-              <p className="lead" data-reveal>{c.reportSub}</p>
-            </div>
-            <SampleReport lang={lang}/>
+        <Section id="how">
+          <h2 className="h2 how-heading">{c.howTitle}</h2>
+          <div className="steps">
+            {c.steps.map((s, i) => (
+              <div className="step" key={s[0]}>
+                <span className="step__no" aria-hidden="true">0{i + 1}</span>
+                <h3 className="step__title">{s[0]}</h3>
+                <p className="lead">{s[1]}</p>
+              </div>
+            ))}
           </div>
         </Section>
-
-        <section className="sec statement">
-          <div className="wrap">
-            <h2 className="h2 statement__title">
-              {c.statementA.split(' ').map((word, i) => (
-                <Fragment key={i}>{i > 0 && ' '}<span className="statement__word">{word}</span></Fragment>
-              ))}
-            </h2>
-            <p className="lead statement__sub" data-reveal>{c.statementSub}</p>
-          </div>
-        </section>
 
         <Section id="services">
           <h2 className="h2 services-heading">{c.servicesTitle}</h2>
@@ -295,20 +324,6 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           <div className="services-cta" data-reveal>
             <button className="btn" type="button" onClick={jumpToForm}>{c.servicesCta}</button>
           </div>
-        </Section>
-
-        <Section id="how">
-          <h2 className="h2 how-heading">{c.howTitle}</h2>
-          <div className="steps">
-            {c.steps.map((s, i) => (
-              <div className="step" key={s[0]}>
-                <span className="step__no" aria-hidden="true">0{i + 1}</span>
-                <h3 className="step__title">{s[0]}</h3>
-                <p className="lead">{s[1]}</p>
-              </div>
-            ))}
-          </div>
-          <p className="lead assure" data-reveal>{c.assure}</p>
         </Section>
 
         <Section id="faq">
@@ -343,70 +358,108 @@ function Section({ dark, id, children }: { dark?: boolean; id?: string; children
   );
 }
 
-async function submitAuditRequest(payload: { websiteUrl: string; email: string; language: Lang }) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  try {
-    const res = await fetch('/api/audit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    const data = await res.json().catch(() => null) as { mode?: string } | null;
-    if (!res.ok) throw new Error('REQUEST_FAILED');
-    if (data?.mode === 'demo' || data?.mode === 'live') return { mode: data.mode as 'demo' | 'live' };
-    throw new Error('REQUEST_FAILED');
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-function AuditForm({ lang, idPrefix, privacyHref }: { lang: Lang; idPrefix: string; privacyHref: string }) {
+function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefix: string; privacyHref: string; intro?: boolean }) {
   const f = content[lang].form;
   const ctx = useContext(AuditFormContext);
-  if (!ctx) throw new Error('AuditForm needs provider');
-  const { step, url, email, error, busy, mode, setStep, setUrl, setEmail, setError, setBusy, setMode, resetForm, editForm } = ctx;
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const ownedFocus = useRef<'url' | 'email' | 'status' | null>(null);
+  const url = ctx?.url ?? '';
   const normalized = useMemo(() => normalizeWebsite(url), [url]);
+
+  useLayoutEffect(() => {
+    const target = ownedFocus.current;
+    if (!target) return;
+    ownedFocus.current = null;
+    if (target === 'url') urlInputRef.current?.focus();
+    else if (target === 'email') emailInputRef.current?.focus();
+    else statusRef.current?.focus();
+  }, [ctx?.step, ctx?.error, ctx?.mode]);
+
+  if (!ctx) throw new Error('AuditForm needs provider');
+  const { step, email, error, busy, mode, setStep, setUrl, setEmail, setError, setMode, resetForm, editForm, tryBeginSend, endSend } = ctx;
   const urlId = `${idPrefix}-url`;
   const emailId = `${idPrefix}-email`;
   const errId = `${idPrefix}-error`;
+  const titleId = `${idPrefix}-form-title`;
+  const statusId = `${idPrefix}-status`;
+  const showTitle = Boolean(intro && step === 'url');
+  const showLead = step === 'url';
+  const failMail = error === f.fail;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    setError('');
+    if (busy) return;
     if (step === 'url') {
-      if (!normalized) {
-        setError(f.urlErr);
+      const next = nextUrlStep(url, f.urlErr);
+      if (!next.ok) {
+        ownedFocus.current = 'url';
+        setError(next.error);
         return;
       }
+      setError('');
+      ownedFocus.current = 'email';
       setStep('email');
       return;
     }
     if (step !== 'email') return;
-    if (!validEmail(email)) {
-      setError(f.emailErr);
+    const next = nextEmailStep(email, f.emailErr);
+    if (!next.ok) {
+      ownedFocus.current = 'email';
+      setError(next.error);
       return;
     }
-    setBusy(true);
+    if (!normalized) {
+      ownedFocus.current = 'url';
+      setError(f.urlErr);
+      setStep('url');
+      return;
+    }
+    if (!tryBeginSend()) return;
+    setError('');
     try {
-      const r = await submitAuditRequest({ websiteUrl: normalized!, email: email.trim(), language: lang });
-      setMode(r.mode);
+      const result = await submitAuditRequest({ websiteUrl: normalized, email: email.trim(), language: lang });
+      ownedFocus.current = 'status';
+      setMode(result);
       setStep('done');
     } catch {
+      ownedFocus.current = 'email';
       setError(f.fail);
     } finally {
-      setBusy(false);
+      endSend();
     }
   }
 
+  function goBack() {
+    if (busy) return;
+    ownedFocus.current = 'url';
+    setError('');
+    setStep('url');
+  }
+
+  function onEdit() {
+    ownedFocus.current = 'url';
+    editForm();
+  }
+
+  const done = mode ? formDoneView(mode, f) : null;
+
   return (
-    <form className="audit-form" onSubmit={submit} noValidate>
+    <form className="audit-form" onSubmit={submit} noValidate aria-busy={busy} aria-labelledby={showTitle ? titleId : undefined}>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">{busy ? f.sending : ''}</p>
+      {showLead && (
+        <div className="audit-form__intro">
+          {showTitle && <p className="audit-form__title" id={titleId}>{f.title}</p>}
+          <p className="audit-form__lead">{f.lead}</p>
+        </div>
+      )}
       {step === 'url' && (
         <>
           <label className="audit-form__label" htmlFor={urlId}>{f.url}</label>
           <div className="audit-form__field">
             <input
+              ref={urlInputRef}
               className="audit-form__input"
               id={urlId}
               name="websiteUrl"
@@ -415,23 +468,28 @@ function AuditForm({ lang, idPrefix, privacyHref }: { lang: Lang; idPrefix: stri
               autoComplete="url"
               placeholder={f.urlPh}
               value={url}
+              required
+              aria-required="true"
               aria-invalid={!!error}
               aria-describedby={error ? errId : undefined}
+              disabled={busy}
               onChange={e => setUrl(e.target.value)}
             />
             {error && <p className="form-error" id={errId} role="alert">{error}</p>}
-            <button className="btn" type="submit">{f.submit}</button>
+            <button className="btn" disabled={busy} type="submit">{f.submit}</button>
           </div>
-          <ul className="micro">{f.micro.map(x => <li key={x}>{x}</li>)}</ul>
+          <p className="audit-form__assure">{f.assure}</p>
+          {intro && <a className="audit-form__sample" href="#report">{f.sample}</a>}
           <p className="privacy-note">{f.privacy} <a href={privacyHref}>{f.privacyLink}</a></p>
         </>
       )}
       {step === 'email' && (
         <>
-          <p className="h3 ask">{f.ask}</p>
+          <p className="h3 ask" id={`${idPrefix}-ask`}>{f.ask}</p>
           <label className="audit-form__label" htmlFor={emailId}>{f.email}</label>
           <div className="audit-form__field">
             <input
+              ref={emailInputRef}
               className="audit-form__input"
               id={emailId}
               name="email"
@@ -440,26 +498,34 @@ function AuditForm({ lang, idPrefix, privacyHref }: { lang: Lang; idPrefix: stri
               autoComplete="email"
               placeholder={f.emailPh}
               value={email}
+              required
+              aria-required="true"
               aria-invalid={!!error}
               aria-describedby={error ? errId : undefined}
+              disabled={busy}
               onChange={e => setEmail(e.target.value)}
             />
-            {error && <p className="form-error" id={errId} role="alert">{error}</p>}
+            {error && (
+              <p className="form-error" id={errId} role="alert">
+                {error}
+                {failMail && <>{' '}<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></>}
+              </p>
+            )}
             <button className="btn" disabled={busy} type="submit">{busy ? f.sending : f.prepare}</button>
           </div>
           <p className="privacy-note">{f.privacy} <a href={privacyHref}>{f.privacyLink}</a></p>
-          <button className="form-back" type="button" onClick={() => setStep('url')}>{f.back}</button>
+          <button className="form-back" type="button" disabled={busy} onClick={goBack}>{f.back}</button>
         </>
       )}
-      {step === 'done' && (
-        <div className="done">
-          <span className="done__mark"/>
+      {step === 'done' && done && (
+        <div className="done" ref={statusRef} id={statusId} tabIndex={-1} role="status" aria-live="polite">
+          <span className="done__mark" aria-hidden="true"/>
           <div>
-            <p className="h3">{mode === 'demo' ? f.demo : f.done}</p>
-            <p className="done__text">{f.doneText} <b>{email}</b></p>
-            {mode === 'demo' && <p className="demo-note">{f.demoNote}</p>}
+            <p className="h3">{done.title}</p>
+            <p className="done__text">{done.text}</p>
+            {done.live && email && <p className="done__text"><b>{email}</b></p>}
             <div className="done__actions">
-              <button className="form-back" type="button" onClick={editForm}>{f.edit}</button>
+              <button className="form-back" type="button" onClick={onEdit}>{f.edit}</button>
               <button className="btn btn--sm" type="button" onClick={resetForm}>{f.reset}</button>
             </div>
           </div>
@@ -484,7 +550,7 @@ function SampleReport({ lang }: { lang: Lang }) {
           </div>
         </div>
         <div className="doc__count">
-          <b>03</b>
+          <b>{String(c.findings.length).padStart(2, '0')}</b>
           <p>{c.sampleReport.issues}</p>
         </div>
         <div className="findings">
@@ -523,14 +589,18 @@ function SampleReport({ lang }: { lang: Lang }) {
 function FAQList({ items }: { items: readonly { q: string; a: string }[] }) {
   return (
     <div className="faq">
-      {items.map(f => (
-        <details className="faq__item" key={f.q}>
-          <summary className="faq__q">
-            <h3 className="faq__title">{f.q}</h3>
-          </summary>
-          <p className="faq__answer">{f.a}</p>
-        </details>
-      ))}
+      {items.map((item, i) => {
+        const qId = `faq-q-${i}`;
+        const aId = `faq-a-${i}`;
+        return (
+          <details className="faq__item" key={item.q}>
+            <summary className="faq__q" aria-controls={aId}>
+              <h3 className="faq__title" id={qId}>{item.q}</h3>
+            </summary>
+            <p className="faq__answer" id={aId} role="region" aria-labelledby={qId}>{item.a}</p>
+          </details>
+        );
+      })}
     </div>
   );
 }

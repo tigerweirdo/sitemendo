@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 /* Menüdeki bölümlerden hangisi şu an ekranın okuma hizasında (üstten %40) duruyor.
-   Hiçbiri değilse (hero, rapor, son form) null. Hareket değil, konum bilgisi:
+   Hiçbiri değilse (hero, yaklaşım, rapor, son form) null. Hareket değil, konum bilgisi:
    hareket azaltılmış olsa da çalışır. */
 export function useActiveSection(ids: readonly string[]) {
   const [active, setActive] = useState<string | null>(null);

@@ -1,5 +1,5 @@
-import type { Lang } from '@/lib/content';
-import { parseLang } from '@/lib/lang';
+import type { Lang } from './content';
+import { parseLang } from './lang';
 
 export type AuditPayload = {
   websiteUrl: string;

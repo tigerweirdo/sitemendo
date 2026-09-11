@@ -17,17 +17,19 @@ export function LanguageSwitch({
   return (
     <div className="langs" role="group" aria-label={label}>
       {LANGS.map(code => (
-        <button
+        <a
           key={code}
-          type="button"
-          aria-pressed={lang === code}
-          onClick={() => {
+          href={`?lang=${code}`}
+          hrefLang={code}
+          aria-current={lang === code ? 'true' : undefined}
+          onClick={event => {
+            event.preventDefault();
             setLang(code);
             onPick?.();
           }}
         >
           {code.toUpperCase()}
-        </button>
+        </a>
       ))}
     </div>
   );

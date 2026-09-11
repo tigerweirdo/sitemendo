@@ -1,23 +1,17 @@
-import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Site } from '@/components/Site';
-import { content } from '@/lib/content';
 import { LANG_COOKIE, resolveLang } from '@/lib/lang';
+import { routeMetadata } from '@/lib/seo';
 
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: Promise<{ lang?: string }>;
-}): Promise<Metadata> {
+}) {
   const params = await searchParams;
   const cookieStore = await cookies();
   const lang = resolveLang(params.lang, cookieStore.get(LANG_COOKIE)?.value);
-  const m = content[lang].meta;
-  return {
-    title: m.title,
-    description: m.description,
-    openGraph: { type: 'website', title: m.ogTitle, description: m.ogDescription },
-  };
+  return routeMetadata('/', lang);
 }
 
 export default async function Page({
