@@ -13,6 +13,15 @@ npm run dev
 
 Open `http://localhost:3000`. The dev server rewrites `/?lang=de` to the language pages like the Worker does; the form API does not run here.
 
+Checks (the same run on GitHub for every push, `.github/workflows/check.yml`):
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
 To run the real setup (static pages + Worker + form API) locally:
 
 ```bash
@@ -33,6 +42,8 @@ Open `http://127.0.0.1:8787`.
 
 Keep per-request work small: the free plan allows 10 ms CPU per request. Pages must stay static.
 
+The form limits (5 requests per IP in 10 minutes, 2 confirmations per address a day) live in Worker memory and reset with the instance. A Cloudflare rate limiting rule on `/api/audit` (Security → Security rules → Create rule → Rate limiting rules; free plan: one rule, 10 s window, counted per IP) adds a limit at the edge. Failed sends are logged by Resend error type only (Worker → Observability).
+
 Worker secrets (Cloudflare → Worker → Settings → Variables and Secrets, type Secret):
 
 ```env
@@ -52,6 +63,7 @@ Deploys run on every push to `main` through Workers Builds (build command `npm r
 - `app/[lang]/privacy`, `app/[lang]/impressum`, `app/[lang]/not-found` — legal and 404 pages
 - `worker/index.ts` — language routing, redirects, headers; `worker/audit.ts` — form intake and Resend mail
 - `app/globals.css` — responsive Sitemendo design system
-- `app/icon.svg` / `app/favicon.ico` / `app/apple-icon.png` / `app/opengraph-image.png` — mark from `lib/mark.json` (`npm run icons`)
+- `app/icon.svg` / `app/favicon.ico` / `app/apple-icon.png` — mark from `lib/mark.json` (`npm run icons`)
+- `public/og/{tr,de,en}.png` — share image per language (`scripts/build-og.mjs`); alt text in `content.ts` (`meta.ogAlt`)
 - `components/Site.tsx` — page components and interactions
 - `lib/content.ts` — Turkish/English/German content model

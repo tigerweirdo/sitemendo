@@ -4,6 +4,7 @@
 
 - Next.js / React tabanlı Sitemendo landing page
 - Yerel çalıştırma: Node 22 (`.nvmrc`), `npm install`, `npm run dev` → `http://localhost:3000` (form API yok). Worker ile: `.env.example` → `.dev.vars`, `npm run preview` → `http://127.0.0.1:8787`
+- Kontroller: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`; GitHub’da her push’ta aynıları (`.github/workflows/check.yml`). Yayını Cloudflare Workers Builds yapar, kontrol işi yayını durdurmaz.
 - Canlı: https://sitemendo.com (`www` ana adrese yönlenir)
 - Barındırma: Cloudflare Workers, ücretsiz plan (2026-09-17 kararı; Vercel Hobby ticari kullanıma izin vermiyor). Sayfalar derlemede dil başına statik (`out/`), `worker/index.ts` dil seçimi, yönlendirme, güvenlik başlıkları ve form API'si.
 - GitHub: https://github.com/tigerweirdo/sitemendo
@@ -30,7 +31,34 @@ Sitemendo metinleri adım adım yenilenirken:
 - Hedef kitle Türkçe ve Almanca iki dilli: dil seçimi yoksa ziyaretçi tarayıcı diline yönlenir; desteklenmeyen dilde Türkçe kalır (kullanıcı kararı, 2026-09-17).
 - Barındırma ücretsiz kalır (Cloudflare): sayfalar statik kalır, istek başına sunucuda sayfa oluşturulmaz; Worker işi küçük tutulur (ücretsiz planda istek başına 10 ms CPU) (kullanıcı kararı, 2026-09-17).
 
+## Kullanıcıda kalan işler: hukuk, vergi, sözleşmeler (2026-09-17)
+
+Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette verildi, özeti:
+
+- [ ] **Gizlilik metninin hukuki kontrolü:** oluşturucu (datenschutz-generator.de, e-recht24.de) ya da IT hukuku avukatı. Kontrol edene: sorumlu bilgileri, Cloudflare (barındırma, DNS, e-posta yönlendirme, kısa süreli Worker kayıtları), form alanları ve kötüye kullanım sınırları (IP ve e-posta bellekte), Resend, Gmail, telefon ve WhatsApp, dil çerezi / yerel depo / sekme süresince form taslağı, analitik ve harici betik yok, yalnız işletmelere. Ayrıca sorulacak: hizmet şartları (AGB; özellikle aylık bakımın süresi ve iptali, sorumluluk sınırı, ödeme), işleme faaliyetleri kaydı (Art. 30 DSGVO), müşteri sitelerine erişirken müşteriyle AVV gerekip gerekmediği, Impressum (§ 5 DDG). Değişiklikler üç dile uygulanacak.
+- [ ] **USt-IdNr:** Steuernummer yoksa ELSTER’de "Fragebogen zur steuerlichen Erfassung" (USt-IdNr kutusu işaretli; Gewerbe kaydı gerekip gerekmediği teyit edilecek); Steuernummer varsa BZSt çevrimiçi başvurusu. Gelince Impressum’a "Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz" satırı; W-IdNr gelirse o da. Steuernummer sitede yayımlanmaz. Faturalar § 14 UStG zorunlu bilgileriyle; e-fatura takvimi vergi danışmanına sorulacak.
+- [ ] **Veri işleme sözleşmeleri:** Cloudflare DPA (Self-Serve sözleşmesine atıfla dahil) ve Resend DPA (hizmet şartlarıyla yürürlükte, alt işleyici listesi resend.com/legal/subprocessors) tarihli PDF olarak saklanacak. Vercel projesi silindi (2026-09-17). Kişisel Gmail için Google AVV sunmuyor: Google Workspace (Admin → Account → Account settings → Legal and compliance → Cloud Data Processing Addendum → Review and Accept) ya da AVV sunan AB sağlayıcı; seçim sonrası gizlilik metnindeki Gmail cümlesi güncellenecek.
+- [ ] Cloudflare hız sınırı kuralı (`/api/audit`, 3 istek / 10 sn, IP, Block 10 sn), iPhone Safari testi, gerçek referanslar.
+
 ## Görevler
+
+### 2026-09-17 — Tarama raporunun kalan maddeleri
+
+Kullanıcı "tarama raporundaki her şey düzeldi mi" diye sordu; 27 madde canlıda ve kodda tek tek kontrol edildi: 17 tamam, 4 kısmen, 6 yapılmadı. Kullanıcı kalanların hepsini istedi ve kararları bana bıraktı.
+
+1. **Next 16.3.5, React 19.3.0** (madde 22): `npm audit` 0 bulgu (önceden Next içindeki PostCSS: 1 yüksek, 1 orta). `next lint` kalktı → ESLint 9 düz yapılandırma (`eslint.config.mjs`, `eslint-config-next` core-web-vitals + typescript). Next `tsconfig.json`’u (`jsx: react-jsx`, `.next/dev/types`) kendisi güncelledi; `next-env.d.ts` Next belgesi gereği `.gitignore`’a alındı (dev ve build arasında değişiyor, `next typegen` yeniden üretiyor). `next dev` her çalışmada `AGENTS.md` ve `CLAUDE.md` yazıyor; Next önerisiyle depoya eklendi. Derleme artık Turbopack; `out/_not-found.html` da çıkıyor (Worker zaten engelliyor).
+2. **Yeni lint kuralları:** tarayıcı deposunu (sessionStorage, localStorage, adres) hidrasyondan sonra okuyan üç efekt bilinçli; gerekçeli `eslint-disable` yorumu aldı. Formun açılış anı artık render’da değil efektte ölçülüyor (`useRef(0)` + `useEffect`). Worker varsayılan dışa aktarımı adlandırıldı.
+3. **Paylaşım görseli dil başına** (madde 27): `public/og/tr.png`, `de.png`, `en.png` (Prüfung · Reparatur · Wartung; checks · repairs · maintenance), alt metin `meta.ogAlt`. `scripts/build-og.mjs` üçünü üretiyor; `build-icons.mjs` artık paylaşım görseli yazmıyor. `app/opengraph-image.png` kaldırıldı (derlemedeki metadataBase uyarısı da gitti).
+4. **Çakı** (madde 19): boştaki salınım sınırsız değil, 4 yarım tur (~24 sn) sonra duruş pozunda biter; sahne ekran dışındayken durur (`IntersectionObserver` → `data-offscreen`, giriş animasyonu etkilenmez). Tam WCAG 2.2.2 uyumu (durdurma düğmesi ya da ≤5 sn) değil; hareket azaltma tercihi zaten saygı görüyor.
+5. **Fontlar** (madde 17): Inter yalnız latin önden yükleniyor; latin-ext CSS’te duruyor ve yalnız Türkçe harfler varsa iniyor. Ölçüm (önbellek kapalı, tam kaydırma): DE ve EN 68 KB (önceden iki Inter dosyası önden yükleniyordu, ~150 KB), TR değişmedi (~160 KB).
+6. **İlerleme çizgileri** (madde 18): okuma çubuğu ve adım çizgisi 2 px sülfür + 1 px mürekkep kenar (`--indicator`), düğmelerdeki gibi; kâğıtta ≥3:1.
+7. **Otomatik kontrol** (madde 24): `.github/workflows/check.yml` — `npm ci`, lint, typecheck (`next typegen && tsc`), test (`tsx --test`), build, `wrangler deploy --dry-run`. Temiz kopyada aynen çalıştırıldı, geçti.
+8. **Form kayıtları** (madde 14’ün hata kısmı): anahtar eksikse, bildirim ya da onay gönderilemezse Worker kaydına yalnız Resend hata türü yazılıyor; başarılı talepte yalnız dil. Adres ve içerik yazılmıyor. Ziyaretçi analitiği eklenmedi: gizlilik metni "analiz aracı yok" diyor ve Cloudflare’ın betiksiz trafik istatistikleri panelde zaten var.
+9. **Kalıcı hız sınırı** (madde 3): Workers Rate Limiting bağlamasının ücretsiz planda olup olmadığı belgelerden doğrulanamadı (deploy bozulabilirdi); yerine ücretsiz planda belgelenen WAF hız sınırı kuralı seçildi (1 kural, 10 sn, IP). Kurulum kullanıcıda.
+
+Açık kalanlar: madde 7 (gerçek referans ve yorumlar), iPhone Safari testi, WAF kuralı, hukuki kontrol, USt-IdNr, veri işleme sözleşmeleri ve Gmail (bkz. "Kullanıcıda kalan işler"). Kullanıcı Vercel projesini sildi.
+
+Doğrulama: temiz kopyada `npm ci` → lint → typecheck → test (8/8) → build → wrangler dry-run (259 KiB, gzip 63 KiB); `wrangler dev` + headless Chromium: tam site regresyonu (dil yönlendirme ve değişimi, animasyonlar, 404, demo form, azaltılmış hareket, mobil; gizli öğe 0, CSP ihlali ve konsol hatası yok), fiyat bölümü masaüstü/tablet/mobil üç dilde taşmasız, düğmeler forma gidiyor; paylaşım görseli etiketleri ve dosyaları üç dilde 200, eski yol 404; LCP masaüstü 56–100 ms, 4x yavaş mobil 112–152 ms; çakı ekrandayken oynuyor, aşağıda duruyor, dönünce devam ediyor; `next dev` yeniden yazmaları çalışıyor. Push kullanıcının isteğiyle yapıldı.
 
 ### 2026-09-17 — Yeni fiyat yapısı (tanıtım fiyatları)
 

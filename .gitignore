@@ -34,5 +34,6 @@ yarn-error.log*
 .wrangler
 .dev.vars*
 
-# typescript
+# typescript (next-env.d.ts Next tarafından yönetilir, Next belgesi gereği depoda tutulmaz)
 *.tsbuildinfo
+next-env.d.ts

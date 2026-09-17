@@ -44,7 +44,7 @@ export type Copy = {
   };
   footer: { tag: string; services: string; site: string; legal: string; privacy: string; rights: string; contact: string; contactHint: string; mark: string };
   meta: {
-    title: string; description: string; ogTitle: string; ogDescription: string;
+    title: string; description: string; ogTitle: string; ogDescription: string; ogAlt: string;
     privacyTitle: string; privacyDescription: string; impressumTitle: string; impressumDescription: string;
   };
   legal: {
@@ -190,6 +190,7 @@ export const content: Record<Lang, Copy> = {
       title: 'Sitemendo — Web siteniz için kontrol, düzeltme ve bakım',
       description: 'Web sitenizdeki teknik ve kullanım sorunlarını belirliyor, öncelik sırasına koyuyor ve onayınızla gideriyoruz. Ücretsiz kontrolle başlayın.',
       ogTitle: 'Sitemendo — Web siteniz için kontrol, düzeltme ve bakım',
+      ogAlt: 'Sitemendo — kontrol, düzeltme ve bakım',
       ogDescription: 'Ücretsiz site kontrolüyle başlayın. Sonuçları ve önerilen adımları 48 saat içinde gönderiyoruz.',
       privacyTitle: 'Gizlilik — Sitemendo',
       privacyDescription: 'Kontrol isteğinizde hangi bilgileri kullandığımızı anlatır.',
@@ -358,6 +359,7 @@ export const content: Record<Lang, Copy> = {
       title: 'Sitemendo — Checks, repairs and maintenance for your website',
       description: 'We identify technical and usability issues on your website, rank them by priority and resolve them with your approval. Start with a free check.',
       ogTitle: 'Sitemendo — Checks, repairs and maintenance for your website',
+      ogAlt: 'Sitemendo — checks, repairs and maintenance',
       ogDescription: 'Start with a free website check. Findings and next steps within 48 hours.',
       privacyTitle: 'Privacy — Sitemendo',
       privacyDescription: 'What information we use when you ask for a check.',
@@ -526,6 +528,7 @@ export const content: Record<Lang, Copy> = {
       title: 'Sitemendo — Prüfung, Reparatur und Wartung für Ihre Website',
       description: 'Wir finden technische Probleme auf Ihrer Website, ordnen sie nach Dringlichkeit und beheben sie nach Freigabe. Starten Sie mit einer kostenlosen Prüfung.',
       ogTitle: 'Sitemendo — Prüfung, Reparatur und Wartung für Ihre Website',
+      ogAlt: 'Sitemendo — Prüfung, Reparatur und Wartung',
       ogDescription: 'Beginnen Sie mit einer kostenlosen Prüfung. Ergebnisse und nächste Schritte innerhalb von 48 Stunden.',
       privacyTitle: 'Datenschutz — Sitemendo',
       privacyDescription: 'Welche Angaben wir nutzen, wenn Sie eine Prüfung anfragen.',

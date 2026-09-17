@@ -4,6 +4,9 @@
   --sulfur: #E8F000;
   --muted: #4A4A46;
   --line: #C6C5BE;
+  /* İlerleme çizgileri (okuma çubuğu, adımlar): sülfür kâğıtta tek başına 1.1:1 kalıyor;
+     altındaki 1px mürekkep kenar çizgiyi görünür kılar (≥3:1), düğmelerdeki gibi. */
+  --indicator: linear-gradient(var(--sulfur) 0 2px, var(--ink) 2px 3px);
   --err: #C92F2F;
   --ok: #0F7741;
   --ok-on-dark: #3CCF76;
@@ -182,9 +185,9 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
-  height: 2px;
-  background: var(--sulfur);
+  bottom: -2px;
+  height: 3px;
+  background: var(--indicator);
   transform: scaleX(var(--progress, 0));
   transform-origin: 0 50%;
   pointer-events: none;
@@ -193,7 +196,7 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
 /* Aşağı kaydırırken menü çekilir, yukarı kaydırınca döner (data-hidden,
    lib/useScrollMotion.ts). Çekilince okuma çubuğu ekranın üst kenarında kalır. */
 .nav[data-hidden]:not(.open) { transform: translateY(-100%); }
-.nav[data-hidden]:not(.open)::after { bottom: -2px; }
+.nav[data-hidden]:not(.open)::after { bottom: -3px; }
 .nav__in {
   height: var(--nav);
   display: flex;
@@ -445,7 +448,12 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   transform: rotateX(9deg) rotateY(-14deg) rotateZ(-4deg) translateY(0);
   animation: knife-orbit-in .7s cubic-bezier(.16, .82, .28, 1) both;
 }
-.knife__drift { animation: knife-drift 5.6s 1.6s ease-in-out infinite alternate; }
+.knife__drift { animation: knife-drift 5.6s 1.6s ease-in-out 4 alternate; }
+/* Boştaki salınım sınırsız değil: dört yarım tur (~24 sn) sonra duruş pozunda biter; çift
+   sayı olduğu için son kare başlangıç pozudur, sıçrama olmaz. Sahne ekrandayken oynar;
+   aşağı kaydırınca durur (HeroKnife, data-offscreen). Giriş animasyonu etkilenmez. */
+.knife[data-offscreen] .knife__drift { animation-play-state: paused; }
+.knife[data-offscreen] .knife-tool { animation-play-state: running, paused; }
 
 @keyframes knife-orbit-in {
   from { transform: rotateX(11deg) rotateY(-18deg) rotateZ(-5deg) translateY(4px); }
@@ -584,7 +592,7 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   transform-style: preserve-3d;
   animation:
     knife-unfold var(--dur) var(--delay) cubic-bezier(.22, .9, .28, 1.08) both,
-    knife-tool-idle 5.6s 1.6s ease-in-out infinite alternate;
+    knife-tool-idle 5.6s 1.6s ease-in-out 4 alternate;
 }
 @keyframes knife-unfold {
   from { transform: rotate(0deg); }
@@ -1078,8 +1086,8 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   left: 0;
   right: 0;
   top: -1px;
-  height: 2px;
-  background: var(--sulfur);
+  height: 3px;
+  background: var(--indicator);
   transform: scaleX(var(--fill, 0));
   transform-origin: 0 50%;
   pointer-events: none;

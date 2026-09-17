@@ -9,6 +9,7 @@ export function useStoredLang(initialLang: Lang) {
 
   useLayoutEffect(() => {
     const next = readClientLang() ?? initialLang;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- adres ve yerel depo sunucuda okunamaz; hidrasyondan sonra bir kez eşitlenir
     setLangState(next);
     persistLang(next);
   }, [initialLang]);

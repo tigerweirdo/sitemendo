@@ -4,7 +4,6 @@ import { content, type Lang } from './content';
 
 export const SEO_PATHS = ['/', '/privacy', '/impressum'] as const;
 export type SeoPath = (typeof SEO_PATHS)[number];
-export const OG_ALT = 'Sitemendo — kontrol, düzeltme ve bakım';
 
 export function absolutePageUrl(path: SeoPath, lang: Lang): string {
   const url = new URL(path, `${SITE_URL}/`);
@@ -24,8 +23,8 @@ export function routeMetadata(path: SeoPath, lang: Lang): Metadata {
   const ogTitle = home ? m.ogTitle : title;
   const ogDescription = home ? m.ogDescription : description;
   const url = absolutePageUrl(path, lang);
-  /* Paylaşım görseli app/opengraph-image.png; sayfalar [lang] altında olduğundan kendiliğinden eklenmiyor. */
-  const image = { url: '/opengraph-image.png', width: 1200, height: 630, type: 'image/png', alt: OG_ALT };
+  /* Paylaşım görseli dilin kendi dosyası: public/og/<dil>.png (scripts/build-og.mjs). */
+  const image = { url: `/og/${lang}.png`, width: 1200, height: 630, type: 'image/png', alt: m.ogAlt };
   return {
     title,
     description,

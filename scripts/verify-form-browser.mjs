@@ -37,7 +37,7 @@ async function mockFetch(page, mode, delayMs = 0) {
   await page.evaluate((nextMode, wait) => {
     window.__auditMode = nextMode;
     window.__auditCalls = 0;
-    window.fetch = (input, init) => {
+    window.fetch = input => {
       window.__auditCalls += 1;
       const url = typeof input === 'string' ? input : input.url;
       if (!String(url).includes('/api/audit')) {

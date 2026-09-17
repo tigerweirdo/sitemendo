@@ -131,7 +131,7 @@ async function route(request: Request, env: Env, url: URL) {
   return secure(res);
 }
 
-export default {
+const worker = {
   async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
     if (ALIAS_HOSTS.includes(url.hostname)) {
@@ -146,3 +146,5 @@ export default {
     return res;
   },
 };
+
+export default worker;

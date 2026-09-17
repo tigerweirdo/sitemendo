@@ -35,6 +35,7 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
   useEffect(() => {
     const saved = readPersistedForm();
     const hash = saved && saved.step !== 'url' ? '#start' : '';
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- tarayıcı deposu sunucuda okunamaz; hidrasyondan sonra bir kez eşitlenir
     setHomeHref(`${withLangParam('/', lang)}${hash}`);
   }, [lang]);
 

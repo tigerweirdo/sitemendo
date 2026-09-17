@@ -5,7 +5,9 @@ import { SITE_URL } from '@/lib/company';
 import { content } from '@/lib/content';
 import { LANGS, LANG_BOOTSTRAP, resolveLang } from '@/lib/lang';
 
-const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-sans' });
+/* Yalnız latin önden yüklenir (Almanca ve İngilizce için yeterli). Türkçedeki ğ, ş, İ gibi
+   harflerin latin-ext dosyası CSS'te durur; tarayıcı yalnız bu harfler sayfada varsa indirir. */
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 /* Yalnız fiyat, alan adı gibi veri satırlarında; önden yüklenip ilk açılışı ağırlaştırmasın. */
 const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin', 'latin-ext'], weight: ['400', '500'], variable: '--font-mono', preload: false });
 

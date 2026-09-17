@@ -47,6 +47,7 @@ export async function audit(request: Request) {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
     if (demoAllowed()) return json({ mode: 'demo' });
+    console.error('audit: RESEND_API_KEY missing');
     return json({ error: 'NOT_CONFIGURED' }, 503);
   }
 
@@ -69,7 +70,10 @@ export async function audit(request: Request) {
     tags: [{ name: 'kind', value: 'audit-notify' }],
   });
 
+  /* Kayıtlara yalnız Resend hata türü yazılır (ör. validation_error); adres ve içerik yazılmaz.
+     Cloudflare → Worker → Observability'de görünür. */
   if (notify.error) {
+    console.error('audit notify email failed:', notify.error.name);
     return json({ error: 'SEND_FAILED' }, 502);
   }
 
@@ -85,8 +89,9 @@ export async function audit(request: Request) {
   });
 
   if (confirm.error) {
-    console.error('audit confirm email failed');
+    console.error('audit confirm email failed:', confirm.error.name);
   }
 
+  console.log('audit request sent:', payload.language);
   return json({ mode: 'live' });
 }

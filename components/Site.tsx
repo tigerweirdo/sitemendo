@@ -58,10 +58,12 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     const saved = readPersistedForm();
     if (!saved) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- tarayıcı deposu sunucuda okunamaz; hidrasyondan sonra bir kez eşitlenir */
     setStep(saved.step);
     setUrl(saved.url);
     setEmail(saved.email);
     setMode(saved.mode);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   useEffect(() => {
@@ -374,7 +376,9 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   const emailInputRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const ownedFocus = useRef<'url' | 'email' | 'status' | null>(null);
-  const openedAt = useRef(Date.now());
+  /* Formun ekrana geldiği an: gönderime kadar geçen süre bot kontrolünde kullanılır. */
+  const openedAt = useRef(0);
+  useEffect(() => { openedAt.current = Date.now(); }, []);
   const url = ctx?.url ?? '';
   const normalized = useMemo(() => normalizeWebsite(url), [url]);
 

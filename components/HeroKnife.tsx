@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { BrandMark } from '@/components/BrandMark';
@@ -284,6 +284,16 @@ const toolLayers = Array.from({ length: TOOL_LAYERS }, (_, i) => ({
 
 export function HeroKnife({ label }: { label: string }) {
   const root = useRef<HTMLDivElement>(null);
+
+  /* Sahne ekran dışındayken boştaki salınım durur: 280 öğelik 3D ağaç görünmezken boşuna
+     boyanmasın (globals.css, .knife[data-offscreen]). */
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => el.toggleAttribute('data-offscreen', !entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   /* Giriş ve boştaki salınım tamamen CSS'te: sunucudan gelen ilk boyama da
      animasyonu oynatır, GSAP yüklenemese bile alet açık kalır ve hidrasyonda

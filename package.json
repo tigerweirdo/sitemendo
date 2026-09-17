@@ -7,21 +7,26 @@
     "build": "next build",
     "preview": "next build && wrangler dev",
     "deploy": "next build && wrangler deploy",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "tsx --test scripts/verify-form-faq.ts",
     "icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "gsap": "^3.15.0",
-    "next": "15.5.25",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "resend": "^6.27.0"
   },
   "devDependencies": {
     "@types/node": "22.13.10",
-    "@types/react": "19.0.10",
-    "@types/react-dom": "19.0.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.5",
+    "tsx": "^4.23.13",
     "typescript": "5.8.2",
     "wrangler": "^4.133.0"
   }

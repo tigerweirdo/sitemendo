@@ -140,38 +140,6 @@ async function rasterSvg(browser, svg, size, { transparent = false, pageBg = '#f
   return buf;
 }
 
-async function rasterOg(browser, svg) {
-  const w = 1200;
-  const h = 630;
-  const page = await browser.newPage({
-    viewport: { width: w, height: h },
-    deviceScaleFactor: 1,
-  });
-  const b64 = Buffer.from(svg).toString('base64');
-  await page.setContent(`<!doctype html><html><head><style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    html,body{width:${w}px;height:${h}px;background:${MARK.ink};font-family:ui-sans-serif,system-ui,-apple-system,Arial,sans-serif}
-    .row{display:flex;align-items:center;width:${w}px;height:${h}px;padding:0 96px;gap:56px}
-    img{width:248px;height:248px;flex:none}
-    .copy{display:flex;flex-direction:column;gap:18px}
-    .word{color:#fff;font-size:72px;font-weight:600;letter-spacing:0.12em;line-height:1}
-    .word b{color:${MARK.sulfur};font-weight:600}
-    .sub{color:${MARK.sulfur};font-size:28px;font-weight:500;letter-spacing:0.02em}
-  </style></head><body>
-    <div class="row">
-      <img src="data:image/svg+xml;base64,${b64}" alt="">
-      <div class="copy">
-        <div class="word">SITEMENDO<b>.</b></div>
-        <div class="sub">Berlin · web kontrolü</div>
-      </div>
-    </div>
-  </body></html>`);
-  await page.waitForTimeout(60);
-  const buf = await page.screenshot({ type: 'png' });
-  await page.close();
-  return buf;
-}
-
 const tabSvg = iconSvg('none');
 const appleSvg = iconSvg('paper');
 writeFileSync(join(root, 'app/icon.svg'), tabSvg);
@@ -183,7 +151,6 @@ const png16 = await rasterSvg(browser, tabSvg, 16, { transparent: true });
 const png32 = await rasterSvg(browser, tabSvg, 32, { transparent: true });
 const png48 = await rasterSvg(browser, tabSvg, 48, { transparent: true });
 const png180 = await rasterSvg(browser, appleSvg, 180, { pageBg: MARK.paper });
-const og = await rasterOg(browser, tabSvg);
 
 const onPaper32 = await rasterSvg(browser, tabSvg, 64, { pageBg: MARK.paper });
 const onDark32 = await rasterSvg(browser, tabSvg, 64, { pageBg: '#111111' });
@@ -192,7 +159,6 @@ const onWhite32 = await rasterSvg(browser, tabSvg, 64, { pageBg: '#ffffff' });
 await browser.close();
 
 writeFileSync(join(root, 'app/apple-icon.png'), png180);
-writeFileSync(join(root, 'app/opengraph-image.png'), og);
 writeFileSync(
   join(root, 'app/favicon.ico'),
   icoFromPngs([
@@ -206,9 +172,8 @@ writeFileSync('/tmp/sitemendo-icon-16.png', png16);
 writeFileSync('/tmp/sitemendo-icon-32.png', png32);
 writeFileSync('/tmp/sitemendo-icon-48.png', png48);
 writeFileSync('/tmp/sitemendo-icon-180.png', png180);
-writeFileSync('/tmp/sitemendo-og.png', og);
 writeFileSync('/tmp/sitemendo-icon-paper.png', onPaper32);
 writeFileSync('/tmp/sitemendo-icon-dark.png', onDark32);
 writeFileSync('/tmp/sitemendo-icon-white.png', onWhite32);
 
-console.log('Wrote app/icon.svg, app/favicon.ico, app/apple-icon.png, app/opengraph-image.png');
+console.log('Wrote app/icon.svg, app/favicon.ico, app/apple-icon.png (share images: scripts/build-og.mjs)');

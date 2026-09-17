@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +10,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const mark = readFileSync(join(root, 'app/icon.svg'), 'utf8')
   .replace('<svg', '<svg width="168" height="168"');
 
-const html = `<!doctype html>
+/* Paylaşım görselleri: dil başına bir tane, public/og/<dil>.png. Alt metinler content.ts'te (meta.ogAlt). */
+const SUBTITLES = {
+  tr: 'kontrol · düzeltme · bakım',
+  de: 'Prüfung · Reparatur · Wartung',
+  en: 'checks · repairs · maintenance',
+};
+
+const html = sub => `<!doctype html>
 <html><head><meta charset="utf-8">
 <style>
 @font-face {
@@ -43,7 +50,7 @@ const html = `<!doctype html>
     ${mark}
     <div class="copy">
       <p class="name">SITEMENDO<b>.</b></p>
-      <p class="sub">kontrol · düzeltme · bakım</p>
+      <p class="sub">${sub}</p>
     </div>
   </div>
 </body></html>`;
@@ -55,10 +62,11 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
-await page.setContent(html, { waitUntil: 'networkidle0' });
-await page.evaluate(() => document.fonts.ready);
-const buf = await page.screenshot({ type: 'png' });
+mkdirSync(join(root, 'public/og'), { recursive: true });
+for (const [lang, sub] of Object.entries(SUBTITLES)) {
+  await page.setContent(html(sub), { waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
+  writeFileSync(join(root, `public/og/${lang}.png`), await page.screenshot({ type: 'png' }));
+}
 await browser.close();
-writeFileSync(join(root, 'app/opengraph-image.png'), buf);
-writeFileSync(join(root, 'app/opengraph-image.alt.txt'), 'Sitemendo — kontrol, düzeltme ve bakım');
-console.log('OG görseli yenilendi.');
+console.log('OG görselleri yenilendi: public/og/tr.png, de.png, en.png');
