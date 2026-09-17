@@ -29,6 +29,61 @@ Sitemendo metinleri adım adım yenilenirken:
 
 ## Görevler
 
+### 2026-09-17 — Kullanılmayan CSS ve kontrol listesi ızgarası
+
+1. 11 Eylül metin çalışmasından kalan, kodda hiçbir yerde kullanılmayan kurallar silindi: `.muted`, `.kicker`, `.micro` (ve `li` / mobil kuralları), `.about__contacts`, `.about__k` (ve 720px medya sorgusu), `.demo-note`, `.doc-label`, `.assure`. Kalan tek "kullanılmıyor" görünen sınıflar `severity--crit` / `severity--med`; bunlar `severity--${level}` ile dinamik kullanılıyor.
+2. Örnek rapordaki kontrol listesi masaüstünde 8 hücreyi 3 sütuna diziyordu; ızgaranın gri zemini boş kalan yerde blok olarak görünüyordu. Hücre çizgileri artık ızgara zemini değil, her hücrenin 1px gölgesi (`box-shadow: 0 0 0 1px`). Dolu satırlar aynı görünüyor; eksik satırda boş yer kâğıt rengi. Hücre sayısı değişse de çalışır.
+
+Doğrulama: kaynakta kullanılmayan sınıf taraması; `next build` geçti (13 sayfa, uyarı yok); headless Chromium: liste açıkken masaüstünde 3 sütun / 1 boş yer, zemin şeffaf; mobilde tek sütun. Tam kaydırmadan sonra gizli öğe 0, DE geçişi ve hareket azaltılmış temiz, konsolda hata yok.
+
+Değişen dosyalar: `app/globals.css`, `DOKUMANTASYON.md`.
+
+### 2026-09-17 — Son animasyon paketi: menü, adımlar, çerçeveler, kontrol listesi, footer
+
+Öneri listesinin kalan maddeleri eklendi; liste bununla tamamlandı.
+
+Yapılanlar:
+1. Menü aşağı kaydırırken yukarı çekiliyor, yukarı kaydırınca geri geliyor (`data-hidden`). Çekilince okuma çubuğu ekranın üst kenarında kalıyor. Menü açıkken, içinde klavye odağı varken ya da sayfanın en üstünde (menü yüksekliğinin iki katı) çekilmiyor.
+2. Nasıl çalışır: kaydırdıkça adımların üst çizgisinde sülfür bir çizgi 01'den 03'e ilerliyor (`--fill`); çizgi bir adımı bitirince numarası mürekkebe dönüyor. Masaüstünde üç parça tek çizgi gibi okunuyor, mobilde her satırda sırayla doluyor.
+3. Ücretsiz kart ve son form: çerçeve üst → sağ → alt → sol çizilerek kapanıyor (`--frame`; kenarlık yerinde şeffaf, çizgiler arka planda), sonra kartın zemin tonu (`--tone`) ve içerik geliyor. Ücretsiz kart bu yüzden satır hareketinin dışında.
+4. Örnek rapordaki "Listeyi aç": etiket ve hücre yazıları sırayla geliyor (`useOpenReveal`). İlk denemede hücrelerin kendisi soluyordu ve ızgaranın gri zemini görünüyordu; yalnız yazılar hareket ediyor. Sayaç fikri düştü: listedeki değerler artık sayı değil.
+5. Footer imzası: SITEMENDO maskeden yükseliyor, sülfür nokta en son düşüyor.
+6. Menüden aşağıdaki bir bölüme atlanınca üstte kalan satırlar da aynı partide açılıyor, sıra gecikmesini onlar tüketiyordu; hedef bölüm yaklaşık 1 sn bekliyordu. Ekranın üstünde kalanlar artık beklemeden son hâline geçiyor, sıra yalnız ekrandakiler arasında işliyor.
+
+Hareket azaltılmışken bunların hiçbiri çalışmıyor: menü sabit, çerçeveler tam, ilerleme çizgisi yok, liste anında açılıyor.
+
+Doğrulama: `tsc --noEmit`; headless Chromium (CDP), 1440×900 ve 375×812. Menü 900px'e inince çekiliyor (−65px, mobilde −107px), yukarı kaydırınca ve bir bağlantıya odaklanınca dönüyor, mobil menü açılınca görünür. Adımlar bölümün %15 / %50 / %90'ında doğru doluyor, numaralar sırayla mürekkebe dönüyor. Ücretsiz kart çerçevesi 0.17 → 0.71 → 1, son form 0.22 → 1; içerik çerçeveden sonra. Liste açılırken hücreler opak, yazılar sırayla; kapanınca iz kalmıyor. Footer imzası temiz bitiyor. Mobilde adımlara atlayınca yazılar 900ms içinde görünür. Tam kaydırmadan sonra gizli öğe 0, sayfa ortasında DE geçişi temiz. Çakı kontrolü değişmedi. Konsolda hata yok. Deploy / push yok.
+
+Değişen dosyalar: `lib/useScrollMotion.ts`, `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
+### 2026-09-17 — Çakı kaydırınca katlanıyor; karar cümlesi metni silindi
+
+Yapılanlar:
+1. Hero yukarı çıkarken çakının aletleri sapın içine katlanıyor, yukarı kaydırınca yeniden açılıyor. Tek değişken `.knife` üzerinde `--fold` (0 açık, 1 kapalı). GSAP scrub ilk kaydırmayla başlıyor, çakı yüksekliğinin yarısı kadar kaydırmada bitiyor (masaüstünde ~200px, mobilde ~155px). İlk denemede aralık %80'di; masaüstünde kapanışın son kısmı menünün altında kalıyordu.
+2. Açılış animasyonuna dokunulmadı. Her aletin içine `.knife-tool__fold` sarmalayıcısı eklendi; aynı menteşe etrafında `--open × --fold` kadar geri dönüyor. Yelpaze orantılı kapanıyor: aletler birbirinin üstünden geçmiyor, hepsi sapa aynı anda giriyor. Gölge silueti de aynı oranda katlanıyor.
+3. Katlanma, açılış animasyonu (`knife-unfold`) bitince kuruluyor. Açılırken kaydıran birinde aletler sapın öbür yanına geçmiyor.
+4. Mobilde de çalışıyor, çünkü katlanma çakıyı yerinden oynatmıyor. Parallax hâlâ yalnız ≥1000px. Hareket azaltılmışsa çakı açık kalıyor.
+5. `lib/content.ts`: kullanılmayan `statementA` / `statementSub` metinleri (TR / EN / DE) ve tipleri silindi.
+
+Doğrulama: `tsc --noEmit`; headless Chromium (CDP). Masaüstü: `--fold` 0 → 0.29 (60px) → 0.48 (100px) → 0.72 (150px) → 0.96 (200px) → 1; aletler ve gölge aynı oranda; 200px'te kapalı çakı menünün altında görünür; en üste dönünce yeniden açık. Açılış sırasında 400px'e kaydırıldığında 40 ölçümün hiçbirinde alet ters yana geçmedi. Yarı katlıyken DE'ye geçiş: katlanma aynı kaldı. Hareket azaltılmış: katlanma yok. Mobil (375px): 0 → 0.52 (80px) → 1 (160px), kapalı çakı tamamen görünür, yatay kaydırma yok. Konsolda hata yok; önceki paketlerin kontrolü değişmedi. Deploy / push yok.
+
+Değişen dosyalar: `components/HeroKnife.tsx`, `app/globals.css`, `lib/useScrollMotion.ts`, `lib/content.ts`, `DOKUMANTASYON.md`.
+
+### 2026-09-17 — Temizlik: boşta kalan animasyon kodu ve logo hydration uyarısı
+
+11 Eylül metin çalışmasında karar cümlesi bölümü kaldırılmıştı; animasyon kodu ve bir CSS kuralı geride kalmıştı. Çakı sapındaki logo da her yüklemede hydration uyarısı veriyordu.
+
+Yapılanlar:
+1. `lib/useScrollMotion.ts`: karar cümlesinin kelime animasyonu ve başlık seçicisindeki istisna silindi. Dil değişiminde yeniden kurulumun gerekçesi güncellendi: adım ve SSS satırlarının anahtarı metin, React onları dil değişince yeni öğelerle değiştiriyor.
+2. `app/globals.css`: kullanılmayan `.statement__sub` kuralı silindi.
+3. `lib/mark.ts`: `markCapCenters()` uç daire merkezlerini, yol gibi 3 basamağa yuvarlıyor. Node ile tarayıcı `Math.cos` / `Math.sin` sonucunun son basamağında ayrışıyordu; `BrandMark` bu değerleri ham öznitelik olarak bastığı için hydration uyarısı çıkıyordu. İkon üretimi zaten 3 basamak kullanıyor, ikonlar değişmedi.
+
+Dokunulmadı: `lib/content.ts` içindeki `statementA` / `statementSub` metinleri (TR / EN / DE) artık hiçbir yerde kullanılmıyor. Metin çalışmasının parçası oldukları için silinmedi.
+
+Doğrulama: `tsc --noEmit`; headless Chromium (CDP), 1440×900 ve 375×812: konsolda hata ve uyarı yok (hydration uyarısı gitti). Logo uçları `21.087,7.859` / `7.409,11.715`. İlk ekranda gizlenen öğe yok, tam kaydırmadan sonra gizli öğe 0. Sayfa ortasında TR → DE: başlıklar Almanca, ekrandaki öğeler görünür. Hareket azaltılmışken gizli öğe yok. Yatay kaydırma yok. Deploy / push yok.
+
+Değişen dosyalar: `lib/useScrollMotion.ts`, `lib/mark.ts`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-11 — Bütüncül kontrol: içerik, SEO, görsel
 
 Doğrulanan hatalar düzeltildi. URL yapısı aynı kaldı (`?lang=`). Deploy / push yok.

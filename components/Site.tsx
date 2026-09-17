@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode, type Ref } from 'react';
 import { normalizeWebsite } from '@/lib/auditRequest';
 import { content, type Lang } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
@@ -9,7 +9,7 @@ import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMod
 import { withLangParam } from '@/lib/lang';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
-import { useScrollMotion } from '@/lib/useScrollMotion';
+import { useOpenReveal, useScrollMotion } from '@/lib/useScrollMotion';
 import { useActiveSection } from '@/lib/useActiveSection';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { HeroKnife } from '@/components/HeroKnife';
@@ -108,10 +108,11 @@ export function Site({ initialLang }: { initialLang: Lang }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(false);
   const compactNavCta = useSyncExternalStore(subscribeCompactNav, getCompactNav, () => false);
   useLangDocument(lang);
-  useScrollMotion(mainRef, navRef, lang);
+  useScrollMotion(mainRef, navRef, footerRef, lang);
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen);
@@ -345,7 +346,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         </Section>
       </main>
 
-      <Footer lang={lang} setLang={setLang} privacyHref={privacyHref} impressumHref={impressumHref} navItems={navItems}/>
+      <Footer ref={footerRef} lang={lang} setLang={setLang} privacyHref={privacyHref} impressumHref={impressumHref} navItems={navItems}/>
     </AuditFormProvider>
   );
 }
@@ -538,6 +539,8 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
 function SampleReport({ lang }: { lang: Lang }) {
   const c = content[lang];
   const [open, setOpen] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  useOpenReveal(listRef, open);
   return (
     <div className="report-doc">
       <article className="doc">
@@ -570,7 +573,7 @@ function SampleReport({ lang }: { lang: Lang }) {
         <button className="btn btn--ghost btn--sm report-toggle" data-reveal type="button" onClick={() => setOpen(v => !v)} aria-expanded={open}>
           {open ? c.sampleReport.closeList : c.sampleReport.openList}
         </button>
-        <div className={`report-checklist ${open ? 'is-open' : ''}`} aria-hidden={!open}>
+        <div className={`report-checklist ${open ? 'is-open' : ''}`} ref={listRef} aria-hidden={!open}>
           <p className="checklist-label">{c.sampleReport.listLabel}</p>
           <div className="doc-grid doc-grid--local">
             {c.checklist.map(s => (
@@ -606,8 +609,9 @@ function FAQList({ items }: { items: readonly { q: string; a: string }[] }) {
 }
 
 function Footer({
-  lang, setLang, privacyHref, impressumHref, navItems,
+  ref, lang, setLang, privacyHref, impressumHref, navItems,
 }: {
+  ref?: Ref<HTMLElement>;
   lang: Lang;
   setLang: (l: Lang) => void;
   privacyHref: string;
@@ -616,7 +620,7 @@ function Footer({
 }) {
   const c = content[lang];
   return (
-    <footer className="footer" id="contact">
+    <footer className="footer" id="contact" ref={ref}>
       <div className="wrap">
         <div className="footer__top">
           <div>

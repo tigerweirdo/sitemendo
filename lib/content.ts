@@ -24,8 +24,6 @@ export type Copy = {
   findings: Finding[];
   sampleReport: { label: string; note: string; issues: string; impact: string; openList: string; closeList: string; listLabel: string };
   checklist: ChecklistCell[];
-  statementA: string;
-  statementSub: string;
   servicesTitle: string;
   servicesCta: string;
   after: string;
@@ -115,8 +113,6 @@ export const content: Record<Lang, Copy> = {
       { k: 'İndeks', v: 'Bakılmalı', s: 'warn' },
       { k: 'İletişim', v: 'Bakılmalı', s: 'warn' },
     ],
-    statementA: 'Raporu aldıktan sonra karar sizin.',
-    statementSub: 'Sorunları kendiniz çözebilir, başka birine yaptırabilir veya bize bırakabilirsiniz.',
     servicesTitle: 'Hizmetler ve fiyatlar',
     servicesCta: 'Ücretsiz kontrol isteyin',
     after: 'Başlangıç fiyatı; kapsam teklifte netleşir',
@@ -271,8 +267,6 @@ export const content: Record<Lang, Copy> = {
       { k: 'Index', v: 'To check', s: 'warn' },
       { k: 'Contact', v: 'To check', s: 'warn' },
     ],
-    statementA: 'After the report, you decide.',
-    statementSub: 'You can sort the problems out yourself, ask someone else, or leave them to us.',
     servicesTitle: 'Services and prices',
     servicesCta: 'Request a free check',
     after: 'Starting price; the scope is set in the quote',
@@ -427,8 +421,6 @@ export const content: Record<Lang, Copy> = {
       { k: 'Index', v: 'Zu prüfen', s: 'warn' },
       { k: 'Kontakt', v: 'Zu prüfen', s: 'warn' },
     ],
-    statementA: 'Nach dem Bericht entscheiden Sie.',
-    statementSub: 'Sie können die Punkte selbst lösen, jemand anderen fragen oder uns beauftragen.',
     servicesTitle: 'Leistungen und Preise',
     servicesCta: 'Kostenlose Prüfung anfordern',
     after: 'Startpreis; der Umfang steht im Angebot fest',

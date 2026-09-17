@@ -425,22 +425,26 @@ export function HeroKnife({ label }: { label: string }) {
                       '--kt-face-ao': `url(#kt-ao-${t.id})`,
                     } as CSSProperties}
                   >
-                    <div className="knife-tool__stack" style={{ '--z': `${t.z}px` } as CSSProperties}>
-                      {toolLayers.map((l, i) => (
-                        <div
-                          key={i}
-                          className={
-                            'knife-tool__layer'
-                            + (l.face ? ' knife-tool__layer--face' : '')
-                            + (l.back ? ' knife-tool__layer--back' : '')
-                          }
-                          style={{ '--dz': `${l.dz.toFixed(2)}px` } as CSSProperties}
-                        >
-                          <svg viewBox={`0 0 ${TOOL_W} ${t.h}`} aria-hidden="true" focusable="false">
-                            <use href={`#kt-${t.id}`}/>
-                          </svg>
-                        </div>
-                      ))}
+                    {/* Kaydırınca katlanma: açılış animasyonuna dokunmadan aynı menteşe
+                        etrafında --fold oranında geri döner (lib/useScrollMotion.ts). */}
+                    <div className="knife-tool__fold">
+                      <div className="knife-tool__stack" style={{ '--z': `${t.z}px` } as CSSProperties}>
+                        {toolLayers.map((l, i) => (
+                          <div
+                            key={i}
+                            className={
+                              'knife-tool__layer'
+                              + (l.face ? ' knife-tool__layer--face' : '')
+                              + (l.back ? ' knife-tool__layer--back' : '')
+                            }
+                            style={{ '--dz': `${l.dz.toFixed(2)}px` } as CSSProperties}
+                          >
+                            <svg viewBox={`0 0 ${TOOL_W} ${t.h}`} aria-hidden="true" focusable="false">
+                              <use href={`#kt-${t.id}`}/>
+                            </svg>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ))}

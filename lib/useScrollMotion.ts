@@ -25,7 +25,9 @@ function kids(els: Element[], selector?: string) {
 /* Her öğenin hareketi kurulumda duraklatılmış yaratılır ve gizli başlangıcını hemen
    çizer; tetik yalnızca oynatır, aynı anda ekrana girenler gap arayla açılır. Her
    özelliğin tek sahibi bu hareket olduğu için geri alma öğeyi ilk hâline döndürür.
-   Önce set, tetikte ayrı bir to kurmak dil değişiminde öğeleri gizli bırakıyordu. */
+   Önce set, tetikte ayrı bir to kurmak dil değişiminde öğeleri gizli bırakıyordu.
+   Menüden aşağıdaki bir bölüme atlanınca üstte kalanlar da aynı partide gelir; onlar
+   beklemeden son hâline geçer, sıra yalnız ekrandakiler arasında işler. */
 function reveal(
   targets: Element[],
   start: string,
@@ -38,17 +40,27 @@ function reveal(
   ScrollTrigger.batch(targets, {
     start,
     once: true,
-    onEnter: batch => batch.forEach((el, i) => anims.get(el)?.delay(wait + i * gap).restart(true)),
+    onEnter: batch => {
+      let order = 0;
+      batch.forEach(el => {
+        const anim = anims.get(el);
+        if (!anim) return;
+        if (el.getBoundingClientRect().bottom < 0) anim.progress(1);
+        else anim.delay(wait + order++ * gap).restart(true);
+      });
+    },
   });
 }
 
 /* Ana sayfanın kaydırma hareketleri. Gizleme opacity ile, visibility ile değil:
    klavyeyle odaklanan gizli öğe ekrana kaydırılır ve orada açılır. Hairline'lar
    globals.css'te --rule (0–1) oranında soldan sağa çizilir. Dil değişince her şey
-   geri alınıp yeniden kurulur; karar cümlesinin kelime sayısı dile göre değişiyor. */
+   geri alınıp yeniden kurulur: adım ve SSS satırlarının anahtarı metin olduğu için
+   React onları yeni öğelerle değiştiriyor. */
 export function useScrollMotion(
   scope: RefObject<HTMLElement | null>,
   nav: RefObject<HTMLElement | null>,
+  footer: RefObject<HTMLElement | null>,
   lang: Lang,
 ) {
   useGSAP(() => {
@@ -67,13 +79,34 @@ export function useScrollMotion(
         });
       }
 
+      /* Menü aşağı kaydırırken çekilir, yukarı kaydırınca döner; okuma çubuğu ekranın
+         üstünde kalır. Menü açıkken ya da içinde odak varken çekilmez. */
+      const header = nav.current;
+      const showHeader = () => header?.removeAttribute('data-hidden');
+      if (header) {
+        let lastY = window.scrollY;
+        ScrollTrigger.create({
+          start: 0,
+          end: 'max',
+          onUpdate: self => {
+            const y = self.scroll();
+            if (Math.abs(y - lastY) < 8) return;
+            const down = y > lastY;
+            lastY = y;
+            header.toggleAttribute('data-hidden', down && y > header.offsetHeight * 2
+              && !header.classList.contains('open') && !header.matches(':focus-within'));
+          },
+        });
+        header.addEventListener('focusin', showHeader);
+      }
+
       reveal(unseen(q('.sec')), 'top 92%', el =>
         gsap.fromTo(el, { '--rule': 0 }, { '--rule': 1, duration: 1.1, ease: LINE, paused: true }), 0);
 
       /* Başlık kendi alt kenarındaki bir maskenin arkasından yükselir: kayma ile alttan
          kırpma aynı oranda ilerlediği için görünen pencere yerinde durur. Metin satırlara
          bölünmüyor; React dil değişince başlığı olduğu gibi günceller. */
-      reveal(unseen(q('.h2:not(.statement__title)')), 'top 90%', el => gsap.fromTo(el,
+      reveal(unseen(q('.h2')), 'top 90%', el => gsap.fromTo(el,
         { yPercent: 100, clipPath: 'inset(0% 0% 100% 0%)' },
         {
           yPercent: 0,
@@ -88,9 +121,32 @@ export function useScrollMotion(
         gsap.fromTo(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: OUT, paused: true }), 0.08, 0.1);
 
       /* Listeler: satırın üst çizgisi çizilir, içeriği o çizginin altından gelir. */
-      reveal(unseen(q('.check, .service, .step, .faq__item')), 'top 88%', row => gsap.timeline({ paused: true })
+      reveal(unseen(q('.check, .service:not(.featured), .step, .faq__item')), 'top 88%', row => gsap.timeline({ paused: true })
         .fromTo(row, { '--rule': 0 }, { '--rule': 1, duration: 0.9, ease: LINE })
         .fromTo(row.children, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.7, ease: OUT, stagger: 0.06 }, 0.2), 0.12);
+
+      /* Öne çıkan kart ve son form: çerçeve kenar kenar çizilerek kapanır, sonra zemin
+         tonu ve içerik gelir. */
+      reveal(unseen(q('.service.featured, .final .form-panel')), 'top 85%', box => gsap.timeline({ paused: true })
+        .fromTo(box, { '--frame': 0 }, { '--frame': 1, duration: 1.2, ease: 'power1.inOut' })
+        .fromTo(box, { '--tone': 0 }, { '--tone': 1, duration: 0.5, ease: OUT }, 0.8)
+        .fromTo(box.children, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.7, ease: OUT, stagger: 0.08 }, 0.7), 0.15);
+
+      /* Adımlar: sülfür çizgi kaydırdıkça 01'den 03'e ilerler; çizgi bir adımı bitirince
+         numarası mürekkebe döner. */
+      const steps = q('.step');
+      const stepsBox = root.querySelector<HTMLElement>('.steps');
+      if (steps.length && stepsBox) {
+        const ink = getComputedStyle(root).getPropertyValue('--ink').trim();
+        const progress = gsap.timeline({
+          scrollTrigger: { trigger: stepsBox, start: 'top 75%', end: 'bottom 55%', scrub: 0.4 },
+        });
+        steps.forEach((step, i) => {
+          progress
+            .fromTo(step, { '--fill': 0 }, { '--fill': 1, ease: 'none', duration: 1 }, i)
+            .to(kids([step], '.step__no'), { color: ink, ease: 'none', duration: 0.15 }, i + 0.85);
+        });
+      }
 
       /* Listenin kapanış çizgisi, dibi ekrana girince. */
       reveal(unseen(q('.checks, .findings, .services, .steps, .faq'), 'bottom'), 'bottom 96%', el =>
@@ -132,15 +188,19 @@ export function useScrollMotion(
         .fromTo(kids([finding], '.finding__title, .finding__meta'), { opacity: 0, y: 12 },
           { opacity: 1, y: 0, duration: 0.6, ease: OUT, stagger: 0.06 }, 0.35), 0.18, 0.15);
 
-      /* Karar cümlesi: kelimeler kaydırdıkça griden mürekkebe dolar, geri kaydırınca boşalır. */
-      const statement = root.querySelector<HTMLElement>('.statement__title');
-      if (statement && unseen([statement]).length) {
-        gsap.fromTo(kids([statement], '.statement__word'), { opacity: 0.2 }, {
-          opacity: 1,
-          ease: 'none',
-          stagger: 0.1,
-          scrollTrigger: { trigger: statement, start: 'top 85%', end: 'bottom 45%', scrub: 0.4 },
-        });
+      /* Footer imzası: SITEMENDO maskeden yükselir, sülfür nokta en son düşer. */
+      const brand = footer.current?.querySelector<HTMLElement>('.footer__brand');
+      const dot = brand?.querySelector('.dot');
+      if (brand && dot) {
+        reveal(unseen([brand]), 'top 95%', el => gsap.timeline({ paused: true })
+          .fromTo(el, { yPercent: 100, clipPath: 'inset(0% 0% 100% 0%)' }, {
+            yPercent: 0,
+            clipPath: 'inset(0% 0% 0% 0%)',
+            duration: 0.8,
+            ease: 'power4.out',
+            clearProps: 'clipPath,transform',
+          })
+          .fromTo(dot, { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'power2.in' }));
       }
 
       /* Form adımı, SSS ve rapor listesi sayfa boyunu değiştiriyor; tetik noktaları
@@ -155,6 +215,8 @@ export function useScrollMotion(
       return () => {
         ro.disconnect();
         refresh?.kill();
+        header?.removeEventListener('focusin', showHeader);
+        showHeader();
         if (counting && tally) {
           counting = false;
           tally.textContent = total;
@@ -172,6 +234,52 @@ export function useScrollMotion(
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
       });
     }, scope);
+
+    /* Çakı kaydırınca katlanır: ilk kaydırmayla aletler sapın içine döner, en üste
+       dönünce yeniden açılır. Çakı yüksekliğinin yarısı kadar kaydırmada kapanmış olur;
+       daha geç bitince masaüstünde son kısmı menünün altında kalıyordu. Açılış animasyonu
+       bitmeden kurulmaz; yoksa açılırken kaydıran birinde aletler sapın öbür yanına
+       geçerdi. Tek sütunda da çalışır, katlanma çakıyı yerinden oynatmaz. */
+    mm.add('(prefers-reduced-motion: no-preference)', (_, contextSafe) => {
+      const knife = scope.current?.querySelector<HTMLElement>('.knife');
+      if (!knife || !contextSafe) return;
+      let alive = true;
+      const unfolding = kids([knife], '.knife__orbit > .knife-tool')
+        .flatMap(tool => tool.getAnimations())
+        .filter(a => (a as CSSAnimation).animationName === 'knife-unfold');
+      const fold = contextSafe(() => {
+        if (!alive) return;
+        gsap.fromTo(knife, { '--fold': 0 }, {
+          '--fold': 1,
+          ease: 'none',
+          scrollTrigger: {
+            start: 0,
+            end: () => `+=${knife.offsetHeight * 0.5}`,
+            scrub: 0.4,
+            invalidateOnRefresh: true,
+          },
+        });
+      });
+      Promise.allSettled(unfolding.map(a => a.finished)).then(() => fold());
+      return () => { alive = false; };
+    }, scope);
     return () => mm.revert();
   }, { scope, dependencies: [lang], revertOnUpdate: true });
+}
+
+/* Örnek rapordaki kontrol listesi açılınca etiket ve hücre yazıları sırayla gelir.
+   Hücrelerin kendisi değil içi: şeffaf hücreler ızgaranın gri zeminini gösteriyordu.
+   Kapanınca geri alınır; hareket azaltılmışsa liste anında açılır. */
+export function useOpenReveal(scope: RefObject<HTMLElement | null>, open: boolean) {
+  useGSAP(() => {
+    if (!open) return;
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const root = scope.current;
+      if (!root) return;
+      gsap.fromTo(kids([root], '.checklist-label, .doc-cell > *'), { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.5, ease: OUT, stagger: 0.03 });
+    }, scope);
+    return () => mm.revert();
+  }, { scope, dependencies: [open], revertOnUpdate: true });
 }

@@ -40,12 +40,15 @@ export function markCPath(stroke = MARK.stroke) {
   return `M ${fmt(ox0)} ${fmt(oy0)} A ${fmt(rO)} ${fmt(rO)} 0 ${large} 1 ${fmt(ox1)} ${fmt(oy1)} L ${fmt(ix1)} ${fmt(iy1)} A ${fmt(rI)} ${fmt(rI)} 0 ${large} 0 ${fmt(ix0)} ${fmt(iy0)} Z`;
 }
 
+/** Rounded like the path: Node and the browser can disagree on the last digit of
+ *  Math.cos/sin, and BrandMark renders these as raw attributes during hydration. */
 export function markCapCenters(): [number, number][] {
   const { cx, cy, r, rot } = MARK;
   const sweep = markSweep();
+  const round = ([x, y]: [number, number]): [number, number] => [Number(fmt(x)), Number(fmt(y))];
   return [
-    rotPt(cx + r, cy, rot, cx, cy),
-    rotPt(cx + r * Math.cos(sweep), cy + r * Math.sin(sweep), rot, cx, cy),
+    round(rotPt(cx + r, cy, rot, cx, cy)),
+    round(rotPt(cx + r * Math.cos(sweep), cy + r * Math.sin(sweep), rot, cx, cy)),
   ];
 }
 
