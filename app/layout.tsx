@@ -1,23 +1,15 @@
 import type { Metadata } from 'next';
-import { cookies, headers } from 'next/headers';
 import { IBM_Plex_Mono, Inter } from 'next/font/google';
 import './globals.css';
 import { SITE_URL } from '@/lib/company';
 import { content } from '@/lib/content';
-import { LANG_BOOTSTRAP, LANG_COOKIE, parseLang } from '@/lib/lang';
+import { LANG_BOOTSTRAP } from '@/lib/lang';
+import { resolveRequestLang } from '@/lib/requestLang';
 import { SeoLinks } from '@/components/SeoLinks';
-import { LANG_HEADER } from '@/lib/seo';
 
 const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-sans' });
-const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin', 'latin-ext'], weight: ['400', '500'], variable: '--font-mono' });
-
-async function resolveRequestLang() {
-  const headerStore = await headers();
-  const cookieStore = await cookies();
-  return parseLang(headerStore.get(LANG_HEADER))
-    ?? parseLang(cookieStore.get(LANG_COOKIE)?.value)
-    ?? 'tr';
-}
+/* Yalnız fiyat, alan adı gibi veri satırlarında; önden yüklenip ilk açılışı ağırlaştırmasın. */
+const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin', 'latin-ext'], weight: ['400', '500'], variable: '--font-mono', preload: false });
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await resolveRequestLang();

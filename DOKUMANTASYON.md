@@ -26,8 +26,36 @@ Sitemendo metinleri adım adım yenilenirken:
 - TR / DE / EN arasında anlam ve hizmet kapsamı tutarlıdır.
 - Fiyat, teslim süresi, garanti veya hizmet koşulu uydurulmaz (mevcut 0 / 250 / 450 / 79 €, 48 saat, 2–5 iş günü korunur).
 - Mevcut kullanıcı değişiklikleri ezilmez. Deploy, push veya gerçek form gönderimi yapılmaz.
+- Fiyatlar net gösterilir, %19 USt eklenir (KDV'li fatura). Hizmet yalnızca işletmelere ve serbest çalışanlara (kullanıcı kararı, 2026-09-17).
+- Hedef kitle Türkçe ve Almanca iki dilli: dil seçimi yoksa ziyaretçi tarayıcı diline yönlenir; desteklenmeyen dilde Türkçe kalır (kullanıcı kararı, 2026-09-17).
 
 ## Görevler
+
+### 2026-09-17 — Tam tarama ve düzeltmeler
+
+Canlı site (sitemendo.com), kod, başlıklar, bağımlılıklar ve headless Chromium ile tarandı. Kullanıcı yanıtları: KDV'li fatura, yalnızca işletmelere, hedef kitle iki dilli, desteklenmeyen tarayıcı dilinde Türkçe.
+
+Düzeltilenler:
+1. Gizlilik metni üç dilde yeniden yazıldı (132 → 451 kelime, DE): veri sorumlusu (adres, e-posta, telefon), Vercel ve sunucu kayıtları, form, Resend, Cloudflare → Gmail yönlendirmesi, telefon ve WhatsApp, ABD'ye aktarım (DPF / standart sözleşme maddeleri), tarayıcı depolaması (dil çerezi, yerel depolama, sekme süresince form taslağı), saklama süresi, haklar (Art. 15–21), şikâyet hakkı (Berlin), otomatik karar yok. **Taslaktır; avukat ya da güvenilir bir oluşturucuyla kontrol ettirilmeli.**
+2. Fiyatların altında not: net fiyat + %19 USt, yalnızca işletmelere; SSS ücret cevabına da eklendi.
+3. Form kötüye kullanımı: görünmez bot tuzağı alanı (`company`), form açıldıktan sonra geçen süre (`t`, 2.5 sn altı ya da yoksa 429 `RETRY`), aynı alıcıya günde en fazla 2 onay e-postası. Onay e-postasında site adresi artık bağlantı değil düz metin (Sitemendo imzasıyla yabancı bağlantı gitmesin). Sınırlar hâlâ bellekte; kalıcı sınır için Vercel Firewall kuralı önerilir.
+4. `vercel.json`: sunucu bölgesi `fra1` (Frankfurt). Önceden `iad1` (ABD) idi; ilk açılış TTFB 1.35 sn ölçülmüştü.
+5. `www.sitemendo.com` ve `sitemendo.vercel.app` 308 ile ana adrese yönleniyor (middleware).
+6. Dil seçimi (sorgu ya da çerez) yoksa `/`, `/privacy`, `/impressum` tarayıcı diline 307 ile yönleniyor (`Accept-Language`, `preferredLang`). Türkçe, desteklenmeyen dil ya da başlıksız istek (botlar) Türkçe kalıyor.
+7. Metin hataları: 3. adım ve SSS "yaptırabilir / have the repairs done yourself / selbst erledigen lassen" çelişkisi üç dilde ve onay e-postalarında düzeltildi; EN ve DE hero cümlesi; DE meta açıklaması 169 → 153 karakter.
+8. Dile uygun 404 (`app/not-found.tsx`, noindex, ana sayfa bağlantısı) ve hata sayfası (`app/error.tsx`). İsteğin dili `lib/requestLang.ts`.
+9. JSON-LD `ProfessionalService` (ad, adres, e-posta, telefon, diller). Fiyat yok; `content.ts` ile ikinci kopya tutulmasın.
+10. Güvenlik başlıkları (canlıda): CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`; `x-powered-by` kapalı. Geliştirmede CSP yok, önizlemede `vercel.live` izinli.
+11. Demo modu açıkça ayarlanmadıysa canlıda kapalı (`VERCEL_ENV`); anahtar eksik kalırsa ziyaretçi demo değil hata ve e-posta yolu görür.
+12. Etkin menü bağlantısı ve etkin dil artık mürekkep alt çizgi; sülfür kâğıt üzerinde 1.1:1 idi (WCAG 1.4.11). Footer'daki dil seçicide sülfür kaldı (koyu zemin).
+13. LCP: hero alt metni ve formu görünmez başlıyordu; yalnız kayıyorlar. Yerel üretim ölçümü, masaüstü: ~1070 ms → 44–176 ms (hareket azaltılmış 68–92 ms ile aynı seviye).
+14. Dil önyüklemesinde gizlenen gövde JS çalışmazsa 1.5 sn sonra görünür. IBM Plex Mono önden yüklenmiyor (önden yüklenen font dosyası 6 → 2). E-postalardaki Google Fonts bağlantısı kaldırıldı. Kullanılmayan `sec`, `talk`, `assure` metin anahtarları silindi.
+
+Kullanıcıda kalan: push ve canlıda `x-vercel-id` içinde `fra1` kontrolü; USt-IdNr verildiyse Impressum'a eklenmesi; Vercel, Resend, Cloudflare ve Google ile veri işleme sözleşmelerinin (AVV/DPA) kabulü; Resend API anahtarının yenilenmesi (2026-09-10 notu); `_dmarc` kaydının kontrolü (bu ortamdan DNS okunamadı); Safari / gerçek iPhone testi; ölçüm aracı kararı; gerçek referans ve yorumlar; Next 16 yükseltmesi (`npm audit`: Next içindeki PostCSS, build sırasında, düşük risk).
+
+Doğrulama: `tsc --noEmit`; `next build`; yerel `next start` üzerinde curl ve headless Chromium: güvenlik başlıkları geliyor, CSP ihlali yok; `Accept-Language` de → `?lang=de`, en → `?lang=en`, tr / pl / `*` / başlıksız → 200 Türkçe, `pl,en` → en; takma adlar 308; API: süre yok ve hızlı → 429, bot tuzağı → 200 gönderimsiz, normal → demo; arayüzden gönderim çalışıyor; 404 DE ve TR (çerezsiz) doğru; gizlilik 11 bölüm; tam kaydırmada gizli öğe 0, DE geçişi, hareket azaltılmış ve mobil temiz. Push kullanıcının açık isteğiyle yapıldı (2026-09-17); gerçek e-posta gönderilmedi.
+
+Değişen dosyalar: `lib/content.ts`, `lib/auditMail.ts`, `lib/auditRequest.ts`, `lib/auditRateLimit.ts`, `lib/formFlow.ts`, `lib/lang.ts`, `lib/requestLang.ts` (yeni), `app/api/audit/route.ts`, `app/layout.tsx`, `app/page.tsx`, `app/not-found.tsx` (yeni), `app/error.tsx` (yeni), `app/globals.css`, `components/Site.tsx`, `components/LegalPage.tsx`, `middleware.ts`, `next.config.ts`, `vercel.json` (yeni), `DOKUMANTASYON.md`.
 
 ### 2026-09-17 — Kullanılmayan CSS ve kontrol listesi ızgarası
 

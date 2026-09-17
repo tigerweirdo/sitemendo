@@ -83,7 +83,6 @@ function shell(o: { lang: Lang; title: string; preview: string; meta: string; bo
 <meta name="color-scheme" content="light only">
 <meta name="supported-color-schemes" content="light">
 <title>${esc(o.title)}</title>
-<!--[if !mso]><!--><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><!--<![endif]-->
 <style>
   :root { color-scheme: light only; supported-color-schemes: light; }
   body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
@@ -286,7 +285,7 @@ const CONFIRM: Record<Lang, ConfirmCopy> = {
     steps: ['İstek alındı', 'Siteyi inceliyoruz', 'Rapor e-postanızda'],
     review: 'Dışarıdan erişilebilen sayfalarda sekiz nokta',
     checksTitle: 'Kontrol kapsamı',
-    promise: ['Düzeltme hizmeti isteğe bağlı.', 'Raporu okuduktan sonra düzeltmeyi kendiniz yaptırabilir veya bizden teklif isteyebilirsiniz.'],
+    promise: ['Düzeltme hizmeti isteğe bağlı.', 'Raporu okuduktan sonra düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir veya bizden teklif isteyebilirsiniz.'],
     askTitle: 'Sorunuz mu var?',
     ask: 'Bu e-postayı yanıtlamanız yeterli, doğrudan bize ulaşır. İsterseniz arayın ya da WhatsApp’tan yazın.',
     footer: 'Bu e-postayı sitemendo.com’daki formu doldurduğunuz için aldınız.',
@@ -304,7 +303,7 @@ const CONFIRM: Record<Lang, ConfirmCopy> = {
     steps: ['Request received', 'We review the site', 'Report in your inbox'],
     review: 'Eight points on the publicly reachable pages',
     checksTitle: 'What the check covers',
-    promise: ['Repair work is optional.', 'After the report you can have the repairs done yourself or ask us for a quote.'],
+    promise: ['Repair work is optional.', 'After the report you can make the fixes yourself, have someone else do them, or ask us for a quote.'],
     askTitle: 'Any questions?',
     ask: 'Just reply to this email — it comes straight to us. You can also call or message us on WhatsApp.',
     footer: 'You’re receiving this email because you filled in the form on sitemendo.com.',
@@ -322,7 +321,7 @@ const CONFIRM: Record<Lang, ConfirmCopy> = {
     steps: ['Anfrage erhalten', 'Wir prüfen die Seite', 'Bericht im Postfach'],
     review: 'Acht Punkte auf den öffentlich erreichbaren Seiten',
     checksTitle: 'Was die Prüfung umfasst',
-    promise: ['Die Reparatur bleibt optional.', 'Nach dem Bericht können Sie die Korrekturen selbst erledigen lassen oder uns um ein Angebot bitten.'],
+    promise: ['Die Reparatur bleibt optional.', 'Nach dem Bericht können Sie die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns um ein Angebot bitten.'],
     askTitle: 'Fragen?',
     ask: 'Antworten Sie einfach auf diese E-Mail — sie kommt direkt bei uns an. Sie können uns auch anrufen oder per WhatsApp schreiben.',
     footer: 'Sie erhalten diese E-Mail, weil Sie das Formular auf sitemendo.com ausgefüllt haben.',
@@ -348,7 +347,9 @@ export function confirmEmail(payload: AuditPayload, meta: RequestMeta) {
       ${title(c.title)}
       ${lead(c.lead(host))}
       ${summary([
-        [c.rows.site, link(payload.websiteUrl, prettyUrl(payload.websiteUrl))],
+        /* Bağlantı değil düz metin: form başkası adına doldurulursa bu e-posta
+           Sitemendo imzasıyla yabancı bir bağlantı taşımasın. */
+        [c.rows.site, esc(prettyUrl(payload.websiteUrl))],
         [c.rows.email, esc(payload.email)],
         [c.rows.due, esc(due)],
         [c.rows.ref, esc(meta.ref)],
@@ -378,7 +379,7 @@ export function confirmEmail(payload: AuditPayload, meta: RequestMeta) {
     '',
     c.lead(host).replace(/<[^>]+>/g, ''),
     '',
-    `${c.rows.site}: ${payload.websiteUrl}`,
+    `${c.rows.site}: ${prettyUrl(payload.websiteUrl)}`,
     `${c.rows.email}: ${payload.email}`,
     `${c.rows.due}: ${due}`,
     `${c.rows.ref}: ${meta.ref}`,

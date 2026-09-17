@@ -24,7 +24,14 @@ export function parseAuditResponse(ok: boolean, data: { mode?: string } | null):
   throw new Error('REQUEST_FAILED');
 }
 
-export async function submitAuditRequest(payload: { websiteUrl: string; email: string; language: string }) {
+export async function submitAuditRequest(payload: {
+  websiteUrl: string;
+  email: string;
+  language: string;
+  /* Bot tuzağı alanının değeri ve form açıldığından beri geçen süre (ms). */
+  company: string;
+  t: number;
+}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15000);
   try {

@@ -14,7 +14,6 @@ export type Copy = {
     title: string; p1: string; p2: string;
     emailLabel: string; phoneLabel: string; whatsapp: string;
   };
-  sec: { checks: string; output: string; decision: string; services: string; process: string; start: string };
   checksTitle: string;
   checksSub: string;
   checksNote: string;
@@ -27,14 +26,15 @@ export type Copy = {
   servicesTitle: string;
   servicesCta: string;
   after: string;
-  talk: string;
+  pricesNote: string;
   services: Service[];
   howTitle: string;
   steps: [string, string][];
-  assure: string;
   faqTitle: string;
   faq: FAQ[];
   final: string;
+  notFound: { title: string; text: string; home: string };
+  errorPage: { title: string; text: string; retry: string };
   form: {
     title: string; lead: string; url: string; urlPh: string; submit: string;
     assure: string; sample: string; urlErr: string;
@@ -48,7 +48,7 @@ export type Copy = {
     privacyTitle: string; privacyDescription: string; impressumTitle: string; impressumDescription: string;
   };
   legal: {
-    back: string; updated: string;
+    back: string; updated: string; controller: string;
     privacyTitle: string; privacyLead: string; privacy: LegalBlock[];
     impressumTitle: string; impressumLead: string;
     provider: string; country: string; emailLabel: string; phoneLabel: string;
@@ -73,7 +73,6 @@ export const content: Record<Lang, Copy> = {
       phoneLabel: 'Telefon',
       whatsapp: 'WhatsApp',
     },
-    sec: { checks: 'Kontrol kapsamı', output: 'Rapor', decision: 'Karar', services: 'Hizmetler', process: 'Süreç', start: 'Başlangıç' },
     checksTitle: 'Kontrol kapsamı',
     checksSub: 'Ücretsiz kontrolde şu sekiz noktayı inceleriz.',
     checksNote: 'Ücretsiz kontrol, sitenizin dışarıdan erişilebilen bölümlerini kapsar. Yönetim paneli, yedekleme ve e-posta teslimatı gibi kontroller ek erişim veya teyit gerektirebilir.',
@@ -116,7 +115,7 @@ export const content: Record<Lang, Copy> = {
     servicesTitle: 'Hizmetler ve fiyatlar',
     servicesCta: 'Ücretsiz kontrol isteyin',
     after: 'Başlangıç fiyatı; kapsam teklifte netleşir',
-    talk: 'Rapordan sonra konuşalım',
+    pricesNote: 'Fiyatlar nettir; %19 KDV eklenir. Hizmetlerimiz yalnızca işletmelere ve serbest çalışanlara yöneliktir.',
     services: [
       { no: '01', name: 'Kontrol raporu', price: '0 €', items: ['Kontrol raporu', 'Öncelik listesi', '48 saat içinde elinizde'], cta: 'Ücretsiz kontrol', featured: true },
       { no: '02', name: 'Acil düzeltme', price: '250 €', items: ['En acil 2–3 sorun', '2 iş günü'], note: 'Kapsam işlem öncesinde netleştirilir' },
@@ -127,20 +126,29 @@ export const content: Record<Lang, Copy> = {
     steps: [
       ['Site adresinizi paylaşın.', 'Site adresinizi ve raporu göndereceğimiz e-postayı iletin.'],
       ['Kontrol raporunuzu alın.', 'Bulguları ve önerilen adımları 48 saat içinde gönderelim.'],
-      ['Sonraki adımı seçin.', 'Düzeltmeleri kendiniz yaptırabilir veya bizden teklif isteyebilirsiniz.'],
+      ['Sonraki adımı seçin.', 'Düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir veya bizden teklif isteyebilirsiniz.'],
     ],
-    assure: 'Düzeltmeyi bize yaptırmak zorunda değilsiniz.',
     faqTitle: 'Sık sorulan sorular',
     faq: [
       { q: 'Ücretsiz kontrol ne içeriyor?', a: 'Dışarıdan erişilebilen sayfalarda sekiz noktayı inceleriz ve size rapor ile öncelik listesi göndeririz. Yönetim paneli, yedekleme ve e-posta teslimatı bu kapsama girmez.' },
       { q: 'Rapor ne zaman geliyor?', a: '48 saat içinde, belirttiğiniz e-posta adresine.' },
-      { q: 'Düzeltme hizmeti almak zorunlu mu?', a: 'Hayır. Raporu aldıktan sonra düzeltmeyi kendiniz yaptırabilir veya bizden teklif isteyebilirsiniz.' },
-      { q: 'Düzeltme ücreti nasıl belirleniyor?', a: 'Acil düzeltme 250 € tutarında sabit bir pakettir; en acil 2–3 sorunu kapsar ve kapsam işlem öncesinde netleşir. Tam onarım 450 €’dan başlar; yapılacak iş ve ücret teklifte belirlenir. Sürekli bakım 79 € / aydır.' },
+      { q: 'Düzeltme hizmeti almak zorunlu mu?', a: 'Hayır. Raporu aldıktan sonra düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir veya bizden teklif isteyebilirsiniz.' },
+      { q: 'Düzeltme ücreti nasıl belirleniyor?', a: 'Acil düzeltme 250 € tutarında sabit bir pakettir; en acil 2–3 sorunu kapsar ve kapsam işlem öncesinde netleşir. Tam onarım 450 €’dan başlar; yapılacak iş ve ücret teklifte belirlenir. Sürekli bakım 79 € / aydır. Tüm fiyatlar nettir; %19 KDV eklenir.' },
       { q: 'Siteye erişim bilgisi gerekiyor mu?', a: 'Ücretsiz kontrol için site adresi yeterlidir. Yönetim paneli, yedekleme ve e-posta teslimatı gibi kontroller ek erişim veya teyit isteyebilir.' },
       { q: 'Hangi siteler destekleniyor?', a: 'Dışarıdan erişilebilen işletme siteleri. WordPress bu kapsamdadır.' },
       { q: 'Hangi dillerde hizmet veriliyor?', a: 'Raporu Türkçe, İngilizce veya Almanca göndeririz.' },
     ],
     final: 'Ücretsiz kontrol isteyin',
+    notFound: {
+      title: 'Bu sayfa bulunamadı.',
+      text: 'Adres değişmiş ya da yanlış yazılmış olabilir. Ana sayfadan devam edebilirsiniz.',
+      home: 'Ana sayfaya dön',
+    },
+    errorPage: {
+      title: 'Bir şeyler ters gitti.',
+      text: 'Sayfa yüklenirken bir hata oluştu. Tekrar deneyebilir ya da bize e-posta ile ulaşabilirsiniz:',
+      retry: 'Tekrar dene',
+    },
     form: {
       title: 'Ücretsiz site kontrolüyle başlayın.',
       lead: 'Site adresinizi ve e-posta adresinizi paylaşın; ikisi de gerekir. Kontrol sonuçlarını ve önerilen adımları 48 saat içinde gönderelim.',
@@ -190,15 +198,21 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Ana sayfa',
-      updated: 'Son güncelleme: 10 Eylül 2026',
+      updated: 'Son güncelleme: 17 Eylül 2026',
+      controller: 'Veri sorumlusu',
       privacyTitle: 'Gizlilik',
-      privacyLead: 'Size cevap yazmak için gereken bilgiler dışında hiçbir şey kullanmıyoruz.',
+      privacyLead: 'Yalnızca isteğiniz ve bu sitenin güvenli çalışması için gereken verileri işliyoruz. İzleme veya reklam çerezi ve analiz aracı kullanmıyoruz.',
       privacy: [
-        { h: 'Neyi alıyoruz', p: 'Formu gönderdiğinizde site adresinizi ve e-posta adresinizi alıyoruz. Bunları sadece raporu hazırlayıp size göndermek için kullanıyoruz.' },
-        { h: 'Neden kullanıyoruz', p: 'Kontrolü yapmak ve size ulaşmak için. Bilgilerinizi satmıyoruz ve reklam listelerine eklemiyoruz.' },
-        { h: 'Kim görüyor', p: 'İsteği size iletmek için Resend adlı e-posta servisini kullanıyoruz. Reklam için kullanılmaz.' },
-        { h: 'Ne kadar saklıyoruz', p: 'Raporu gönderip sorularınızı yanıtlayacak kadar bir süre. Sonra siliyoruz.' },
-        { h: 'Haklarınız', p: 'Bilgilerinizi görmek, düzelttirmek veya sildirmek isterseniz hello@sitemendo.com adresine yazmanız yeterli. Site adresi gerekmez.' },
+        { h: 'Barındırma ve sunucu kayıtları', p: 'Bu site Vercel Inc. (ABD) altyapısında çalışır; sunucu işlemleri Frankfurt am Main’da yapılır. Bir sayfa açıldığında Vercel, sayfayı sunmak ve kötüye kullanımı önlemek için IP adresi, zaman, açılan adres ve tarayıcı bilgisi gibi teknik olarak gerekli verileri işler. Hukuki dayanak, sitenin güvenli çalışmasındaki meşru menfaatimizdir (GDPR md. 6/1-f).' },
+        { h: 'Ücretsiz kontrol talebi', p: 'Formu gönderdiğinizde site adresinizi, e-posta adresinizi ve seçtiğiniz dili; kontrolü yapmak, raporu göndermek ve sorularınızı yanıtlamak için işleriz. Hukuki dayanak, talebiniz üzerine yapılan sözleşme öncesi işlemlerdir (GDPR md. 6/1-b). Bu bilgiler olmadan raporu gönderemeyiz.' },
+        { h: 'E-posta', p: 'Onay ve iç bildirim e-postalarını Resend (Resend, Inc., ABD) üzerinden göndeririz. hello@sitemendo.com adresine gelen e-postalar Cloudflare (Cloudflare, Inc., ABD) üzerinden Google’daki (Gmail) bir posta kutusuna yönlendirilir.' },
+        { h: 'Telefon ve WhatsApp', p: 'Bizi arar ya da WhatsApp’tan yazarsanız bilgilerinizi isteğinizle ilgilenmek için işleriz (GDPR md. 6/1-b veya f). WhatsApp’ta ayrıca WhatsApp Ireland Limited kendi koşullarına göre veri işler. Bunu istemiyorsanız bize e-posta veya telefonla ulaşabilirsiniz.' },
+        { h: 'ABD’ye aktarım', p: 'Vercel, Resend, Cloudflare, Google ve WhatsApp (Meta) verileri ABD’de işleyebilir. Aktarım, sağlayıcı sertifikalıysa AB-ABD Veri Gizliliği Çerçevesi’ne (Data Privacy Framework), değilse AB standart sözleşme maddelerine dayanır (GDPR md. 45 ve 46).' },
+        { h: 'Tarayıcıda saklanan bilgiler', p: 'Yalnızca dil seçiminizi (bir yıl süreli “sitemendo.lang” çerezi ve yerel depolama) ve tarayıcı sekmesi kapanınca silinen bir form taslağını saklarız. Bu saklama, kullandığınız işlevler için zorunludur (TDDDG md. 25/2-2). Yazı tiplerini bu site kendisi sunar; Google Fonts’a veri gitmez.' },
+        { h: 'Saklama süresi', p: 'Sipariş doğmayan talepleri, tamamlandıktan ve başka soru beklenmediğinde sileriz. Sipariş doğarsa fatura gibi ticari belgeleri yasal süreler boyunca (genellikle en fazla on yıl) saklarız.' },
+        { h: 'Haklarınız', p: 'Bilgilerinize erişme, düzeltme, silme, işlemeyi kısıtlama ve veri taşınabilirliği haklarınız ile meşru menfaate dayanan işlemeye itiraz hakkınız vardır (GDPR md. 15–21). Bunun için hello@sitemendo.com adresine yazın.' },
+        { h: 'Denetim makamına şikâyet', p: 'Bir veri koruma denetim makamına şikâyette bulunabilirsiniz; örneğin Berlin Veri Koruma ve Bilgi Edinme Özgürlüğü Görevlisi’ne (Berliner Beauftragte für Datenschutz und Informationsfreiheit).' },
+        { h: 'Otomatik karar yok', p: 'Yalnızca otomatik işlemeye dayanan kararlar almayız ve profil oluşturmayız (GDPR md. 22).' },
       ],
       impressumTitle: 'Impressum',
       impressumLead: 'Yasal bilgiler ve iletişim.',
@@ -216,7 +230,7 @@ export const content: Record<Lang, Copy> = {
     a11y: { skip: 'Skip to content', mainNav: 'Main navigation', menu: 'Menu', knife: 'Drawing of an unfolding pocket knife' },
     hero: {
       a: 'Checks, repairs and maintenance for your website.',
-      support: 'We identify technical and usability issues on your website, rank them by priority and resolve them with your approval. With regular maintenance we keep following the site.',
+      support: 'We identify technical and usability issues on your website, rank them by priority and resolve them with your approval. With regular maintenance, we keep an eye on your site.',
       place: 'Based in Berlin',
     },
     about: {
@@ -227,7 +241,6 @@ export const content: Record<Lang, Copy> = {
       phoneLabel: 'Phone',
       whatsapp: 'WhatsApp',
     },
-    sec: { checks: 'What we check', output: 'The report', decision: 'Your decision', services: 'Services', process: 'Steps', start: 'Start' },
     checksTitle: 'What the check covers',
     checksSub: 'The free check looks at these eight points.',
     checksNote: 'The free check covers the publicly reachable parts of your site. Checks such as the admin panel, backups and email delivery may need extra access or confirmation.',
@@ -270,7 +283,7 @@ export const content: Record<Lang, Copy> = {
     servicesTitle: 'Services and prices',
     servicesCta: 'Request a free check',
     after: 'Starting price; the scope is set in the quote',
-    talk: 'Let’s talk after the report',
+    pricesNote: 'Prices are net; 19% VAT is added. Our services are for businesses and self-employed professionals only.',
     services: [
       { no: '01', name: 'Check report', price: '0 €', items: ['The check report', 'A priority list', 'In your inbox within 48 hours'], cta: 'Free check', featured: true },
       { no: '02', name: 'Urgent fix', price: '250 €', items: ['The 2–3 most urgent issues', '2 working days'], note: 'The scope is agreed before the work starts' },
@@ -281,20 +294,29 @@ export const content: Record<Lang, Copy> = {
     steps: [
       ['Share your website address.', 'Send us the address and the email where we should send the report.'],
       ['Receive your check report.', 'We’ll send the findings and the suggested next steps within 48 hours.'],
-      ['Choose the next step.', 'You can have the repairs done yourself or ask us for a quote.'],
+      ['Choose the next step.', 'You can make the fixes yourself, have someone else do them, or ask us for a quote.'],
     ],
-    assure: 'You don’t have to have us do the repair.',
     faqTitle: 'Frequently asked questions',
     faq: [
       { q: 'What does the free check include?', a: 'We review eight points on the publicly reachable pages and send you a report with a priority list. The admin panel, backups and email delivery are not part of this check.' },
       { q: 'When does the report arrive?', a: 'Within 48 hours, to the email address you give us.' },
-      { q: 'Is repair work required?', a: 'No. After the report you can have the repairs done yourself or ask us for a quote.' },
-      { q: 'How is the repair fee set?', a: 'Urgent fix is a fixed 250 € package for the 2–3 most urgent issues; the scope is agreed before the work starts. Full repair starts from 450 €; the work and the fee are set in the quote. Ongoing care is 79 € / month.' },
+      { q: 'Is repair work required?', a: 'No. After the report you can make the fixes yourself, have someone else do them, or ask us for a quote.' },
+      { q: 'How is the repair fee set?', a: 'Urgent fix is a fixed 250 € package for the 2–3 most urgent issues; the scope is agreed before the work starts. Full repair starts from 450 €; the work and the fee are set in the quote. Ongoing care is 79 € / month. All prices are net; 19% VAT is added.' },
       { q: 'Do you need access to the site?', a: 'The free check only needs the website address. Checks such as the admin panel, backups and email delivery may need extra access or confirmation.' },
       { q: 'Which websites do you support?', a: 'Publicly reachable business websites. WordPress is included.' },
       { q: 'Which languages do you work in?', a: 'We send the report in Turkish, English or German.' },
     ],
     final: 'Request a free check',
+    notFound: {
+      title: 'This page could not be found.',
+      text: 'The address may have changed or been mistyped. You can continue from the home page.',
+      home: 'Back to the home page',
+    },
+    errorPage: {
+      title: 'Something went wrong.',
+      text: 'An error occurred while loading the page. You can try again or reach us by email:',
+      retry: 'Try again',
+    },
     form: {
       title: 'Start with a free website check.',
       lead: 'Share your website address and email — both are needed. We’ll send the findings and the suggested next steps within 48 hours.',
@@ -344,15 +366,21 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Home',
-      updated: 'Last updated: 10 September 2026',
+      updated: 'Last updated: 17 September 2026',
+      controller: 'Controller',
       privacyTitle: 'Privacy',
-      privacyLead: 'We use nothing beyond what we need to write back to you.',
+      privacyLead: 'We only process the data needed for your request and to run this website securely. We use no tracking or advertising cookies and no analytics tools.',
       privacy: [
-        { h: 'What we receive', p: 'When you send the form we receive your website address and your email address. We use them only to prepare the report and send it to you.' },
-        { h: 'Why we use it', p: 'To run the check and to reach you. We don’t sell your details and we don’t add them to marketing lists.' },
-        { h: 'Who sees it', p: 'We use an email service called Resend to pass the request on to us. It is not used for advertising.' },
-        { h: 'How long we keep it', p: 'Long enough to send the report and answer your questions. Then we delete it.' },
-        { h: 'Your rights', p: 'If you want to see, correct or delete your details, just write to hello@sitemendo.com. No website address needed.' },
+        { h: 'Hosting and server logs', p: 'This website runs on Vercel Inc. (USA); server functions run in Frankfurt am Main. When you open a page, Vercel processes technically necessary data such as IP address, time, requested address and browser details to deliver the page and prevent abuse. The legal basis is our legitimate interest in running the site securely (Art. 6(1)(f) GDPR).' },
+        { h: 'Free check request', p: 'When you send the form, we process your website address, email address and chosen language to run the check, send you the report and answer your questions. The legal basis is pre-contractual steps taken at your request (Art. 6(1)(b) GDPR). Without these details we cannot send the report.' },
+        { h: 'Email', p: 'We send confirmations and internal notifications through Resend (Resend, Inc., USA). Emails to hello@sitemendo.com are forwarded through Cloudflare (Cloudflare, Inc., USA) to a mailbox at Google (Gmail).' },
+        { h: 'Phone and WhatsApp', p: 'If you call us or write on WhatsApp, we process your details to handle your request (Art. 6(1)(b) or (f) GDPR). On WhatsApp, WhatsApp Ireland Limited also processes data under its own terms. If you prefer not to use it, reach us by email or phone.' },
+        { h: 'Transfers to the USA', p: 'Vercel, Resend, Cloudflare, Google and WhatsApp (Meta) may process data in the USA. Transfers rely on the EU-US Data Privacy Framework where the provider is certified, and otherwise on EU standard contractual clauses (Art. 45 and 46 GDPR).' },
+        { h: 'Storage in your browser', p: 'We only store your language choice (the “sitemendo.lang” cookie for one year, plus local storage) and a form draft that is deleted when you close the browser tab. This storage is strictly necessary for the functions you use (Section 25(2) No. 2 TDDDG). This website serves its own fonts; no data goes to Google Fonts.' },
+        { h: 'How long we keep data', p: 'Requests that do not lead to an order are deleted once they are closed and no further questions are expected. If an order follows, we keep business records such as invoices for the statutory periods (usually up to ten years).' },
+        { h: 'Your rights', p: 'You have the right to access, rectification, erasure, restriction of processing and data portability, and the right to object to processing based on legitimate interests (Art. 15 to 21 GDPR). Write to hello@sitemendo.com.' },
+        { h: 'Complaints', p: 'You can complain to a data protection supervisory authority, for example the Berlin Commissioner for Data Protection and Freedom of Information.' },
+        { h: 'No automated decisions', p: 'We make no decisions based solely on automated processing and do not create profiles (Art. 22 GDPR).' },
       ],
       impressumTitle: 'Impressum',
       impressumLead: 'Legal notice and contact.',
@@ -370,7 +398,7 @@ export const content: Record<Lang, Copy> = {
     a11y: { skip: 'Zum Inhalt', mainNav: 'Hauptnavigation', menu: 'Menü', knife: 'Zeichnung eines aufklappenden Taschenmessers' },
     hero: {
       a: 'Prüfung, Reparatur und Wartung für Ihre Website.',
-      support: 'Wir finden technische Probleme und Hürden in der Bedienung, ordnen sie nach Dringlichkeit und beheben sie nach Ihrer Freigabe. Mit regelmäßiger Wartung bleiben wir an der Website dran.',
+      support: 'Wir finden technische Probleme und Hürden in der Bedienung, ordnen sie nach Dringlichkeit und beheben sie nach Ihrer Freigabe. Mit regelmäßiger Wartung behalten wir Ihre Website im Blick.',
       place: 'Sitz in Berlin',
     },
     about: {
@@ -381,7 +409,6 @@ export const content: Record<Lang, Copy> = {
       phoneLabel: 'Telefon',
       whatsapp: 'WhatsApp',
     },
-    sec: { checks: 'Was wir prüfen', output: 'Der Bericht', decision: 'Ihre Entscheidung', services: 'Leistungen', process: 'Ablauf', start: 'Start' },
     checksTitle: 'Was die Prüfung umfasst',
     checksSub: 'Die kostenlose Prüfung umfasst diese acht Punkte.',
     checksNote: 'Die kostenlose Prüfung umfasst die von außen erreichbaren Teile Ihrer Website. Prüfungen wie der Verwaltungsbereich, Sicherungen und die E-Mail-Zustellung können zusätzlichen Zugang oder eine Bestätigung erfordern.',
@@ -424,7 +451,7 @@ export const content: Record<Lang, Copy> = {
     servicesTitle: 'Leistungen und Preise',
     servicesCta: 'Kostenlose Prüfung anfordern',
     after: 'Startpreis; der Umfang steht im Angebot fest',
-    talk: 'Nach dem Bericht sprechen',
+    pricesNote: 'Alle Preise netto zzgl. 19 % USt. Unsere Leistungen richten sich ausschließlich an Unternehmen und Selbstständige.',
     services: [
       { no: '01', name: 'Prüfbericht', price: '0 €', items: ['Prüfbericht', 'Prioritätenliste', 'Innerhalb von 48 Stunden bei Ihnen'], cta: 'Kostenlose Prüfung', featured: true },
       { no: '02', name: 'Dringende Reparatur', price: '250 €', items: ['Die 2–3 dringendsten Punkte', '2 Werktage'], note: 'Der Umfang wird vor der Arbeit geklärt' },
@@ -435,20 +462,29 @@ export const content: Record<Lang, Copy> = {
     steps: [
       ['Teilen Sie Ihre Website-Adresse.', 'Senden Sie uns die Adresse und die E-Mail, an die der Bericht gehen soll.'],
       ['Erhalten Sie Ihren Prüfbericht.', 'Die Ergebnisse und die empfohlenen nächsten Schritte senden wir innerhalb von 48 Stunden.'],
-      ['Wählen Sie den nächsten Schritt.', 'Die Korrekturen können Sie selbst erledigen lassen oder uns um ein Angebot bitten.'],
+      ['Wählen Sie den nächsten Schritt.', 'Sie können die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns um ein Angebot bitten.'],
     ],
-    assure: 'Sie müssen die Reparatur nicht bei uns machen lassen.',
     faqTitle: 'Häufige Fragen',
     faq: [
       { q: 'Was umfasst die kostenlose Prüfung?', a: 'Wir prüfen acht Punkte auf den öffentlich erreichbaren Seiten und senden Ihnen einen Bericht mit einer Prioritätenliste. Verwaltungsbereich, Sicherung und E-Mail-Zustellung gehören nicht dazu.' },
       { q: 'Wann kommt der Bericht?', a: 'Innerhalb von 48 Stunden an die angegebene E-Mail-Adresse.' },
-      { q: 'Muss ich die Reparatur beauftragen?', a: 'Nein. Nach dem Bericht können Sie die Korrekturen selbst erledigen lassen oder uns um ein Angebot bitten.' },
-      { q: 'Wie wird die Reparaturgebühr festgelegt?', a: 'Die dringende Reparatur ist ein festes Paket für 250 € und umfasst die 2–3 dringendsten Punkte; der Umfang wird vor der Arbeit geklärt. Die Komplettreparatur beginnt ab 450 €; Leistung und Preis stehen im Angebot. Die laufende Betreuung kostet 79 € / Monat.' },
+      { q: 'Muss ich die Reparatur beauftragen?', a: 'Nein. Nach dem Bericht können Sie die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns um ein Angebot bitten.' },
+      { q: 'Wie wird die Reparaturgebühr festgelegt?', a: 'Die dringende Reparatur ist ein festes Paket für 250 € und umfasst die 2–3 dringendsten Punkte; der Umfang wird vor der Arbeit geklärt. Die Komplettreparatur beginnt ab 450 €; Leistung und Preis stehen im Angebot. Die laufende Betreuung kostet 79 € / Monat. Alle Preise netto zzgl. 19 % USt.' },
       { q: 'Werden Zugangsdaten zur Website benötigt?', a: 'Für die kostenlose Prüfung reicht die Website-Adresse. Prüfungen wie Verwaltungsbereich, Sicherung und E-Mail-Zustellung können zusätzlichen Zugang oder eine Bestätigung erfordern.' },
       { q: 'Welche Websites werden unterstützt?', a: 'Öffentlich erreichbare Unternehmensseiten. WordPress ist eingeschlossen.' },
       { q: 'In welchen Sprachen wird der Service angeboten?', a: 'Den Bericht senden wir auf Türkisch, Englisch oder Deutsch.' },
     ],
     final: 'Kostenlose Prüfung anfordern',
+    notFound: {
+      title: 'Diese Seite wurde nicht gefunden.',
+      text: 'Die Adresse hat sich vielleicht geändert oder ist falsch geschrieben. Auf der Startseite geht es weiter.',
+      home: 'Zur Startseite',
+    },
+    errorPage: {
+      title: 'Etwas ist schiefgelaufen.',
+      text: 'Beim Laden der Seite ist ein Fehler aufgetreten. Versuchen Sie es erneut oder schreiben Sie uns eine E-Mail:',
+      retry: 'Erneut versuchen',
+    },
     form: {
       title: 'Beginnen Sie mit einer kostenlosen Prüfung.',
       lead: 'Geben Sie Ihre Website-Adresse und Ihre E-Mail-Adresse an — beides ist erforderlich. Die Ergebnisse und die empfohlenen nächsten Schritte senden wir innerhalb von 48 Stunden.',
@@ -488,7 +524,7 @@ export const content: Record<Lang, Copy> = {
     },
     meta: {
       title: 'Sitemendo — Prüfung, Reparatur und Wartung für Ihre Website',
-      description: 'Wir finden technische Probleme und Hürden in der Bedienung, ordnen sie nach Dringlichkeit und beheben sie nach Ihrer Freigabe. Starten Sie mit einer kostenlosen Prüfung.',
+      description: 'Wir finden technische Probleme auf Ihrer Website, ordnen sie nach Dringlichkeit und beheben sie nach Freigabe. Starten Sie mit einer kostenlosen Prüfung.',
       ogTitle: 'Sitemendo — Prüfung, Reparatur und Wartung für Ihre Website',
       ogDescription: 'Beginnen Sie mit einer kostenlosen Prüfung. Ergebnisse und nächste Schritte innerhalb von 48 Stunden.',
       privacyTitle: 'Datenschutz — Sitemendo',
@@ -498,15 +534,21 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Startseite',
-      updated: 'Zuletzt aktualisiert: 10. September 2026',
+      updated: 'Zuletzt aktualisiert: 17. September 2026',
+      controller: 'Verantwortlicher',
       privacyTitle: 'Datenschutz',
-      privacyLead: 'Wir nutzen nichts über das hinaus, was wir brauchen, um Ihnen zu antworten.',
+      privacyLead: 'Wir verarbeiten nur die Daten, die für Ihre Anfrage und den sicheren Betrieb dieser Website nötig sind. Wir setzen keine Tracking- oder Werbecookies und keine Analysewerkzeuge ein.',
       privacy: [
-        { h: 'Was wir bekommen', p: 'Wenn Sie das Formular senden, erhalten wir Ihre Website-Adresse und Ihre E-Mail-Adresse. Wir nutzen sie nur, um den Bericht zu erstellen und Ihnen zu senden.' },
-        { h: 'Wofür wir sie nutzen', p: 'Um die Prüfung durchzuführen und Sie zu erreichen. Wir verkaufen Ihre Angaben nicht und setzen sie nicht auf Werbelisten.' },
-        { h: 'Wer es sieht', p: 'Um die Anfrage an uns weiterzuleiten, nutzen wir den E-Mail-Dienst Resend. Er wird nicht für Werbung genutzt.' },
-        { h: 'Wie lange wir sie behalten', p: 'So lange, wie wir für den Bericht und Ihre Rückfragen brauchen. Danach löschen wir sie.' },
-        { h: 'Ihre Rechte', p: 'Wenn Sie Ihre Angaben sehen, ändern oder löschen lassen möchten, schreiben Sie an hello@sitemendo.com. Eine Website-Adresse ist nicht nötig.' },
+        { h: 'Hosting und Server-Logs', p: 'Diese Website läuft bei Vercel Inc. (USA); Serverfunktionen laufen in Frankfurt am Main. Beim Aufruf einer Seite verarbeitet Vercel technisch notwendige Daten wie IP-Adresse, Zeitpunkt, aufgerufene Adresse und Browserangaben, um die Seite auszuliefern und Missbrauch abzuwehren. Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).' },
+        { h: 'Anfrage zur kostenlosen Prüfung', p: 'Wenn Sie das Formular senden, verarbeiten wir Ihre Website-Adresse, Ihre E-Mail-Adresse und die gewählte Sprache, um die Prüfung durchzuführen, Ihnen den Bericht zu senden und Rückfragen zu beantworten. Rechtsgrundlage sind vorvertragliche Maßnahmen auf Ihre Anfrage (Art. 6 Abs. 1 lit. b DSGVO). Ohne diese Angaben können wir den Bericht nicht senden.' },
+        { h: 'E-Mail', p: 'Bestätigungen und interne Benachrichtigungen versenden wir über Resend (Resend, Inc., USA). E-Mails an hello@sitemendo.com werden über Cloudflare (Cloudflare, Inc., USA) an ein Postfach bei Google (Gmail) weitergeleitet.' },
+        { h: 'Telefon und WhatsApp', p: 'Wenn Sie uns anrufen oder per WhatsApp schreiben, verarbeiten wir Ihre Angaben, um Ihr Anliegen zu bearbeiten (Art. 6 Abs. 1 lit. b oder f DSGVO). Bei WhatsApp verarbeitet zusätzlich WhatsApp Ireland Limited Daten nach eigenen Bedingungen. Wenn Sie das nicht möchten, erreichen Sie uns per E-Mail oder Telefon.' },
+        { h: 'Übermittlung in die USA', p: 'Vercel, Resend, Cloudflare, Google und WhatsApp (Meta) können Daten in den USA verarbeiten. Die Übermittlung stützt sich auf das EU-US Data Privacy Framework, soweit der Anbieter danach zertifiziert ist, und im Übrigen auf EU-Standardvertragsklauseln (Art. 45 und 46 DSGVO).' },
+        { h: 'Speicherung im Browser', p: 'Wir speichern nur Ihre Sprachwahl (Cookie „sitemendo.lang“ für ein Jahr sowie lokaler Speicher) und einen Formularentwurf, der mit dem Schließen des Browser-Tabs gelöscht wird. Diese Speicherung ist für die von Ihnen genutzten Funktionen unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Schriftarten liefert diese Website selbst aus; an Google Fonts werden keine Daten übertragen.' },
+        { h: 'Speicherdauer', p: 'Anfragen, aus denen kein Auftrag entsteht, löschen wir, sobald sie abgeschlossen sind und keine Rückfragen mehr zu erwarten sind. Entsteht ein Auftrag, bewahren wir geschäftliche Unterlagen wie Rechnungen nach den gesetzlichen Fristen auf (in der Regel bis zu zehn Jahre).' },
+        { h: 'Ihre Rechte', p: 'Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit sowie das Recht, einer Verarbeitung auf Grundlage berechtigter Interessen zu widersprechen (Art. 15 bis 21 DSGVO). Schreiben Sie dazu an hello@sitemendo.com.' },
+        { h: 'Beschwerde bei einer Aufsichtsbehörde', p: 'Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der Berliner Beauftragten für Datenschutz und Informationsfreiheit.' },
+        { h: 'Keine automatisierten Entscheidungen', p: 'Wir treffen keine ausschließlich automatisierten Entscheidungen und erstellen keine Profile (Art. 22 DSGVO).' },
       ],
       impressumTitle: 'Impressum',
       impressumLead: 'Rechtliche Angaben und Kontakt.',

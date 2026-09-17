@@ -16,6 +16,20 @@ export function resolveLang(...candidates: Array<string | null | undefined>): La
   return 'tr';
 }
 
+/* Accept-Language başlığındaki tercih sırasına göre desteklenen ilk dil; yoksa null. */
+export function preferredLang(header: string | null): Lang | null {
+  if (!header) return null;
+  const ranked = header.split(',')
+    .map((part, i) => {
+      const [tag, ...params] = part.trim().split(';');
+      const q = params.map(p => p.trim()).find(p => p.startsWith('q='));
+      return { lang: parseLang(tag.trim().slice(0, 2).toLowerCase()), q: q ? Number(q.slice(2)) : 1, i };
+    })
+    .filter(x => x.lang && x.q > 0)
+    .sort((a, b) => b.q - a.q || a.i - b.i);
+  return ranked[0]?.lang ?? null;
+}
+
 export function syncLangUrl(lang: Lang) {
   const url = new URL(window.location.href);
   if (url.searchParams.get('lang') === lang) return;

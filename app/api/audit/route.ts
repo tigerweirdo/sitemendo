@@ -2,17 +2,20 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { CONTACT_EMAIL } from '@/lib/company';
 import { confirmEmail, fromAddress, mailHeaders, notifyAddresses, notifyEmail, requestMeta } from '@/lib/auditMail';
-import { clientIp, tooManyRequests } from '@/lib/auditRateLimit';
-import { parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
+import { clientIp, tooManyForEmail, tooManyRequests } from '@/lib/auditRateLimit';
+import { botSignal, parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAX_BODY = 8192;
 
+/* Açıkça ayarlanmadıysa demo yalnız canlı dışında: canlıda anahtar eksik kalırsa ziyaretçi
+   "demo" görüp talebi sessizce kaybetmesin, hata ve e-posta yolu görsün. */
 function demoAllowed() {
   const flag = process.env.AUDIT_DEMO_MODE ?? process.env.NEXT_PUBLIC_DEMO_MODE;
-  return flag !== 'false';
+  if (flag !== undefined) return flag !== 'false';
+  return process.env.VERCEL_ENV !== 'production';
 }
 
 function json(body: { mode?: AuditMode; error?: string }, status = 200) {
@@ -37,8 +40,14 @@ export async function POST(request: Request) {
     return json({ error: 'INVALID' }, 400);
   }
 
+  /* Bota başarı görünür, e-posta gitmez; fazla hızlı gelen istek yeniden denenir. */
+  const signal = botSignal(raw);
+  if (signal === 'bot') return json({ mode: 'live' });
+  if (signal === 'fast') return json({ error: 'RETRY' }, 429);
+
   const payload = parseAuditPayload(raw);
   if (!payload) return json({ error: 'INVALID' }, 400);
+  if (tooManyForEmail(payload.email)) return json({ error: 'RATE' }, 429);
 
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {

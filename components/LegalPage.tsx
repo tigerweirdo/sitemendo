@@ -56,6 +56,20 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
           <h1 className="h1 legal__title">{title}</h1>
           <p className="lead">{lead}</p>
           <div className="legal__body">
+            {type === 'privacy' && (
+              <section>
+                <h2>{legal.controller}</h2>
+                <p>
+                  {COMPANY.ownerName}<br />
+                  {COMPANY.street}<br />
+                  {`${COMPANY.postalCode} ${COMPANY.city}`}
+                </p>
+                <p>
+                  <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a><br />
+                  <a href={`tel:${CONTACT_PHONE_E164}`}>{CONTACT_PHONE_DISPLAY}</a>
+                </p>
+              </section>
+            )}
             {type === 'impressum' && (
               <>
                 <section>

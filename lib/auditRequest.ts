@@ -27,6 +27,15 @@ export function validEmail(value: string) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/u.test(email);
 }
 
+/* Formun dışından gelen istekleri eleyen işaretler. Gizli alan doluysa bot; form
+   açıldıktan çok kısa süre sonra ya da süre bilgisi olmadan geldiyse yeniden denenmeli. */
+export function botSignal(input: unknown): 'bot' | 'fast' | null {
+  const body = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
+  if (typeof body.company === 'string' && body.company.trim()) return 'bot';
+  if (typeof body.t !== 'number' || !Number.isFinite(body.t) || body.t < 2500) return 'fast';
+  return null;
+}
+
 export function parseAuditPayload(input: unknown): AuditPayload | null {
   if (!input || typeof input !== 'object') return null;
   const body = input as Record<string, unknown>;

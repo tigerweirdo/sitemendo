@@ -322,6 +322,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               </div>
             ))}
           </div>
+          <p className="services-note" data-reveal>{c.pricesNote}</p>
           <div className="services-cta" data-reveal>
             <button className="btn" type="button" onClick={jumpToForm}>{c.servicesCta}</button>
           </div>
@@ -366,6 +367,7 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   const emailInputRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const ownedFocus = useRef<'url' | 'email' | 'status' | null>(null);
+  const openedAt = useRef(Date.now());
   const url = ctx?.url ?? '';
   const normalized = useMemo(() => normalizeWebsite(url), [url]);
 
@@ -389,7 +391,7 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   const showLead = step === 'url';
   const failMail = error === f.fail;
 
-  async function submit(e: FormEvent) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
     if (step === 'url') {
@@ -420,7 +422,14 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
     if (!tryBeginSend()) return;
     setError('');
     try {
-      const result = await submitAuditRequest({ websiteUrl: normalized, email: email.trim(), language: lang });
+      const trap = e.currentTarget.elements.namedItem('company');
+      const result = await submitAuditRequest({
+        websiteUrl: normalized,
+        email: email.trim(),
+        language: lang,
+        company: trap instanceof HTMLInputElement ? trap.value : '',
+        t: Date.now() - openedAt.current,
+      });
       ownedFocus.current = 'status';
       setMode(result);
       setStep('done');
@@ -449,6 +458,8 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   return (
     <form className="audit-form" onSubmit={submit} noValidate aria-busy={busy} aria-labelledby={showTitle ? titleId : undefined}>
       <p className="sr-only" aria-live="polite" aria-atomic="true">{busy ? f.sending : ''}</p>
+      {/* Bot tuzağı: görünmez ve klavyeyle ulaşılmaz; dolu gelen istek gönderilmez. */}
+      <input className="form-hp" type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" defaultValue=""/>
       {showLead && (
         <div className="audit-form__intro">
           {showTitle && <p className="audit-form__title" id={titleId}>{f.title}</p>}
