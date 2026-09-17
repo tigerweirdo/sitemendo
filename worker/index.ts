@@ -11,6 +11,8 @@ type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> } };
 
 /* Kopya adres ana adrese kalıcı yönlenir; canonical tek başına yetmiyor. */
 const ALIAS_HOSTS = ['www.sitemendo.com'];
+/* Yerel geliştirme (wrangler dev) düz HTTP ile çalışır; canlıda HTTP isteği HTTPS'e yönlenir. */
+const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
 
 /* CSP satır içi betik ve stile izin veriyor: Next.js hidrasyon verisi, dil önyükleme betiği
    ve animasyonların stil öznitelikleri satır içi. */
@@ -34,7 +36,13 @@ const SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), browsing-topics=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
 };
+
+/* no-transform: Cloudflare sayfaya analiz betiği eklemez, e-posta adreslerini değiştirmez.
+   Gizlilik metni analiz aracı kullanmadığımızı söylüyor; değişen HTML hidrasyonu da bozar.
+   Aynı adres dile göre farklı dosya döndürdüğü için sayfalar paylaşılan önbelleğe girmez. */
+const PAGE_CACHE = 'private, no-cache, no-transform';
 
 /* Derlemenin iç dosyaları (/de.html, /de/privacy.txt, /404.html …) dışarıdan açılmaz;
    /de ya da /de/privacy yazan ziyaretçi herkese açık adrese yönlenir. */
@@ -68,7 +76,6 @@ function asset(env: Env, request: Request, url: URL, path: string) {
   return env.ASSETS.fetch(new Request(new URL(path, url.origin), { method: request.method, headers: request.headers }));
 }
 
-/* Aynı adres dile göre farklı dosya döndürdüğü için sayfalar paylaşılan önbelleğe girmez. */
 async function page(request: Request, env: Env, url: URL, path: SeoPath) {
   const fromQuery = parseLang(url.searchParams.get('lang'));
   const fromCookie = parseLang(cookieValue(request, LANG_COOKIE));
@@ -86,7 +93,7 @@ async function page(request: Request, env: Env, url: URL, path: SeoPath) {
   }
 
   const lang = fromQuery ?? fromCookie ?? 'tr';
-  const res = secure(await asset(env, request, url, `/${lang}${path === '/' ? '' : path}`), 'private, no-cache');
+  const res = secure(await asset(env, request, url, `/${lang}${path === '/' ? '' : path}`), PAGE_CACHE);
   if (fromQuery && fromCookie !== fromQuery) {
     res.headers.append('Set-Cookie', `${LANG_COOKIE}=${fromQuery}; Path=/; Max-Age=31536000; SameSite=Lax`);
   }
@@ -99,7 +106,7 @@ async function notFound(request: Request, env: Env, url: URL) {
     ?? preferredLang(request.headers.get('accept-language'))
     ?? 'tr';
   const res = await env.ASSETS.fetch(new Request(new URL(`/${lang}/not-found`, url.origin)));
-  return secure(new Response(request.method === 'HEAD' ? null : res.body, { status: 404, headers: res.headers }), 'private, no-cache');
+  return secure(new Response(request.method === 'HEAD' ? null : res.body, { status: 404, headers: res.headers }), PAGE_CACHE);
 }
 
 async function route(request: Request, env: Env, url: URL) {
@@ -129,6 +136,9 @@ export default {
     const url = new URL(request.url);
     if (ALIAS_HOSTS.includes(url.hostname)) {
       return redirect(`${SITE_URL}${url.pathname}${url.search}`, 308);
+    }
+    if (url.protocol === 'http:' && !LOCAL_HOSTS.includes(url.hostname)) {
+      return redirect(`https://${url.host}${url.pathname}${url.search}`, 308);
     }
     const res = await route(request, env, url);
     /* Önizleme adresi (workers.dev) arama motorlarında görünmesin. */
