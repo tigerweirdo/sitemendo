@@ -3,12 +3,12 @@
 ## Proje gereksinimleri
 
 - Next.js / React tabanlı Sitemendo landing page
-- Yerel çalıştırma: `npm install`, `.env.example` → `.env.local`, `npm run dev`
-- Adres: `http://localhost:3000`
-- Canlı: https://sitemendo.com (`www` da açık; eski: https://sitemendo.vercel.app)
+- Yerel çalıştırma: Node 22 (`.nvmrc`), `npm install`, `npm run dev` → `http://localhost:3000` (form API yok). Worker ile: `.env.example` → `.dev.vars`, `npm run preview` → `http://127.0.0.1:8787`
+- Canlı: https://sitemendo.com (`www` ana adrese yönlenir)
+- Barındırma: Cloudflare Workers, ücretsiz plan (2026-09-17 kararı; Vercel Hobby ticari kullanıma izin vermiyor). Sayfalar derlemede dil başına statik (`out/`), `worker/index.ts` dil seçimi, yönlendirme, güvenlik başlıkları ve form API'si.
 - GitHub: https://github.com/tigerweirdo/sitemendo
-- Alan adı: Cloudflare Registrar (`gail` / `rajeev` NS). Nameserver’ı Vercel’e taşıma; mail yönlendirme Cloudflare’da kalacak.
-- Ortam değişkenleri: `RESEND_API_KEY`, `AUDIT_FROM_EMAIL`, `AUDIT_NOTIFY_EMAIL`, `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_IMPRESSUM_URL`, `NEXT_PUBLIC_DEMO_MODE`
+- Alan adı, DNS, e-posta yönlendirme ve barındırma Cloudflare’da (`gail` / `rajeev` NS).
+- Ortam değişkenleri: Worker secret’ları `RESEND_API_KEY`, `AUDIT_FROM_EMAIL`, `AUDIT_NOTIFY_EMAIL` (yerelde `.dev.vars`, yalnız yerelde `AUDIT_DEMO_MODE=true`); derleme `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_IMPRESSUM_URL` (varsayılanları yeterli)
 
 ## Metin ve içerik kuralları (2026-09-11)
 
@@ -28,8 +28,25 @@ Sitemendo metinleri adım adım yenilenirken:
 - Mevcut kullanıcı değişiklikleri ezilmez. Deploy, push veya gerçek form gönderimi yapılmaz.
 - Fiyatlar net gösterilir, %19 USt eklenir (KDV'li fatura). Hizmet yalnızca işletmelere ve serbest çalışanlara (kullanıcı kararı, 2026-09-17).
 - Hedef kitle Türkçe ve Almanca iki dilli: dil seçimi yoksa ziyaretçi tarayıcı diline yönlenir; desteklenmeyen dilde Türkçe kalır (kullanıcı kararı, 2026-09-17).
+- Barındırma ücretsiz kalır (Cloudflare): sayfalar statik kalır, istek başına sunucuda sayfa oluşturulmaz; Worker işi küçük tutulur (ücretsiz planda istek başına 10 ms CPU) (kullanıcı kararı, 2026-09-17).
 
 ## Görevler
+
+### 2026-09-17 — Vercel’den Cloudflare Workers’a geçiş (dal: `cloudflare-hosting`)
+
+Kullanıcı sordu: Vercel Hobby ticari kullanıma izin vermiyor, ücretsiz yol var mı? Seçenekler (sağlayıcı sayfalarından doğrulandı): Vercel Pro ~20 $/ay; Netlify ücretsiz (ticari yasak yok ama 300 kredi bitince site duruyor, her yayın 15 kredi, fonksiyonlar Ohio’da, Frankfurt yalnız Pro); Cloudflare ücretsiz (ticari yasak yok, ziyaretçiye en yakın veri merkezi, statik dosyalar sınırsız, istek başına 10 ms CPU). Ana sayfa her istekte ~10 ms’de oluşuyordu; bu yüzden sayfalar statik yapıldı. Alan adı, DNS ve e-posta zaten Cloudflare’da olduğundan yeni sağlayıcı eklenmedi. Kullanıcı Cloudflare’ı seçti.
+
+1. Sayfalar `app/[lang]/` altına taşındı; `generateStaticParams` ile tr/de/en için statik HTML (`output: 'export'`, yalnız derlemede). Geliştirmede `next.config.ts` aynı adresleri dil sayfalarına yeniden yazıyor.
+2. `middleware.ts`, `lib/requestLang.ts`, `vercel.json` kaldırıldı. `SeoLinks` başlık okumak yerine `path` ve `lang` alıyor. `robots`, `sitemap`, `manifest` `force-static`.
+3. `worker/index.ts`: `?lang=` → çerez → tarayıcı dili (307) → Türkçe; çerez yazımı; `www` → 308; `/de`, `/de/privacy` → 301 herkese açık adrese; derleme dosyaları (`/de.html`, `.txt`, `/404`) ve bilinmeyen adresler → dilinde 404 sayfası (404 durumu); sondaki `/` → 308; güvenlik başlıkları (Vercel’deki CSP aynen, `vercel.live` çıkarıldı); sayfalar `private, no-cache`; `workers.dev` adresinde `X-Robots-Tag: noindex`. `/_next/static/*` Worker’a uğramıyor (`run_worker_first`), `public/_headers` ile bir yıllık önbellek.
+4. Form API `worker/audit.ts`’e taşındı (aynı korumalar). IP `cf-connecting-ip`’ten. Demo artık yalnız `AUDIT_DEMO_MODE=true` ile (canlıda kapalı; eski `VERCEL_ENV` kontrolü yok).
+5. Paylaşım görseli sayfa metadata’sına açıkça eklendi (sayfalar `[lang]` altında olunca `app/opengraph-image.png` kendiliğinden eklenmiyordu).
+6. Gizlilik metni (TR/EN/DE): barındırma Cloudflare, sayfalar en yakın veri merkezinden; ABD’ye aktarım listesinden Vercel çıktı.
+7. `wrangler` 4.133 (Node 22 ister) dev bağımlılığı, `npm run preview` / `npm run deploy`, `.nvmrc` 22, `.gitignore` `.wrangler` ve `.dev.vars*`. README ve `.env.example` güncellendi.
+
+Test (sırsız kopyada, `wrangler dev`): yönlendirmeler, çerez, 404 dilleri, başlıklar, 304, form korumaları (süre/bal tuzağı/geçersiz/büyük gövde/hız sınırı/demo/anahtar yok 503/geçersiz anahtar 502; gerçek e-posta gönderilmedi), headless Chromium masaüstü + mobil + azaltılmış hareket: gizli öğe 0, dil değişimi ve çerez doğru, CSP ihlali ve konsol hatası yok. Worker paketi 254 KiB (gzip 62 KiB); yerelde sayfa yanıtı ~4 ms.
+
+Kullanıcı Vercel Git bağlantısını kesti, Cloudflare’da depodan `sitemendo` Worker’ını kurdu (build `npm run build`, deploy `npx wrangler deploy`; ilk derleme eski kodu Cloudflare’ın Next uyarlayıcısıyla çalıştırdı) ve push istedi; commit ve push kullanıcının açık isteğiyle yapıldı. Kullanıcıda kalan (sırayla): secret’lar (yeni Resend anahtarı; eskisi geçiş ve form testi bitene kadar silinmez); `workers.dev` testi; Email Address Obfuscation kapatma; Vercel DNS kayıtlarını (A ve `www` CNAME; MX/TXT kalır) silip Worker’a `sitemendo.com` ve `www` Custom Domain; canlı doğrulama ve gerçek form testi; birkaç gün sonra Vercel projesini silme. DNS değişikliği kullanıcıda.
 
 ### 2026-09-17 — Tam tarama ve düzeltmeler
 

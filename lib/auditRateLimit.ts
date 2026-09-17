@@ -1,7 +1,7 @@
 const hits = new Map<string, number[]>();
 
-/* Bellekte tutulur: sunucu örneği yeniden başlayınca sıfırlanır ve örnekler arasında
-   paylaşılmaz. Kalıcı sınır için Vercel Firewall kuralı ya da harici bir depo gerekir. */
+/* Bellekte tutulur: Worker örneği yeniden başlayınca sıfırlanır ve örnekler arasında
+   paylaşılmaz. Kalıcı sınır için Cloudflare'de bir hız sınırı kuralı ya da harici bir depo gerekir. */
 function limited(key: string, max: number, windowMs: number) {
   const now = Date.now();
   const recent = (hits.get(key) || []).filter(t => now - t < windowMs);
@@ -15,6 +15,8 @@ function limited(key: string, max: number, windowMs: number) {
 }
 
 export function clientIp(request: Request) {
+  const direct = request.headers.get('cf-connecting-ip')?.trim();
+  if (direct) return direct;
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) return forwarded.split(',')[0]?.trim() || 'unknown';
   return request.headers.get('x-real-ip')?.trim() || 'unknown';

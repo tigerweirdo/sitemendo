@@ -1,19 +1,26 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, Inter } from 'next/font/google';
-import './globals.css';
+import '../globals.css';
 import { SITE_URL } from '@/lib/company';
 import { content } from '@/lib/content';
-import { LANG_BOOTSTRAP } from '@/lib/lang';
-import { resolveRequestLang } from '@/lib/requestLang';
-import { SeoLinks } from '@/components/SeoLinks';
+import { LANGS, LANG_BOOTSTRAP, resolveLang } from '@/lib/lang';
 
 const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-sans' });
 /* Yalnız fiyat, alan adı gibi veri satırlarında; önden yüklenip ilk açılışı ağırlaştırmasın. */
 const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin', 'latin-ext'], weight: ['400', '500'], variable: '--font-mono', preload: false });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const lang = await resolveRequestLang();
-  const m = content[lang].meta;
+/* Her dil derlemede ayrı statik sayfa olur (/tr, /de, /en). Ziyaretçi bu adresleri görmez:
+   Worker isteğin diline göre dosyayı seçer (worker/index.ts). */
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return LANGS.map(lang => ({ lang }));
+}
+
+type LayoutProps = { params: Promise<{ lang: string }> };
+
+export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
+  const m = content[resolveLang((await params).lang)].meta;
   return {
     metadataBase: new URL(SITE_URL),
     applicationName: 'Sitemendo',
@@ -23,12 +30,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const lang = await resolveRequestLang();
+export default async function RootLayout({ children, params }: Readonly<LayoutProps & { children: React.ReactNode }>) {
+  const lang = resolveLang((await params).lang);
   return (
     <html lang={lang} className={`${inter.variable} ${ibmPlexMono.variable}`}>
       <body>
-        <SeoLinks />
         <script dangerouslySetInnerHTML={{ __html: LANG_BOOTSTRAP }} />
         {children}
       </body>

@@ -1,28 +1,23 @@
-import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { CONTACT_EMAIL } from '@/lib/company';
 import { confirmEmail, fromAddress, mailHeaders, notifyAddresses, notifyEmail, requestMeta } from '@/lib/auditMail';
 import { clientIp, tooManyForEmail, tooManyRequests } from '@/lib/auditRateLimit';
 import { botSignal, parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 const MAX_BODY = 8192;
 
-/* Açıkça ayarlanmadıysa demo yalnız canlı dışında: canlıda anahtar eksik kalırsa ziyaretçi
+/* Demo yalnız açıkça açıldığında (yerelde .dev.vars): canlıda anahtar eksik kalırsa ziyaretçi
    "demo" görüp talebi sessizce kaybetmesin, hata ve e-posta yolu görsün. */
 function demoAllowed() {
-  const flag = process.env.AUDIT_DEMO_MODE ?? process.env.NEXT_PUBLIC_DEMO_MODE;
-  if (flag !== undefined) return flag !== 'false';
-  return process.env.VERCEL_ENV !== 'production';
+  return process.env.AUDIT_DEMO_MODE === 'true';
 }
 
 function json(body: { mode?: AuditMode; error?: string }, status = 200) {
-  return NextResponse.json(body, { status });
+  return Response.json(body, { status });
 }
 
-export async function POST(request: Request) {
+/* POST /api/audit: ücretsiz kontrol talebi. Bildirim bize, onay ziyaretçiye gider. */
+export async function audit(request: Request) {
   const length = Number(request.headers.get('content-length') || 0);
   if (Number.isFinite(length) && length > MAX_BODY) {
     return json({ error: 'TOO_LARGE' }, 413);

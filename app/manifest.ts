@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next';
 
+/* Derlemede dosya olarak yazılır (statik dışa aktarım). */
+export const dynamic = 'force-static';
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Sitemendo',

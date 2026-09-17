@@ -1,29 +1,18 @@
-import { cookies } from 'next/headers';
+import { SeoLinks } from '@/components/SeoLinks';
 import { Site } from '@/components/Site';
 import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/company';
 import { content } from '@/lib/content';
-import { LANG_COOKIE, resolveLang } from '@/lib/lang';
+import { resolveLang } from '@/lib/lang';
 import { absolutePageUrl, routeMetadata } from '@/lib/seo';
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ lang?: string }>;
-}) {
-  const params = await searchParams;
-  const cookieStore = await cookies();
-  const lang = resolveLang(params.lang, cookieStore.get(LANG_COOKIE)?.value);
-  return routeMetadata('/', lang);
+type PageProps = { params: Promise<{ lang: string }> };
+
+export async function generateMetadata({ params }: PageProps) {
+  return routeMetadata('/', resolveLang((await params).lang));
 }
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ lang?: string }>;
-}) {
-  const params = await searchParams;
-  const cookieStore = await cookies();
-  const initialLang = resolveLang(params.lang, cookieStore.get(LANG_COOKIE)?.value);
+export default async function Page({ params }: PageProps) {
+  const initialLang = resolveLang((await params).lang);
   /* Arama motorları için işletme bilgisi. Fiyatlar burada yok: content.ts ile ayrı
      kopyası tutulmasın. */
   const business = {
@@ -46,6 +35,7 @@ export default async function Page({
   };
   return (
     <>
+      <SeoLinks path="/" lang={initialLang} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(business).replace(/</g, '\\u003c') }}

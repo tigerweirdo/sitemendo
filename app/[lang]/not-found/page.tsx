@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
 import { content } from '@/lib/content';
-import { withLangParam } from '@/lib/lang';
-import { resolveRequestLang } from '@/lib/requestLang';
+import { resolveLang, withLangParam } from '@/lib/lang';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const lang = await resolveRequestLang();
+type PageProps = { params: Promise<{ lang: string }> };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const lang = resolveLang((await params).lang);
   return { title: `${content[lang].notFound.title} — Sitemendo`, robots: { index: false, follow: true } };
 }
 
-/* Bulunamayan adres: isteğin dilinde, ana sayfaya dönüş bağlantısıyla. */
-export default async function NotFound() {
-  const lang = await resolveRequestLang();
+/* Bulunamayan adres: Worker bu sayfayı isteğin dilinde, 404 durumuyla döndürür. */
+export default async function NotFound({ params }: PageProps) {
+  const lang = resolveLang((await params).lang);
   const t = content[lang].notFound;
   const home = withLangParam('/', lang);
   return (

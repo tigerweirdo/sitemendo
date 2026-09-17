@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "preview": "next build && wrangler dev",
+    "deploy": "next build && wrangler deploy",
     "lint": "next lint",
     "icons": "node scripts/build-icons.mjs"
   },
@@ -21,6 +22,7 @@
     "@types/node": "22.13.10",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "wrangler": "^4.133.0"
   }
 }

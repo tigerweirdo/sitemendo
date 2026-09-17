@@ -1,16 +1,9 @@
-import { headers } from 'next/headers';
-import { LANGS, parseLang } from '@/lib/lang';
-import { LANG_HEADER, LANG_PATH_HEADER, SEO_PATHS, absolutePageUrl, type SeoPath } from '@/lib/seo';
+import type { Lang } from '@/lib/content';
+import { LANGS } from '@/lib/lang';
+import { absolutePageUrl, type SeoPath } from '@/lib/seo';
 
-function isSeoPath(value: string | null): value is SeoPath {
-  return SEO_PATHS.includes(value as SeoPath);
-}
-
-export async function SeoLinks() {
-  const headerStore = await headers();
-  const lang = parseLang(headerStore.get(LANG_HEADER)) ?? 'tr';
-  const path = headerStore.get(LANG_PATH_HEADER);
-  if (!isSeoPath(path)) return null;
+/* React bu bağlantıları <head> içine taşır. */
+export function SeoLinks({ path, lang }: { path: SeoPath; lang: Lang }) {
   return (
     <>
       <link rel="canonical" href={absolutePageUrl(path, lang)} />

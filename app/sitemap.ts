@@ -6,6 +6,9 @@ function languageMap(path: SeoPath) {
   return Object.fromEntries(LANGS.map(lang => [lang, absolutePageUrl(path, lang)])) as Record<string, string>;
 }
 
+/* Derlemede dosya olarak yazılır (statik dışa aktarım). */
+export const dynamic = 'force-static';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return SEO_PATHS.flatMap(path => LANGS.map(lang => ({
     url: absolutePageUrl(path, lang),
