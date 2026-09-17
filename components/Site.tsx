@@ -308,17 +308,24 @@ export function Site({ initialLang }: { initialLang: Lang }) {
         </Section>
 
         <Section id="services">
-          <h2 className="h2 services-heading">{c.servicesTitle}</h2>
+          <div className="section-intro">
+            <h2 className="h2">{c.servicesTitle}</h2>
+            <p className="lead" data-reveal>{c.servicesLead}</p>
+          </div>
+          {/* Sıra müşterinin yolu: ücretsiz kontrol → hızlı düzeltme ya da onarım → bakım.
+              Ücretli paketlerde satın alma düğmesi yok; her yol ücretsiz kontrolden geçer. */}
           <div className="services">
             {c.services.map(s => (
               <div className={`service ${s.featured ? 'featured' : ''}`} key={s.no}>
                 <div className="service__head">
+                  <p className="service__stage">{s.stage}</p>
                   <p className="service__price">{s.price}</p>
                   <h3 className="service__name">{s.name}</h3>
-                  {s.note && <p className="service__note">{s.note}</p>}
-                  {s.showAfter && <p className="service__after">{c.after}</p>}
+                  <p className="service__note">{s.note}</p>
+                  {s.cta && <button className="btn service__cta" type="button" onClick={jumpToForm}>{s.cta}</button>}
                 </div>
                 <ul className="service__items">{s.items.map(i => <li key={i}>{i}</li>)}</ul>
+                {s.scope && <p className="service__scope">{s.scope}</p>}
               </div>
             ))}
           </div>

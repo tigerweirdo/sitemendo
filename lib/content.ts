@@ -1,7 +1,7 @@
 export type Lang = 'tr' | 'en' | 'de';
 export type Check = { no: string; title: string; desc: string };
 export type Finding = { no: string; severity: string; level: 'crit' | 'med'; title: string; impact: string };
-export type Service = { no: string; name: string; price: string; items: string[]; cta?: string; featured?: boolean; note?: string; showAfter?: boolean };
+export type Service = { no: string; stage: string; name: string; price: string; note: string; items: string[]; scope?: string; cta?: string; featured?: boolean };
 export type FAQ = { q: string; a: string };
 export type ChecklistCell = { k: string; v: string; s: 'ok' | 'warn' | 'err' };
 export type LegalBlock = { h: string; p: string };
@@ -24,8 +24,8 @@ export type Copy = {
   sampleReport: { label: string; note: string; issues: string; impact: string; openList: string; closeList: string; listLabel: string };
   checklist: ChecklistCell[];
   servicesTitle: string;
+  servicesLead: string;
   servicesCta: string;
-  after: string;
   pricesNote: string;
   services: Service[];
   howTitle: string;
@@ -113,27 +113,27 @@ export const content: Record<Lang, Copy> = {
       { k: 'İletişim', v: 'Bakılmalı', s: 'warn' },
     ],
     servicesTitle: 'Hizmetler ve fiyatlar',
+    servicesLead: 'Sitenizi ücretsiz kontrol ederiz. Düzeltilmesi gereken bir şey varsa ücreti işe başlamadan önce bilirsiniz.',
     servicesCta: 'Ücretsiz kontrol isteyin',
-    after: 'Başlangıç fiyatı; kapsam teklifte netleşir',
     pricesNote: 'Fiyatlar nettir; %19 KDV eklenir. Hizmetlerimiz yalnızca işletmelere ve serbest çalışanlara yöneliktir.',
     services: [
-      { no: '01', name: 'Kontrol raporu', price: '0 €', items: ['Kontrol raporu', 'Öncelik listesi', '48 saat içinde elinizde'], cta: 'Ücretsiz kontrol', featured: true },
-      { no: '02', name: 'Acil düzeltme', price: '250 €', items: ['En acil 2–3 sorun', '2 iş günü'], note: 'Kapsam işlem öncesinde netleştirilir' },
-      { no: '03', name: 'Tam onarım', price: "450 €'dan", items: ['Teklifte belirlenen düzeltmeler', '5 iş günü'], showAfter: true },
-      { no: '04', name: 'Sürekli bakım', price: '79 € / ay', note: 'İsteğe bağlı — siteniz düzeldikten sonra', items: ['İzleme: sitenin erişilebilirliği', 'Bildirim: site kapanırsa haber veririz', 'Güvenlik uyarısı ve kırık bağlantı kontrolü', 'Yedekleme durumunu kontrol ederiz; yedekleme hizmeti değildir', 'Yazılım güncellemeleri', 'Ayda 30 dakika küçük değişiklik', 'Ayda bir kısa durum raporu'] },
+      { no: '01', stage: 'Adım 1 · Önce', name: 'Site kontrolü', price: '0 €', note: 'Sitenizdeki en önemli teknik ve kullanım sorunlarını ücretsiz buluruz.', items: ['Kırık bağlantılar', 'Mobil görünüm sorunları', 'Yavaş açılan sayfalar', 'Dışarıdan görülen eski bileşenler', 'Temel SEO sorunları', 'Form sorunları', 'Belirgin teknik hatalar', 'Rapor ve öncelik listesi 48 saat içinde'], cta: 'Ücretsiz kontrol isteyin', featured: true },
+      { no: '02', stage: 'Adım 2 · Kontrolden sonra', name: 'Hızlı düzeltme', price: '149 €', note: 'Küçük sorunlar. Hızlı çözüm.', items: ['Mobil düzen sorunları', 'Kırık bağlantılar', 'İletişim formu sorunları', 'Küçük görünüm hataları', 'Temel hız iyileştirmeleri', 'SSL ve yönlendirme sorunları', 'Küçük teknik düzeltmeler', 'Küçük SEO düzeltmeleri', '2 iş günü'], scope: 'Açıkça tanımlı küçük sorunlar içindir. Hangi sorunların dahil olduğunu işe başlamadan netleştiririz.' },
+      { no: '03', stage: 'Adım 2 · Kontrolden sonra', name: 'Site onarımı', price: '349 €', note: 'Birden fazla teknik, kullanım veya hız sorunu olan siteler için kapsamlı onarım.', items: ['Mobil uyum ve düzen düzeltmeleri', 'Hız iyileştirmeleri', 'Bozuk bölümler ve menü sorunları', 'Form düzeltmeleri', 'Temel SEO iyileştirmeleri', 'Belirgin erişilebilirlik sorunları', 'Teknik temizlik', 'İçerik ve düzen ayarları', 'Genellikle 5 iş günü'], scope: 'Mevcut sitenizin onarımıdır. Yeniden tasarım, yeni site, büyük özel geliştirme ve e-ticaret kurulumu dahil değildir.' },
+      { no: '04', stage: 'Adım 3 · Onarımdan sonra', name: 'Site bakımı', price: '49 € / ay', note: 'Sitenizi düzenli bakımla sağlıklı tutarız.', items: ['Kesinti takibi: site kapanırsa haber veririz', 'CMS ve eklenti güncellemeleri', 'Düzenli yedekleme (barındırma izin veriyorsa)', 'Temel güvenlik kontrolleri', 'Kırık bağlantı takibi', 'Aylık site sağlığı kontrolü ve kısa rapor', 'Küçük site değişiklikleri'], scope: 'Küçük değişiklikler için ayda en fazla 30 dakika dahildir.' },
     ],
     howTitle: 'Nasıl çalışır',
     steps: [
       ['Site adresinizi paylaşın.', 'Site adresinizi ve raporu göndereceğimiz e-postayı iletin.'],
       ['Kontrol raporunuzu alın.', 'Bulguları ve önerilen adımları 48 saat içinde gönderelim.'],
-      ['Sonraki adımı seçin.', 'Düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir veya bizden teklif isteyebilirsiniz.'],
+      ['Sonraki adımı seçin.', 'Düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir ya da bize yaptırabilirsiniz. Ücreti işe başlamadan önce bilirsiniz.'],
     ],
     faqTitle: 'Sık sorulan sorular',
     faq: [
       { q: 'Ücretsiz kontrol ne içeriyor?', a: 'Dışarıdan erişilebilen sayfalarda sekiz noktayı inceleriz ve size rapor ile öncelik listesi göndeririz. Yönetim paneli, yedekleme ve e-posta teslimatı bu kapsama girmez.' },
       { q: 'Rapor ne zaman geliyor?', a: '48 saat içinde, belirttiğiniz e-posta adresine.' },
-      { q: 'Düzeltme hizmeti almak zorunlu mu?', a: 'Hayır. Raporu aldıktan sonra düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir veya bizden teklif isteyebilirsiniz.' },
-      { q: 'Düzeltme ücreti nasıl belirleniyor?', a: 'Acil düzeltme 250 € tutarında sabit bir pakettir; en acil 2–3 sorunu kapsar ve kapsam işlem öncesinde netleşir. Tam onarım 450 €’dan başlar; yapılacak iş ve ücret teklifte belirlenir. Sürekli bakım 79 € / aydır. Tüm fiyatlar nettir; %19 KDV eklenir.' },
+      { q: 'Düzeltme hizmeti almak zorunlu mu?', a: 'Hayır. Raporu aldıktan sonra düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir ya da bize yaptırabilirsiniz.' },
+      { q: 'Düzeltme ücreti nasıl belirleniyor?', a: 'Fiyatlar sabittir: Hızlı düzeltme 149 €, Site onarımı 349 €, Site bakımı ayda 49 €. Kontrolden sonra hangi paketin uygun olduğunu ve neleri kapsadığını söyleriz; ücreti işe başlamadan önce bilirsiniz. Sorunlar bu kapsamı aşarsa bunu da önceden söyleriz. Yeniden tasarım, yeni site ve e-ticaret kurulumu bu paketlere dahil değildir. Tüm fiyatlar nettir; %19 KDV eklenir.' },
       { q: 'Siteye erişim bilgisi gerekiyor mu?', a: 'Ücretsiz kontrol için site adresi yeterlidir. Yönetim paneli, yedekleme ve e-posta teslimatı gibi kontroller ek erişim veya teyit isteyebilir.' },
       { q: 'Hangi siteler destekleniyor?', a: 'Dışarıdan erişilebilen işletme siteleri. WordPress bu kapsamdadır.' },
       { q: 'Hangi dillerde hizmet veriliyor?', a: 'Raporu Türkçe, İngilizce veya Almanca göndeririz.' },
@@ -281,27 +281,27 @@ export const content: Record<Lang, Copy> = {
       { k: 'Contact', v: 'To check', s: 'warn' },
     ],
     servicesTitle: 'Services and prices',
+    servicesLead: 'We check your website for free. If something needs fixing, you know the price before we start.',
     servicesCta: 'Request a free check',
-    after: 'Starting price; the scope is set in the quote',
     pricesNote: 'Prices are net; 19% VAT is added. Our services are for businesses and self-employed professionals only.',
     services: [
-      { no: '01', name: 'Check report', price: '0 €', items: ['The check report', 'A priority list', 'In your inbox within 48 hours'], cta: 'Free check', featured: true },
-      { no: '02', name: 'Urgent fix', price: '250 €', items: ['The 2–3 most urgent issues', '2 working days'], note: 'The scope is agreed before the work starts' },
-      { no: '03', name: 'Full repair', price: 'From 450 €', items: ['The fixes set out in the quote', '5 working days'], showAfter: true },
-      { no: '04', name: 'Ongoing care', price: '79 € / month', note: 'Optional — once your site is in good shape', items: ['Monitoring: whether the site is reachable', 'Notification if the site goes down', 'Checks for security warnings and broken links', 'We check whether backups are in place — we do not provide the backups', 'Software updates', '30 minutes of small changes a month', 'A short status note every month'] },
+      { no: '01', stage: 'Step 1 · First', name: 'Website Check', price: '0 €', note: 'A free check that finds the most important technical and usability problems on your website.', items: ['Broken links', 'Mobile issues', 'Slow pages', 'Outdated components visible from outside', 'Basic SEO issues', 'Form problems', 'Obvious technical errors', 'Report and priority list within 48 hours'], cta: 'Request a free check', featured: true },
+      { no: '02', stage: 'Step 2 · After the check', name: 'Quick Fix', price: '149 €', note: 'Small problems. Fixed quickly.', items: ['Mobile layout issues', 'Broken links', 'Contact form problems', 'Minor layout bugs', 'Basic speed improvements', 'SSL and redirect issues', 'Small technical fixes', 'Minor SEO corrections', '2 working days'], scope: 'For small, clearly defined issues. We agree which issues are included before we start.' },
+      { no: '03', stage: 'Step 2 · After the check', name: 'Website Repair', price: '349 €', note: 'A broader repair for websites with several technical, usability or speed problems.', items: ['Mobile optimisation and layout fixes', 'Speed improvements', 'Broken sections and navigation problems', 'Form fixes', 'Basic SEO improvements', 'Obvious accessibility issues', 'Technical clean-up', 'Content and layout adjustments', 'Usually 5 working days'], scope: 'Repairs your existing website. A redesign, a new website, large custom development and e-commerce builds are not included.' },
+      { no: '04', stage: 'Step 3 · After the repair', name: 'Website Care', price: '49 € / month', note: 'We keep your website healthy with regular care.', items: ['Uptime monitoring: we let you know if the site goes down', 'CMS and plugin updates', 'Regular backups (where the hosting allows it)', 'Basic security checks', 'Broken-link monitoring', 'Monthly health check with a short report', 'Small website changes'], scope: 'Includes up to 30 minutes of small changes per month.' },
     ],
     howTitle: 'How it works',
     steps: [
       ['Share your website address.', 'Send us the address and the email where we should send the report.'],
       ['Receive your check report.', 'We’ll send the findings and the suggested next steps within 48 hours.'],
-      ['Choose the next step.', 'You can make the fixes yourself, have someone else do them, or ask us for a quote.'],
+      ['Choose the next step.', 'You can make the fixes yourself, have someone else do them, or have us do them. You know the price before we start.'],
     ],
     faqTitle: 'Frequently asked questions',
     faq: [
       { q: 'What does the free check include?', a: 'We review eight points on the publicly reachable pages and send you a report with a priority list. The admin panel, backups and email delivery are not part of this check.' },
       { q: 'When does the report arrive?', a: 'Within 48 hours, to the email address you give us.' },
-      { q: 'Is repair work required?', a: 'No. After the report you can make the fixes yourself, have someone else do them, or ask us for a quote.' },
-      { q: 'How is the repair fee set?', a: 'Urgent fix is a fixed 250 € package for the 2–3 most urgent issues; the scope is agreed before the work starts. Full repair starts from 450 €; the work and the fee are set in the quote. Ongoing care is 79 € / month. All prices are net; 19% VAT is added.' },
+      { q: 'Is repair work required?', a: 'No. After the report you can make the fixes yourself, have someone else do them, or have us do them.' },
+      { q: 'How is the repair fee set?', a: 'Prices are fixed: Quick Fix 149 €, Website Repair 349 €, Website Care 49 € per month. After the check we tell you which package fits and what it covers, so you know the price before we start. If the problems go beyond that scope, we tell you beforehand. A redesign, a new website and e-commerce builds are not part of these packages. All prices are net; 19% VAT is added.' },
       { q: 'Do you need access to the site?', a: 'The free check only needs the website address. Checks such as the admin panel, backups and email delivery may need extra access or confirmation.' },
       { q: 'Which websites do you support?', a: 'Publicly reachable business websites. WordPress is included.' },
       { q: 'Which languages do you work in?', a: 'We send the report in Turkish, English or German.' },
@@ -449,27 +449,27 @@ export const content: Record<Lang, Copy> = {
       { k: 'Kontakt', v: 'Zu prüfen', s: 'warn' },
     ],
     servicesTitle: 'Leistungen und Preise',
+    servicesLead: 'Wir prüfen Ihre Website kostenlos. Muss etwas repariert werden, kennen Sie den Preis, bevor wir anfangen.',
     servicesCta: 'Kostenlose Prüfung anfordern',
-    after: 'Startpreis; der Umfang steht im Angebot fest',
     pricesNote: 'Alle Preise netto zzgl. 19 % USt. Unsere Leistungen richten sich ausschließlich an Unternehmen und Selbstständige.',
     services: [
-      { no: '01', name: 'Prüfbericht', price: '0 €', items: ['Prüfbericht', 'Prioritätenliste', 'Innerhalb von 48 Stunden bei Ihnen'], cta: 'Kostenlose Prüfung', featured: true },
-      { no: '02', name: 'Dringende Reparatur', price: '250 €', items: ['Die 2–3 dringendsten Punkte', '2 Werktage'], note: 'Der Umfang wird vor der Arbeit geklärt' },
-      { no: '03', name: 'Komplettreparatur', price: 'ab 450 €', items: ['Die im Angebot festgelegten Korrekturen', '5 Werktage'], showAfter: true },
-      { no: '04', name: 'Laufende Betreuung', price: '79 € / Monat', note: 'Optional — wenn Ihre Seite in Ordnung ist', items: ['Überwachung: ob die Seite erreichbar ist', 'Meldung, wenn die Seite ausfällt', 'Prüfung auf Sicherheitswarnungen und kaputte Links', 'Wir prüfen, ob Sicherungen laufen — wir stellen keine Sicherung bereit', 'Software-Updates', '30 Minuten kleine Änderungen im Monat', 'Jeden Monat eine kurze Rückmeldung'] },
+      { no: '01', stage: 'Schritt 1 · Zuerst', name: 'Website-Prüfung', price: '0 €', note: 'Wir finden kostenlos die wichtigsten technischen Fehler und Nutzungsprobleme Ihrer Website.', items: ['Kaputte Links', 'Probleme auf dem Smartphone', 'Langsame Seiten', 'Veraltete Komponenten, soweit von außen sichtbar', 'Grundlegende SEO-Probleme', 'Probleme mit Formularen', 'Offensichtliche technische Fehler', 'Bericht und Prioritätenliste innerhalb von 48 Stunden'], cta: 'Kostenlose Prüfung anfordern', featured: true },
+      { no: '02', stage: 'Schritt 2 · Nach der Prüfung', name: 'Schnellreparatur', price: '149 €', note: 'Kleine Probleme. Schnell behoben.', items: ['Fehler in der mobilen Ansicht', 'Kaputte Links', 'Probleme mit dem Kontaktformular', 'Kleine Darstellungsfehler', 'Grundlegende Ladezeit-Verbesserungen', 'SSL- und Weiterleitungsprobleme', 'Kleine technische Korrekturen', 'Kleine SEO-Korrekturen', '2 Werktage'], scope: 'Für kleine, klar abgegrenzte Probleme. Welche Punkte dazugehören, klären wir vor Arbeitsbeginn.' },
+      { no: '03', stage: 'Schritt 2 · Nach der Prüfung', name: 'Website-Reparatur', price: '349 €', note: 'Die umfassende Reparatur für Websites mit mehreren technischen Fehlern, Nutzungs- oder Ladezeitproblemen.', items: ['Mobile Optimierung und Layoutkorrekturen', 'Schnellere Ladezeiten', 'Defekte Bereiche und Navigationsprobleme', 'Formularkorrekturen', 'Grundlegende SEO-Verbesserungen', 'Offensichtliche Probleme bei der Barrierefreiheit', 'Technische Bereinigung', 'Anpassungen an Inhalt und Layout', 'In der Regel 5 Werktage'], scope: 'Reparatur Ihrer bestehenden Website. Nicht enthalten: Redesign, neue Website, größere Individualentwicklung und Onlineshop-Entwicklung.' },
+      { no: '04', stage: 'Schritt 3 · Nach der Reparatur', name: 'Website-Pflege', price: '49 € / Monat', note: 'Wir halten Ihre Website mit regelmäßiger Pflege in gutem Zustand.', items: ['Erreichbarkeit: Wir melden uns, wenn die Seite ausfällt', 'CMS- und Plugin-Updates', 'Regelmäßige Datensicherung (sofern das Hosting es zulässt)', 'Grundlegende Sicherheitsprüfungen', 'Überwachung auf kaputte Links', 'Monatlicher Website-Check mit kurzem Bericht', 'Kleine Änderungen an der Website'], scope: 'Enthält bis zu 30 Minuten kleine Änderungen pro Monat.' },
     ],
     howTitle: 'So läuft es',
     steps: [
       ['Teilen Sie Ihre Website-Adresse.', 'Senden Sie uns die Adresse und die E-Mail, an die der Bericht gehen soll.'],
       ['Erhalten Sie Ihren Prüfbericht.', 'Die Ergebnisse und die empfohlenen nächsten Schritte senden wir innerhalb von 48 Stunden.'],
-      ['Wählen Sie den nächsten Schritt.', 'Sie können die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns um ein Angebot bitten.'],
+      ['Wählen Sie den nächsten Schritt.', 'Sie können die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns damit beauftragen. Den Preis kennen Sie, bevor wir anfangen.'],
     ],
     faqTitle: 'Häufige Fragen',
     faq: [
       { q: 'Was umfasst die kostenlose Prüfung?', a: 'Wir prüfen acht Punkte auf den öffentlich erreichbaren Seiten und senden Ihnen einen Bericht mit einer Prioritätenliste. Verwaltungsbereich, Sicherung und E-Mail-Zustellung gehören nicht dazu.' },
       { q: 'Wann kommt der Bericht?', a: 'Innerhalb von 48 Stunden an die angegebene E-Mail-Adresse.' },
-      { q: 'Muss ich die Reparatur beauftragen?', a: 'Nein. Nach dem Bericht können Sie die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns um ein Angebot bitten.' },
-      { q: 'Wie wird die Reparaturgebühr festgelegt?', a: 'Die dringende Reparatur ist ein festes Paket für 250 € und umfasst die 2–3 dringendsten Punkte; der Umfang wird vor der Arbeit geklärt. Die Komplettreparatur beginnt ab 450 €; Leistung und Preis stehen im Angebot. Die laufende Betreuung kostet 79 € / Monat. Alle Preise netto zzgl. 19 % USt.' },
+      { q: 'Muss ich die Reparatur beauftragen?', a: 'Nein. Nach dem Bericht können Sie die Korrekturen selbst umsetzen, jemand anderen beauftragen oder uns damit beauftragen.' },
+      { q: 'Wie wird die Reparaturgebühr festgelegt?', a: 'Die Preise sind fest: Schnellreparatur 149 €, Website-Reparatur 349 €, Website-Pflege 49 € im Monat. Nach der Prüfung sagen wir Ihnen, welches Paket passt und was es umfasst; den Preis kennen Sie also, bevor wir anfangen. Geht es über diesen Umfang hinaus, sagen wir es Ihnen vorher. Redesign, neue Website und Onlineshop-Entwicklung gehören nicht dazu. Alle Preise netto zzgl. 19 % USt.' },
       { q: 'Werden Zugangsdaten zur Website benötigt?', a: 'Für die kostenlose Prüfung reicht die Website-Adresse. Prüfungen wie Verwaltungsbereich, Sicherung und E-Mail-Zustellung können zusätzlichen Zugang oder eine Bestätigung erfordern.' },
       { q: 'Welche Websites werden unterstützt?', a: 'Öffentlich erreichbare Unternehmensseiten. WordPress ist eingeschlossen.' },
       { q: 'In welchen Sprachen wird der Service angeboten?', a: 'Den Bericht senden wir auf Türkisch, Englisch oder Deutsch.' },

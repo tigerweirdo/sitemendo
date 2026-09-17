@@ -958,7 +958,6 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   .report-doc { grid-column: 5 / span 8; }
 }
 
-.services-heading { margin-bottom: clamp(24px, 3vw, 40px); max-width: 28ch; }
 .services {
   border-bottom: 1px solid transparent;
   background: var(--hair) 0 100% / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
@@ -970,6 +969,15 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   padding: 24px var(--service-inset);
   border-top: 1px solid transparent;
   background: var(--hair) 0 0 / calc(var(--rule, 1) * 100%) 1px no-repeat border-box;
+}
+/* Müşterinin yolundaki yeri: Adım 1 → 2 → 3. */
+.service__stage {
+  margin-bottom: 10px;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  font-weight: var(--fw-medium);
+  line-height: 1.3;
+  color: var(--muted);
 }
 .service__price {
   font-family: var(--mono);
@@ -996,11 +1004,13 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
 }
 .service__items li::marker { color: var(--ink); }
 .service__note,
-.service__after {
+.service__scope {
   font-size: 15px;
   color: var(--muted);
   max-width: 65ch;
 }
+.service__note { margin-top: 4px; }
+.service__cta { margin-top: 18px; }
 .service.featured {
   --service-inset: 20px;
   background-color: rgb(235 233 226 / var(--tone, 1));
@@ -1040,6 +1050,10 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
   }
   .service__head { grid-column: 1; grid-row: 1; }
   .service__items { grid-column: 2; grid-row: 1; }
+  /* Kapsam notu listenin altında; başlık iki satırı kaplar ki not yukarı kaymasın.
+     Notu olmayan kartta boş ikinci satır (ve aralığı) oluşmaz. */
+  .service:has(.service__scope) .service__head { grid-row: 1 / span 2; }
+  .service__scope { grid-column: 2; grid-row: 2; }
   .service.featured { --service-inset: 24px; }
 }
 

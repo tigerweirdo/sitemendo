@@ -82,9 +82,10 @@ test('SSS yedi konu, doğrulanmış koşullar', () => {
     });
     const blob = faq.map(item => `${item.q} ${item.a}`).join('\n');
     assert.match(blob, /48/);
-    assert.match(blob, /250/);
-    assert.match(blob, /450/);
-    assert.match(blob, /79/);
+    assert.match(blob, /149 €/);
+    assert.match(blob, /349 €/);
+    assert.match(blob, /49 €/);
+    assert.doesNotMatch(blob, /250|450|79 €/);
     assert.match(blob, /WordPress/i);
     assert.match(faq[0].a, /sekiz|8|eight|acht/i);
     assert.doesNotMatch(blob, FORBIDDEN);

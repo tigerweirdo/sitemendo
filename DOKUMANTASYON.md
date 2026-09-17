@@ -24,13 +24,27 @@ Sitemendo metinleri adım adım yenilenirken:
 - Küçük işletme hedefi her bölümde tekrarlanmaz.
 - Görsel kimlik, renkler, logo ve çalışan özellikler korunur.
 - TR / DE / EN arasında anlam ve hizmet kapsamı tutarlıdır.
-- Fiyat, teslim süresi, garanti veya hizmet koşulu uydurulmaz (mevcut 0 / 250 / 450 / 79 €, 48 saat, 2–5 iş günü korunur).
+- Fiyat, teslim süresi, garanti veya hizmet koşulu uydurulmaz (mevcut: Site kontrolü 0 €, Hızlı düzeltme 149 €, Site onarımı 349 €, Site bakımı 49 € / ay; 48 saat, 2–5 iş günü korunur). Bunlar tanıtım fiyatları ama sitede güncel fiyat olarak gösterilir: eski fiyat, üstü çizili fiyat, indirim veya aciliyet dili yok (kullanıcı kararı, 2026-09-17).
 - Mevcut kullanıcı değişiklikleri ezilmez. Deploy, push veya gerçek form gönderimi yapılmaz.
 - Fiyatlar net gösterilir, %19 USt eklenir (KDV'li fatura). Hizmet yalnızca işletmelere ve serbest çalışanlara (kullanıcı kararı, 2026-09-17).
 - Hedef kitle Türkçe ve Almanca iki dilli: dil seçimi yoksa ziyaretçi tarayıcı diline yönlenir; desteklenmeyen dilde Türkçe kalır (kullanıcı kararı, 2026-09-17).
 - Barındırma ücretsiz kalır (Cloudflare): sayfalar statik kalır, istek başına sunucuda sayfa oluşturulmaz; Worker işi küçük tutulur (ücretsiz planda istek başına 10 ms CPU) (kullanıcı kararı, 2026-09-17).
 
 ## Görevler
+
+### 2026-09-17 — Yeni fiyat yapısı (tanıtım fiyatları)
+
+Kullanıcı yeni fiyat yapısını verdi: Site kontrolü 0 € → Hızlı düzeltme 149 € → Site onarımı 349 € → Site bakımı 49 € / ay. Tasarım dili korunarak uygulandı.
+
+1. `lib/content.ts` (TR/EN/DE): dört paket yeniden yazıldı. Adlar: Site kontrolü / Hızlı düzeltme / Site onarımı / Site bakımı; Website Check / Quick Fix / Website Repair / Website Care; Website-Prüfung / Schnellreparatur / Website-Reparatur / Website-Pflege. Her pakette aşama etiketi (Adım 1 · Önce, Adım 2 · Kontrolden sonra ×2, Adım 3 · Onarımdan sonra), kısa açıklama, kullanıcının verdiği kapsam listesi ve gerektiğinde kapsam sınırı (Hızlı düzeltme: açıkça tanımlı küçük sorunlar; Site onarımı: mevcut site, yeniden tasarım / yeni site / büyük özel geliştirme / e-ticaret yok; Site bakımı: ayda en fazla 30 dakika küçük değişiklik). Teslim süreleri (48 saat, 2 ve 5 iş günü) eski paketlerden korundu. "Başlangıç fiyatı" (`after`, `showAfter`) kaldırıldı; fiyatlar sabit.
+2. Bölüm girişi: "Sitenizi ücretsiz kontrol ederiz. Düzeltilmesi gereken bir şey varsa ücreti işe başlamadan önce bilirsiniz." Adım 3 metni, SSS 3–4 ve onay e-postası (`lib/auditMail.ts`) "bizden teklif isteyin" yerine "bize yaptırın; ücreti önceden bilirsiniz" diyor. SSS 4 sabit fiyatları, kapsam aşılırsa önceden söyleneceğini ve dahil olmayanları anlatıyor.
+3. `components/Site.tsx`: başlık + giriş mevcut `section-intro` kalıbında; kartta aşama etiketi, kapsam notu (masaüstünde listenin altında) ve yalnız ücretsiz kontrol kartında forma götüren düğme. Ücretli paketlerde satın alma düğmesi yok; bölüm sonundaki düğme duruyor. Alt bilgi paket adlarını içerikten alıyor.
+4. `app/globals.css`: `.service__stage` (mono, `--fs-mono`), `.service__scope`, `.service__cta`; kullanılmayan `.services-heading` ve `.service__after` kaldırıldı. Kapsam notu olmayan kartta boş ızgara satırı oluşmaması için `:has()`.
+5. `scripts/verify-form-faq.ts` yeni fiyatları bekliyor, eski fiyatların olmadığını denetliyor.
+
+Kullanıcının bana bıraktığı kararlar: bakımda yedekleme hizmet olarak yazıyor ama "barındırma izin veriyorsa" kaydıyla (önceki metin "yedekleme hizmeti değildir" diyordu; hazır platformlarda yedek alınamayabilir); Hızlı düzeltme 2 iş günü, Site onarımı "genellikle 5 iş günü" (kapsam değişken); aylık kısa rapor geri geldi, sağlık kontrolüyle tek maddede ("Aylık site sağlığı kontrolü ve kısa rapor"). JSON-LD’ye fiyat eklenmedi.
+
+Doğrulama: eski fiyat ve paket adları kaynakta, derlenmiş HTML’de ve JS paketlerinde yok; `tsc`, `verify-form-faq` (8/8), `next build`; `wrangler dev` + headless Chromium: masaüstü (TR/DE/EN), tablet (DE), mobil (TR/DE/EN) — sayfa ve kartlarda taşma yok, gizli öğe yok; kontrol kartı ve bölüm sonu düğmeleri forma gidip alana odaklanıyor; tüm site regresyonu (dil yönlendirme, dil değişimi, animasyonlar, 404, demo form, azaltılmış hareket) geçti; CSP ihlali ve konsol hatası yok. Push yapılmadı.
 
 ### 2026-09-17 — Vercel’den Cloudflare Workers’a geçiş (dal: `cloudflare-hosting`)
 
