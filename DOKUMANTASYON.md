@@ -51,11 +51,11 @@ Puanı tutan şey tek uzun ana iş parçacığı göreviydi (önceki yerel ölç
 1. **Çakı gövdesi.** `components/KnifeArt.tsx` sunucu bileşeni. Sayfa onu `Site`'a çocuk olarak veriyor; yüzlerce katman istemci paketine ve hidrasyona girmiyor. Etiketler ve tıklama `HeroKnife`'ta kaldı. İmleç eğimi GSAP'i yalnız `pointerenter`'da indiriyor. Ölçüm sırasında bu paket inmiyor.
 2. **Kaydırma hareketi.** `ScrollMotion` ana pakette değil. İlk kaydırmada, yoksa 8 sn sonra geliyor. Hareket azaltılmışsa hiç inmiyor. Örnek rapor listesi açılınca `OpenReveal` aynı yoldan iniyor. Form hidrasyonu bekletilmedi.
 
-Yerel Worker (`127.0.0.1:8787`), Lighthouse 12, mobil, tek çalıştırma: **99**. FCP 1,0 sn, LCP 1,4 sn, TBT 110 ms (0,97), hız endeksi 2,5 sn, CLS 0. Beşin ortancası değil. Karttaki 82 yayın sonrası `npm run measure` ile güncellenir.
+Yerel Worker (`127.0.0.1:8787`), Lighthouse 12, mobil, tek çalıştırma: **99**. FCP 1,0 sn, LCP 1,4 sn, TBT 110 ms (0,97), hız endeksi 2,5 sn, CLS 0. Canlı beş ölçümün ortancası (`npm run measure`, 27 Eylül 2026): Performans **98**, Erişilebilirlik 100, En iyi uygulamalar 100, SEO 100. `lib/selfCheck.json` bu ölçümle güncellendi.
 
 Doğrulama: `typecheck`, `lint`, `test` 14/14, `build`. Çakı HTML'de (36 katman), etiketler Hız…SEO. Boş form "Geçerli bir site adresi girin. Örnek: siteadi.com". Çakı etiketi `check-speed` vurgusunu açıyor. Dil DE olunca etiketler Tempo / Formulare. E-posta gitmedi.
 
-Değişen dosyalar: `components/KnifeArt.tsx` (yeni), `components/HeroKnife.tsx`, `components/ScrollMotion.tsx` (yeni), `components/OpenReveal.tsx` (yeni), `components/Site.tsx`, `app/[lang]/page.tsx`, `DOKUMANTASYON.md`.
+Değişen dosyalar: `components/KnifeArt.tsx` (yeni), `components/HeroKnife.tsx`, `components/ScrollMotion.tsx` (yeni), `components/OpenReveal.tsx` (yeni), `components/Site.tsx`, `app/[lang]/page.tsx`, `lib/selfCheck.json`, `DOKUMANTASYON.md`.
 
 ### 2026-09-27 — Son hali sitemendo.com'a yayın
 

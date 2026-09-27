@@ -1,11 +1,11 @@
 {
-  "date": "2026-09-26",
+  "date": "2026-09-27",
   "tool": "Lighthouse 12.8.2",
   "device": "mobile",
   "runs": 5,
   "url": "https://sitemendo.com/?lang=tr",
   "scores": {
-    "performance": 82,
+    "performance": 98,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100
