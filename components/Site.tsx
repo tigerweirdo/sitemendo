@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type FormEvent, type ReactNode, type Ref } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType, type CSSProperties, type FormEvent, type ReactNode, type Ref, type RefObject } from 'react';
 import { normalizeWebsite } from '@/lib/auditRequest';
 import { content, type CheckKey, type Lang } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
@@ -11,7 +11,6 @@ import { withLangParam } from '@/lib/lang';
 import SELF_CHECK from '@/lib/selfCheck.json';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
-import { useOpenReveal, useScrollMotion } from '@/lib/useScrollMotion';
 import { useActiveSection } from '@/lib/useActiveSection';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { HeroKnife, type KnifeTag, type ToolId } from '@/components/HeroKnife';
@@ -139,7 +138,7 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
   return <AuditFormContext.Provider value={value}>{children}</AuditFormContext.Provider>;
 }
 
-export function Site({ initialLang }: { initialLang: Lang }) {
+export function Site({ initialLang, knife }: { initialLang: Lang; knife: ReactNode }) {
   const [lang, setLang] = useStoredLang(initialLang);
   const c = content[lang];
   const [menuOpen, setMenuOpen] = useState(false);
@@ -152,7 +151,38 @@ export function Site({ initialLang }: { initialLang: Lang }) {
   const wasOpen = useRef(false);
   const compactNavCta = useSyncExternalStore(subscribeCompactNav, getCompactNav, () => false);
   useLangDocument(lang);
-  useScrollMotion(mainRef, navRef, footerRef, lang);
+  const [Motion, setMotion] = useState<ComponentType<{
+    scope: RefObject<HTMLElement | null>;
+    nav: RefObject<HTMLElement | null>;
+    footer: RefObject<HTMLElement | null>;
+    lang: Lang;
+  }> | null>(null);
+
+  /* GSAP kaydırma hareketi hidrasyonla aynı görevde kurulursa ana iş parçacığı
+     uzun kalıyor. İlk kaydırmada, yoksa 8 sn sonra ayrı bir paketten gelir.
+     Hareket azaltılmışsa hiç inmez. */
+  useEffect(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let cancel = false;
+    let started = false;
+    let timer = 0;
+    const arm = () => {
+      if (started || cancel) return;
+      started = true;
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', arm);
+      import('@/components/ScrollMotion').then(mod => {
+        if (!cancel) setMotion(() => mod.ScrollMotion);
+      });
+    };
+    timer = window.setTimeout(arm, 8000);
+    window.addEventListener('scroll', arm, { passive: true });
+    return () => {
+      cancel = true;
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', arm);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.classList.toggle('menu-open', menuOpen);
@@ -253,6 +283,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
 
   return (
     <AuditFormProvider>
+      {Motion ? <Motion scope={mainRef} nav={navRef} footer={footerRef} lang={lang} /> : null}
       <a className="skip" href="#main">{c.a11y.skip}</a>
       <header className={`nav ${menuOpen ? 'open' : ''}`} ref={navRef}>
         <div className="wrap nav__in">
@@ -307,7 +338,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               {c.hero.place && <p className="hero__place">{c.hero.place}</p>}
             </div>
             <div className="hero__art">
-              <HeroKnife label={c.a11y.knife} tags={knifeTags} onPick={tool => pickCheck(KNIFE_CHECKS[tool])}/>
+              <HeroKnife label={c.a11y.knife} tags={knifeTags} onPick={tool => pickCheck(KNIFE_CHECKS[tool])}>{knife}</HeroKnife>
             </div>
             <div className="hero__form">
               <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref} intro/>
@@ -670,7 +701,15 @@ function SampleReport({ lang }: { lang: Lang }) {
   const c = content[lang];
   const [open, setOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-  useOpenReveal(listRef, open);
+  const [Reveal, setReveal] = useState<ComponentType<{ scope: RefObject<HTMLDivElement | null>; open: boolean }> | null>(null);
+  useEffect(() => {
+    if (!open || Reveal) return;
+    let cancel = false;
+    import('@/components/OpenReveal').then(mod => {
+      if (!cancel) setReveal(() => mod.OpenReveal);
+    });
+    return () => { cancel = true; };
+  }, [open, Reveal]);
   return (
     <div className="report-doc">
       <article className="doc">
@@ -703,6 +742,7 @@ function SampleReport({ lang }: { lang: Lang }) {
         <button className="btn btn--ghost btn--sm report-toggle" data-reveal type="button" onClick={() => setOpen(v => !v)} aria-expanded={open}>
           {open ? c.sampleReport.closeList : c.sampleReport.openList}
         </button>
+        {Reveal ? <Reveal scope={listRef} open={open} /> : null}
         <div className={`report-checklist ${open ? 'is-open' : ''}`} ref={listRef} aria-hidden={!open}>
           <p className="checklist-label">{c.sampleReport.listLabel}</p>
           <div className="doc-grid doc-grid--local">

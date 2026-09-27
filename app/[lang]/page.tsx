@@ -1,3 +1,4 @@
+import { KnifeArt } from '@/components/KnifeArt';
 import { SeoLinks } from '@/components/SeoLinks';
 import { Site } from '@/components/Site';
 import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/company';
@@ -40,7 +41,7 @@ export default async function Page({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(business).replace(/</g, '\\u003c') }}
       />
-      <Site initialLang={initialLang} />
+      <Site initialLang={initialLang} knife={<KnifeArt />} />
     </>
   );
 }
