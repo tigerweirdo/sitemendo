@@ -106,7 +106,6 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
         <div className="wrap footer__bottom">
           <p>© {new Date().getFullYear()} Sitemendo · {c.footer.rights}</p>
           <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-          <p>{c.footer.mark}</p>
         </div>
       </footer>
     </div>

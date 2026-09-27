@@ -26,6 +26,11 @@ export function tooManyRequests(ip: string) {
   return limited(`ip:${ip}`, 5, 10 * 60 * 1000);
 }
 
+/* Ön kontrol başka sitelere istek attığı için ayrı sayılır: IP başına 10 dakikada 10. */
+export function tooManyPrechecks(ip: string) {
+  return limited(`pre:${ip}`, 10, 10 * 60 * 1000);
+}
+
 /* Aynı adrese günde en fazla iki onay e-postası: form başkasına e-posta yağdırmak için
    kullanılamasın. */
 export function tooManyForEmail(email: string) {

@@ -1,5 +1,6 @@
 import { normalizeWebsite, validEmail } from './auditRequest';
 import type { FormMode } from './formPersist';
+import { isPrecheckResult, type PrecheckResponse } from './precheck';
 
 export type FormMessages = {
   urlErr: string;
@@ -45,6 +46,25 @@ export async function submitAuditRequest(payload: {
     return parseAuditResponse(res.ok, data);
   } finally {
     clearTimeout(timer);
+  }
+}
+
+/* Ön kontrol isteği. Uç nokta yoksa (next dev) ya da ağ hatasında null: panel hiç görünmez. */
+export async function requestPrecheck(url: string): Promise<PrecheckResponse | null> {
+  try {
+    const res = await fetch('/api/precheck', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ url }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const data = await res.json().catch(() => null) as unknown;
+    if (isPrecheckResult(data)) return data;
+    const error = data && typeof data === 'object' ? (data as { error?: unknown }).error : null;
+    if (error === 'UNREACHABLE') return { error };
+    return null;
+  } catch {
+    return null;
   }
 }
 

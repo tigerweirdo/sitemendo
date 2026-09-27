@@ -1,15 +1,20 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import '../globals.css';
 import { SITE_URL } from '@/lib/company';
 import { content } from '@/lib/content';
 import { LANGS, LANG_BOOTSTRAP, resolveLang } from '@/lib/lang';
 
-/* Yalnız latin önden yüklenir (Almanca ve İngilizce için yeterli). Türkçedeki ğ, ş, İ gibi
-   harflerin latin-ext dosyası CSS'te durur; tarayıcı yalnız bu harfler sayfada varsa indirir. */
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-/* Yalnız fiyat, alan adı gibi veri satırlarında; önden yüklenip ilk açılışı ağırlaştırmasın. */
-const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin', 'latin-ext'], weight: ['400', '500'], variable: '--font-mono', preload: false });
+/* Inter, sayfada kullanılan harflere indirgenmiş tek değişken dosya (34 KB, yalnız ağırlık
+   ekseni). Türkçe ğ, ş, ı, İ de içinde; önden yüklenir. Ayrı latin-ext dosyası geç gelip
+   hero paragrafının LCP anını geciktiriyordu. Lisans: app/fonts/OFL.txt. */
+const inter = localFont({
+  src: '../fonts/inter-subset.woff2',
+  variable: '--font-sans',
+  weight: '100 900',
+  display: 'swap',
+  adjustFontFallback: 'Arial',
+});
 
 /* Her dil derlemede ayrı statik sayfa olur (/tr, /de, /en). Ziyaretçi bu adresleri görmez:
    Worker isteğin diline göre dosyayı seçer (worker/index.ts). */
@@ -35,7 +40,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 export default async function RootLayout({ children, params }: Readonly<LayoutProps & { children: React.ReactNode }>) {
   const lang = resolveLang((await params).lang);
   return (
-    <html lang={lang} className={`${inter.variable} ${ibmPlexMono.variable}`}>
+    <html lang={lang} className={inter.variable}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: LANG_BOOTSTRAP }} />
         {children}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { BrandMark } from '@/components/BrandMark';
@@ -137,14 +137,18 @@ const CORK = helixSegments(142, 16, 7, 11.5);
 /* Saptan çıkan çeyrek tur ve uçtaki kıvrım. */
 const CORK_FRONT = ['M 22,150 C 15,150 9.7,146 9.7,142', ...CORK.front, 'M 34.3,16 C 36.5,12 35,8 31,7'];
 
+export type ToolId = 'blade' | 'saw' | 'opener' | 'small' | 'driver' | 'cork';
+
 type Tool = {
-  id: string;
+  id: ToolId;
   h: number;
   open: number;
   z: number;
   /* Açılış dıştan içe: en uzun yolu olan alet önce çıkar, böylece kimse
      bir başkasının üstünden geçmez. Süre yola orantılı, yani hepsi aynı
-     açısal hızla dönüyor ve aralarındaki açı boyunca eşit kalıyor. */
+     açısal hızla dönüyor ve aralarındaki açı boyunca eşit kalıyor.
+     Hepsi 0.4 sn'de biter; daha uzun açılış mobil hız endeksini geciktiriyordu.
+     Etiket gecikmesi globals.css'te (.knife-tag, .4s) bu süreye bağlı. */
   delay: number;
   dur: number;
   breath: number;
@@ -169,8 +173,8 @@ const TOOLS: Tool[] = [
     h: 188,
     open: -152,
     z: -11.5,
-    delay: 0.06,
-    dur: 1.08,
+    delay: 0.02,
+    dur: 0.34,
     breath: 0.8,
     shape: (
       <>
@@ -187,8 +191,8 @@ const TOOLS: Tool[] = [
     h: 186,
     open: -114,
     z: -6.9,
-    delay: 0.26,
-    dur: 0.94,
+    delay: 0.08,
+    dur: 0.29,
     breath: -0.8,
     shape: (
       <>
@@ -203,8 +207,8 @@ const TOOLS: Tool[] = [
     h: 146,
     open: -76,
     z: -2.3,
-    delay: 0.46,
-    dur: 0.79,
+    delay: 0.14,
+    dur: 0.25,
     breath: 0.8,
     shape: (
       <>
@@ -219,8 +223,8 @@ const TOOLS: Tool[] = [
     h: 142,
     open: 76,
     z: 2.3,
-    delay: 0.5,
-    dur: 0.79,
+    delay: 0.16,
+    dur: 0.24,
     breath: -0.8,
     shape: (
       <>
@@ -237,8 +241,8 @@ const TOOLS: Tool[] = [
     h: 172,
     open: 114,
     z: 6.9,
-    delay: 0.3,
-    dur: 0.94,
+    delay: 0.09,
+    dur: 0.29,
     breath: 0.8,
     shape: (
       <>
@@ -253,8 +257,8 @@ const TOOLS: Tool[] = [
     h: 178,
     open: 152,
     z: 11.5,
-    delay: 0.1,
-    dur: 1.08,
+    delay: 0.03,
+    dur: 0.34,
     breath: -0.8,
     shape: (
       <>
@@ -270,6 +274,26 @@ const TOOLS: Tool[] = [
   },
 ];
 
+/* Etiketler aletin ucunun biraz ötesinde durur. Uç, menteşeden (220, 238) aletin boyu
+   kadar yukarıdaki noktanın --open kadar dönmüş hâli; üstüne .knife__orbit duruş pozundaki
+   -4° düzlem dönüşü (sahne merkezi etrafında) eklenir. Eğim ve derinlik yok sayılır. */
+const TAG_REACH = 22;
+const ORBIT_Z = -4;
+
+function tagPoint(t: Tool) {
+  const reach = t.h - 16 + TAG_REACH;
+  const a = (t.open * Math.PI) / 180;
+  const x = 220 + reach * Math.sin(a);
+  const y = 238 - reach * Math.cos(a);
+  const z = (ORBIT_Z * Math.PI) / 180;
+  return {
+    x: 220 + (x - 220) * Math.cos(z) - (y - 220) * Math.sin(z),
+    y: 220 + (x - 220) * Math.sin(z) + (y - 220) * Math.cos(z),
+  };
+}
+
+const TAGS = TOOLS.map((t, i) => ({ id: t.id, side: t.open < 0 ? 'left' : 'right', order: i, ...tagPoint(t) }));
+
 const handleLayers = Array.from({ length: HANDLE_LAYERS }, (_, i) => ({
   dz: -HANDLE_DEPTH / 2 + (i * HANDLE_DEPTH) / (HANDLE_LAYERS - 1),
   front: i === HANDLE_LAYERS - 1,
@@ -282,8 +306,15 @@ const toolLayers = Array.from({ length: TOOL_LAYERS }, (_, i) => ({
   back: i === 0,
 }));
 
-export function HeroKnife({ label }: { label: string }) {
+export type KnifeTag = { label: string; href: string };
+
+export function HeroKnife({ label, tags, onPick }: {
+  label: string;
+  tags?: Record<ToolId, KnifeTag>;
+  onPick?: (id: ToolId) => void;
+}) {
   const root = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState<ToolId | null>(null);
 
   /* Sahne ekran dışındayken boştaki salınım durur: 280 öğelik 3D ağaç görünmezken boşuna
      boyanmasın (globals.css, .knife[data-offscreen]). */
@@ -425,6 +456,10 @@ export function HeroKnife({ label }: { label: string }) {
                     key={t.id}
                     className="knife-tool"
                     aria-hidden="true"
+                    data-active={active === t.id || undefined}
+                    onPointerEnter={tags ? () => setActive(t.id) : undefined}
+                    onPointerLeave={tags ? () => setActive(null) : undefined}
+                    onClick={onPick ? () => onPick(t.id) : undefined}
                     style={{
                       '--h': `${t.h}px`,
                       '--open': `${t.open}deg`,
@@ -463,6 +498,23 @@ export function HeroKnife({ label }: { label: string }) {
           </div>
         </div>
       </div>
+
+      {/* Her aletin ucunda kontrol kapsamındaki bir başlık; tıklayınca o maddeye gider. Fare
+          kısayolu: aynı bilgi #checks'te, bu yüzden erişilebilirlik ağacında ve sekme sırasında yok. */}
+      {tags && TAGS.map(tag => (
+        <a
+          key={tag.id}
+          className={`knife-tag knife-tag--${tag.side}`}
+          href={tags[tag.id].href}
+          tabIndex={-1}
+          aria-hidden="true"
+          data-active={active === tag.id || undefined}
+          onPointerEnter={() => setActive(tag.id)}
+          onPointerLeave={() => setActive(null)}
+          onClick={onPick ? e => { e.preventDefault(); onPick(tag.id); } : undefined}
+          style={{ '--x': tag.x.toFixed(1), '--y': tag.y.toFixed(1), '--i': tag.order } as CSSProperties}
+        >{tags[tag.id].label}</a>
+      ))}
     </figure>
   );
 }

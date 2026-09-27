@@ -42,6 +42,126 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-09-27 — Son hali sitemendo.com'a yayın
+
+Kullanıcı çalışma kopyasındaki son hali sitemendo.com'a almamı istedi. Bu makinede Wrangler oturumu yok (`wrangler whoami` giriş istiyor). Yayın yolu README'deki gibi: `main`'e push, Cloudflare Workers Builds derler (`npm run build`) ve `npx wrangler deploy` ile çıkarır. Secret'lar panelde duruyor; bu turda değişken eklenmedi.
+
+Yayına giren, 26 Eylül'den beri commit edilmemiş iş: kontrol ızgarası ve çakı bağlantısı, mobil hizmet sayacı, anında ön kontrol, kendi ölçüm kartı (karttaki 82), Inter alt kümesi, HTML gzip, mono ve betiklerin ilk boyamadan sonra gelmesi, kısaltılmış açılış. Fiyatlar ve kapsam değişmedi.
+
+Yerel doğrulama (Node 22): `npm test` 14/14, `typecheck`, `lint`, `next build` (20 statik sayfa). Gerçek form gönderilmedi. Canlı kontrol push'tan sonra.
+
+### 2026-09-26 — Performans: mono ve betikler ilk boyamadan sonra
+
+Kullanıcı, 90 puanlık yerel ölçümden sonra kalan iki kolu da istedi: IBM Plex Mono ilk boyamada inmesin, Next betikleri ilk büyük boyamadan sonra gelsin. Fiyatlar ve kapsam aynı. Karttaki 82 elle değiştirilmedi. Yayın yok.
+
+1. **Mono.** Çakı etiketleri `var(--sans)` (Inter). `next/font` IBM Plex kalktı; dört dosya `public/fonts/` altında, `/fonts/mono.css` yalnız ilk büyük boyamadan sonra ekleniyor. `:root` yedeği `ui-monospace`. `html[data-mono]` gelince fiyatlar ve diğer mono metin Plex'e dönüyor. İlk denemede aile adı ana CSS'te kaldığı için tarayıcı dosyaları yine indiriyordu; yüzler `html:not([data-mono])` ile değişse de istek durmuyordu.
+2. **Betikler.** Worker, `/_next/static` betik etiketlerini ve `rel=preload as=script` bağlantılarını HTML'den çıkarıyor. `noModule` yedeği duruyor. İlk büyük boyama (yoksa 2,5 sn) sonrası betikler `async` ile ekleniyor; aynı anda mono.css ve `data-mono`. `defer` daha önce ilk boyamayı geciktirdiği için kullanılmadı. `async=false` indirmeyi yaklaşık 1 sn geciktiriyordu.
+3. **Çakı.** Betikler gecikince Lighthouse'ta ilk sunulan kare 2,4 sn'ye kaydı: çakının sürekli 3D kareleri yaklaşık bir saniye düşüyordu, hız endeksi 4,2 sn, puan 89. JS varken animasyon ilk karede duraklı (`scripting: enabled`); çift `requestAnimationFrame` sonra `data-motion` ile açılıyor. JS yoksa animasyon eskisi gibi hemen oynuyor.
+
+Yerel Worker (`127.0.0.1:8787`, HTTP/1.1), Lighthouse 12, mobil, yavaş 4G, sakin çalıştırma: **91**. FCP 0,9 sn (1), LCP 1,4 sn (1), TBT 360 ms (0,72), hız endeksi 2,7 sn (0,96), CLS 0. Gözlenen ilk boyama ve LCP 1,25 sn. 95 yok: puanı tutan metrik TBT. Hidrasyonun uzun görevi ilk boyamadan sonraki 5 sn penceresinde kaldığı için sayılıyor. Betiği 5 sn daha ertelemek formu ölü bırakır; yapılmadı. Tek çalıştırma, beşin ortancası değil. Karttaki 82 yayın sonrası `npm run measure` ile güncellenir. `lib/selfCheck.json` elle değişmedi.
+
+Doğrulama: `build` (TypeScript adımı geçti). Tarayıcıda çakı açık, etiketler Inter, fiyat IBM Plex, `data-motion` ve `data-mono` dolu. Boş form "Geçerli bir site adresi girin. Örnek: siteadi.com" diyor; e-posta gitmedi. Deploy / push yok.
+
+Değişen dosyalar: `app/[lang]/layout.tsx`, `app/globals.css`, `worker/index.ts`, `public/fonts/mono.css` (yeni), `public/fonts/plex-mono-400-lat.woff2`, `public/fonts/plex-mono-400-ext.woff2`, `public/fonts/plex-mono-500-lat.woff2`, `public/fonts/plex-mono-500-ext.woff2` (yeni), `DOKUMANTASYON.md`.
+
+### 2026-09-26 — Performans: yazı tipi, HTML sıkıştırma, kısa açılış
+
+Kullanıcı, bir önceki ölçümde sıralanan üç işi istedi: Türkçe harfleri tek yazı tipi dosyasında önden yüklemek, HTML'i gerçekten sıkıştırmak, başlık ve çakı açılışını kısaltmak. Karttaki 82 elle değiştirilmedi. Yayın yok.
+
+1. **Yazı tipi.** Inter 4.1 değişken dosyasından sayfada kullanılan harfler kesildi (`app/fonts/inter-subset.woff2`, 34 KB, yalnız ağırlık ekseni). İçinde temel Latin, Türkçe ğ ş ı İ Ğ Ş, tırnak, tire, ok ve euro var. Lisans `app/fonts/OFL.txt`. `next/font/local` bunu `--font-sans` olarak önden yüklüyor; `font-display: swap`. Ayrı latin-ext dosyası kalktı. Almanca umlautlar zaten temel Latince olduğu için ayrıca dosya gerekmiyor. IBM Plex Mono (etiketler) duruyor: dört küçük dosya, önden yüklenmiyor.
+2. **Sıkıştırma.** `worker/index.ts` gövdeyi `CompressionStream` ile gzip'liyor ve `encodeBody: 'manual'` koyuyor. Başlık tek başına yetmiyor; onsuz çalışma zamanı gövdeyi ikinci kez sıkıştırıp tarayıcıya bozuk sayfa veriyor. Kimlik isteği düz HTML kalıyor. Yerelde: 12.557 bayt gzip, açılınca 59.955 bayt, `<!DOCTYPE html` ile başlıyor. `Vary: Accept-Encoding` var.
+3. **Açılış.** Başlık `hero-rise` 0,3 sn. Paragraf 0,25 sn, 0,05 sn gecikmeyle, yalnız kayma (görünmez kalmıyor). Çakı yörüngesi 0,25 sn; aletler en geç 0,4 sn'de bitiyor, süreler yola orantılı. Etiketler 0,4 sn sonra beliriyor. Hareket azaltılmışken etiket animasyonu da kapanıyor (kural, animasyondan sonra geldiği için önceki blok onu kapatmıyordu).
+
+Yerel Worker (`127.0.0.1:8787`, HTTP/1.1) üzerinde Lighthouse 12, mobil, yavaş 4G, sakin bir çalıştırma: 90. FCP 1,3 sn, LCP 2,8 sn, TBT 280 ms, hız endeksi 1,3 sn, CLS 0, metin sıkıştırma geçiyor. Gözlenen LCP yaklaşık 0,3 sn; simülasyon onu 2,8 sn'ye çekiyor. Tarayıcı da açıkken bir çalıştırma 80 çıktı, TBT 590 ms'ye sıçradı. 95 yok: hızlı makinede bütün betikler ve dört mono yazı tipi, hero metni boyanmadan önce bittiği için Lighthouse onları LCP'nin önüne yazıyor. Betikleri `defer` yapmak denendi, ilk boyamayı geciktirdiği için geri alındı. `font-display: optional` LCP'yi oynatmadı (o denemede puan 93'tü, LCP yine 2,8 sn) ve geç kalırsa yazı yedekte kalacağı için kullanılmadı.
+
+Doğrulama: `typecheck`, `test` 14/14, `build`. Tarayıcıda Türkçe harfler Inter ile duruyor, çakı açık, başlık 0,3 sn animasyonlu ve sonunda tam görünür. Boş form "Geçerli bir site adresi girin" diyor; e-posta gitmedi. Deploy / push yok. Karttaki sayı yayın sonrası `npm run measure` ile güncellenir.
+
+Değişen dosyalar: `app/fonts/inter-subset.woff2` (yeni), `app/fonts/OFL.txt` (yeni), `app/[lang]/layout.tsx`, `app/globals.css`, `components/HeroKnife.tsx`, `worker/index.ts`, `DOKUMANTASYON.md`.
+
+### 2026-09-26 — Performans 82 → 95 üstü: ölçüm (kod yok)
+
+Kullanıcı karttaki mobil Lighthouse puanını (82) 95'in üstüne nasıl çıkaracağını sordu. Bu turda kod değişmedi. Canlı site ölçüldü (`lighthouse@12`, mobil, yavaş 4G, CPU ×4, `/?lang=tr`). Tek çalıştırma 87 çıktı; karttaki 82 beş çalıştırmanın ortancası, yani hedef tek seferlik 95 değil, ortancada 95'in üstü olmalı.
+
+Puanı tutan iki metrik: LCP 3,4 sn (puan 0,66) ve Hız Endeksi 4,4 sn (0,74). TBT 120 ms (0,97), CLS 0. Sunucu yanıtı 50 ms. LCP öğesi hero alt paragrafı (`p.lead`); sürenin %81'i render gecikmesi (2,8 sn), indirme değil.
+
+Filmstrip: 1,7 sn'ye kadar ekran boş. 2,3 sn'de paragraf ve kapalı çakı var, başlık hâlâ kırpılmış (`hero-rise`). 2,9 sn'de başlık yarı açık, aletler çıkıyor. 3,5 sn'de hero son hâlinde. LCP'nin 3,4 sn'ye kayması, Türkçe harflerin durduğu Inter latin-ext dosyasının (86 KB, önden yüklenmiyor; önden yüklenen 49 KB'lık dosya yalnız temel Latin) geç gelmesiyle örtüşüyor. Ana iş parçacığında 2,6 sn iş ve 2035 görev var; bunun büyüğü çakının katmanlı açılışı. HTML 54 KB ve sıkıştırmasız (`uses-text-compression`, 42 KB). Sıkıştırma Worker'da yazıldı, yayında değil.
+
+95 için üç iş, bu sırayla: Türkçe sayfada latin-ext'i önden yüklemek ya da hero'da kullanılan harflerden tek küçük dosya üretmek (LCP'yi ilk boyamaya çekmek); HTML sıkıştırmasını yayınlamak; başlık kırpmasını ve çakı açılışını kısaltmak ki ekran 3,5 değil yaklaşık 2,5 sn'de son hâline gelsin. Kullanılmayan JS (54 KB) TBT'yi oynatmıyor; puanı 95'e o taşımaz. `lib/selfCheck.json` elle değiştirilmez; yayın sonrası `npm run measure`.
+
+Değişen dosya: `DOKUMANTASYON.md`. Deploy / push yok.
+
+### 2026-09-26 — Kontrol ızgarası, çakı bağlantısı, hizmet sayacı
+
+Kullanıcı seçti: kontrol kapsamını çakı etiketleriyle eşleşen görsel ızgaraya çevirmek ve tek listeye bağlamak; telefonda hizmet kaydırmasına sayaç. "Önce tespit" bölümü, kendi ölçümü ve anında ön kontrol aynı gün başka bir oturumda yapıldı; onlara dokunulmadı. Fiyat, süre ve kapsam değişmedi.
+
+1. **Tek kaynak.** Her kontrol maddesine `key` ve kısa ad (`tag`) eklendi (TR/EN/DE). Çakı etiketleri `hero.tools` listesinden kalktı; kısa adlardan geliyor. Ücretsiz karttaki sekiz ayrı madde kalktı (`fromChecks`): kart, aynı kısa adları etiket olarak gösteriyor, altında yalnız "Rapor ve öncelik listesi" duruyor. Onay e-postası hâlâ maddelerin tam başlığını kullanıyor.
+2. **Izgara.** Kontrol kapsamı telefonda ikon solda, 640 px'ten itibaren iki sütun, 1080 px'ten itibaren dört sütun. Her kartta çizgi ikon (`components/CheckIcon.tsx`), numara, kısa ad, başlık ve açıklama. Sütunlar arasında dikey çizgi.
+3. **Çakı.** Etiket ve alet tıklanınca ilgili karta gider (`#check-…`). Kartın üstünde gösterge çizgisi açılır, ikon sülfüre döner, 2.4 sn sonra söner. Kart henüz kaydırma animasyonunun başındaysa içerik vurgu süresince hemen okunur. Etiketler sekme sırasında yok (aynı bilgi ızgarada); ücretsiz karttaki etiketler gerçek bağlantı.
+4. **Sayaç.** Telefonda kartların üstünde `01 / 04` ve dört nokta (`components/RailDots.tsx`). Nokta ilgili karta kaydırır; kaydırınca sayaç güncellenir. Kartlar uzun olduğu için sayaç menünün altında sabit kalır, menü çekilince ekranın üstüne yaklaşır. Masaüstünde gizli.
+
+Doğrulama: `lint`, `typecheck`, `test` (14/14). Playwright: çakı etiketi HTTPS kartını ortaya getirip vurguyu açıyor, kart başlığı okunur (opacity 1); ücretsiz karttaki etiket de vurgu açıyor; hareket azaltılmışken gidiş anında. TR 1440, DE 820, EN 1280 ızgaralarında taşma yok. Telefonda (390) ikinci noktaya basınca sayaç `02 / 04`, kart "Hızlı düzeltme", sayaç kaydırınca üstte kalıyor; yatay taşma yok, konsol hatası yok. Deploy / push yok.
+
+Değişen dosyalar: `lib/content.ts`, `components/CheckIcon.tsx` (yeni), `components/RailDots.tsx` (yeni), `components/HeroKnife.tsx`, `components/Site.tsx`, `app/globals.css`, `DOKUMANTASYON.md`.
+
+### 2026-09-26 — Görünüm ve etkileyicilik: güncel durum ve öneriler (kod yok)
+
+Kullanıcı görünümü ve etkileyiciliği iyileştirmek için ne yapması gerektiğini sordu. Bu turda kod değişmedi.
+
+Çalışma kopyasında commit edilmemiş, bu belgede kaydı olmayan değişiklikler bulundu (`app/globals.css`, `components/Site.tsx`, `components/HeroKnife.tsx`, `components/LegalPage.tsx`, `lib/content.ts`, `lib/useScrollMotion.ts`). Aynı günkü analizin önerilerinin bir kısmını uyguluyorlar: hero başlığı büyüdü; çakı aletlerinde kontrol etiketleri (`hero.tools`: Mobil, Hız, Bağlantılar, HTTPS, Formlar, SEO); `#report` ve `#how` koyu, `#start` sülfür zemin; hizmetler masaüstünde dört sütun (subgrid), mobilde yana kaydırma; teslim süresi ayrı satır (`time`), aşama etiketlerinden "Adım N" kalktı; son bölümde yeni başlık + alt metin (`final.title` / `final.sub`); telefonda alt sabit CTA (`MobileCta`); footer imza metni (`footer.mark`) kalktı; orta genişlikte kısa menü düğmesi 768 px'ten başlıyor. `npm run lint`, `npm run typecheck`, `npm test` temiz.
+
+Ölçüm: Playwright (headless Chromium), TR, 1440×900 ve 390×844. Sayfa yüksekliği masaüstünde 6946 px, mobilde 8070 px.
+
+Hâlâ zayıf kalanlar:
+1. `#about` ("Önce tespit. Sonra net bir plan."): küçük metin, geniş boşluk, hero'yu tekrar ediyor.
+2. `#checks`: sekiz satırlık düz metin tablosu, görsel öğe yok; açıklamalar küçük ve gri. "Site kontrolü" kartındaki sekiz maddeyle hâlâ örtüşmüyor. Çakı etiketleri bu maddelere bağlı değil.
+3. `#how`: koyu zeminde küçük metin, çok boşluk; numaralar küçük mono.
+4. Mobilde hizmet kartlarının yana kaydığı yalnız kesilen ikinci karttan anlaşılıyor; gösterge yok.
+5. Kanıt yok: gerçek ölçüm, sonuç ya da referans gösterilmiyor; rapor örneği statik.
+
+Öneriler (kullanıcı seçti; ızgara, çakı bağlantısı ve hizmet sayacı yukarıdaki görevde yapıldı): kontrol kapsamını çakı etiketleriyle eşleşen görsel ızgaraya çevirip tek kaynağa bağlamak (etikete tıklayınca ilgili madde); `#about` bölümünü kaldırmak ya da hero altına tek satır yapmak; bölüm açıklamalarında boyut ve kontrastı artırmak; adımlarda büyük numaralar; mobil hizmet kaydırmasına sayaç / nokta göstergesi; gerçek verilerle anında ön kontrol (Worker, gizlilik metni güncellemesi); sitemendo.com'un kendi ölçüm sonuçlarını kanıt olarak göstermek; rapor örneğinde temsili önce / sonra görünümü.
+
+Değişen dosya: `DOKUMANTASYON.md`. Deploy / push yok.
+
+### 2026-09-26 — Eksik ve dengesizlik analizi (kod yok)
+
+Kullanıcı projeyi başlatıp eksikleri ve görsel dengesizlikleri bulmamı, daha etkileyici bir sürüm için öneri sunmamı istedi. Bu turda kod değişmedi.
+
+Ortam: `npm run dev` → `http://localhost:3000` çalışıyor. Sistemde Node 20.20 var, `.nvmrc` 22 istiyor (`next dev` çalışıyor; `wrangler` / `npm run preview` Node 22 ister). `npm run lint`, `npm run typecheck`, `npm test` (8/8) temiz.
+
+Ölçüm: Playwright (headless Chromium), TR/DE/EN × 1440 / 1024 / 820 / 390 / 360. Yatay taşma ve kırpılan metin yok; tam kaydırmadan sonra gizli öğe 0; konsol hatası yok.
+
+Bulunan dengesizlikler:
+1. **Hizalama:** "Önce tespit. Sonra net bir plan." (`#about`) diğer bölümlerle aynı sol kenarda değil: `.about__wrap { max-width: 65ch }` + `.wrap { margin: auto }` bloğu ortalıyor. Başlık sol kenarı 1440'ta 427 px (diğerleri 226), 1024'te 204 (41), 820'de 94 (33).
+2. **Tipografi hiyerarşisi zayıf:** h1 masaüstünde 34 px, tablet/mobilde 26 px; h2 23 / 20 px (oran ~1.3). Hero bölüm başlıklarından zor ayrılıyor. Son bölüm başlığı (`h2--lg`) hero h1 ile aynı boyutta.
+3. **Hizmet kartları:** liste maddeleri (17 px) paket adından (17 px) ve fiyattan görsel olarak daha baskın; fiyat küçük mono. Teslim süresi ("2 iş günü", "Genellikle 5 iş günü") özellik listesinin maddesi olarak duruyor. Dört paket alt alta; bölüm masaüstünde ~1970 px, mobilde ~2530 px (sayfanın en uzun bölümü).
+4. **Öne çıkan kart taşması:** ücretsiz kart negatif kenar boşluğuyla ızgaradan taşıyor (masaüstünde 18 px sola); mobilde kenarlığı ekran kenarına değiyor, diğer içerik 16 px içeride.
+5. **İçerik tutarsızlığı:** aynı ücretsiz kontrol iki farklı 8 maddeyle anlatılıyor. `checks` (HTTPS, iletişim yolları, altyapı, indeks…) ile "Site kontrolü" kartı (belirgin teknik hatalar, eski bileşenler, "Rapor 48 saat içinde"…) örtüşmüyor.
+6. **İki farklı "Adım" dizisi:** Nasıl çalışır 01–03 ile hizmetlerdeki "Adım 1 / 2 / 3" farklı şeyleri numaralıyor; "Adım 2" iki kartta tekrar.
+7. **Son bölüm:** masaüstünde başlık alta hizalı (`align-items: flex-end`), sol sütun büyük ölçüde boş; başlık düğme metniyle aynı ("Ücretsiz kontrol isteyin"); son formun başlığı yok.
+8. **Mobil ilk ekran:** ≤400 px'te menü 107 px (CTA ikinci satırda). Çakı metinle form arasında; site adresi alanı 710–771 px'te başlıyor, 360×740'ta ilk ekranın dışında.
+9. **Ritim:** tüm bölümler aynı kâğıt zemin ve aynı 72 px aralık; koyu bölüm bileşeni (`Section dark`) hazır ama kullanılmıyor. Görsel vurgu yalnız hero çakısında ve rapor örneğinde.
+10. **Metin:** "48 saat içinde gönderelim" (form girişi, adım 2) istek kipi; aynı vaat başka yerde "göndereceğiz / göndeririz".
+11. **Küçük:** footer altındaki "Sitemendo" imzası © satırını tekrarlıyor; `#about` metni hero'yu tekrar ediyor.
+
+Öneriler (kullanıcıya sunuldu, karar bekleniyor): tipografi ölçeği ve hizalama düzeltmesi; hizmetleri yan yana dört adımlı yol olarak yeniden düzenleme; kontrol listesini tek kaynağa bağlama; koyu bölümle ritim; son CTA bandı; mobilde form önce + alt sabit CTA; hero'da çakı aletlerini kontrol başlıklarıyla eşleştiren etkileşim; ziyaretçinin girdiği adresi gerçek verilerle (HTTPS, yönlendirme, yanıt süresi, başlık / açıklama, viewport) ölçen anında ön kontrol (Worker, 10 ms CPU sınırı ve gizlilik metni güncellemesiyle); sitemendo.com'un kendi ölçüm sonuçlarını kanıt olarak gösterme (uydurma referans yerine).
+
+Değişen dosya: `DOKUMANTASYON.md`. Deploy / push yok.
+
+### 2026-09-26 — Yeni sürüm: düzen, ritim, çakı etiketleri, kendi ölçümü, anında ön kontrol
+
+Kullanıcı önerilerin hepsini seçti. Fiyatlar, süreler ve hizmet kapsamı değişmedi.
+
+1. **Düzen.** Başlık ölçeği büyüdü (h1 masaüstünde 34 → 58 px, h2 23 → 40 px). `#about` artık diğer bölümlerle aynı sol kenarda; sağında kendi ölçüm kartı var. Hizmetler masaüstünde dört sütunlu yol: her kartta aşama düğümü, büyük fiyat, süre ve onay işaretli liste; satırlar kartlar arasında hizalanır. Telefonda kartlar yana kayar, bir sonrakinin kenarı görünür. "Adım 1/2/3" etiketleri kalktı (Nasıl çalışır zaten 01–03). Teslim süresi listeden çıkıp fiyatın altında. İstek kipi "gönderelim" → "göndeririz". Footer'daki tekrarlayan "Sitemendo" satırı kalktı. Son bölüm başlığı düğme metninden ayrıldı.
+2. **Ritim.** Rapor örneği ve Nasıl çalışır koyu zemin; rapor belgesi açık kâğıt olarak duruyor. Son bölüm sülfür bant, başlık ve form yan yana, başlık ortaya hizalı.
+3. **Telefon.** Menü her genişlikte tek satır (≤400 px'te 107 px'lik ikinci satır kalktı). Forma götüren düğme altta sabit: hero formu, son form ya da footer görünürken gizlenir. Çakı küçüldü; site adresi alanı 390 px'te ilk ekranda.
+4. **Çakı.** Altı aletin ucunda kontrol başlığı (Hız, Bağlantılar, Formlar, Mobil, HTTPS, SEO; EN/DE karşılıkları). Açılış bitince sırayla belirir, kaydırınca çakıyla birlikte solar. Etiketin ya da aletin üstüne gelince alet sülfüre döner. Süs: aynı bilgi Kontrol kapsamı bölümünde.
+5. **Kendi ölçümü.** Lighthouse 12.8.2, mobil, 5 çalıştırmanın ortancası (2026-09-26, `/?lang=tr`): Performans 82, Erişilebilirlik 100, En iyi uygulamalar 100, SEO 100. Sayılar `lib/selfCheck.json`; yeniden ölçüm `npm run measure` (elle değiştirilmez). Not: canlıda HTML sıkıştırılmadan gidiyordu (54 KB, `no-transform` Cloudflare'ın sıkıştırmasını kapatıyor). Worker artık `gzip` kabul eden isteğe `Content-Encoding: gzip` koyuyor; çalışma zamanı gövdeyi sıkıştırıyor (yerelde 60 KB → 13 KB doğrulandı). Bu düzeltme yayında değil; yayın sonrası `npm run measure` ile kart güncellenmeli.
+6. **Anında ön kontrol.** E-posta adımına geçilince `POST /api/precheck` sitenin ana sayfasını bir kez açar: HTTPS, HTTP→HTTPS yönlendirmesi, sunucu yanıt süresi (≤800 ms uygun, ≤1800 ms dikkat), viewport, başlık, açıklama, noindex. Sonuç formun altında, sonra başarı ekranında. Uç nokta yoksa (next dev) ya da istek reddedilirse panel hiç görünmez. Adres süzgeci: IP, yerel ad, standart dışı port ve sitemendo.com engelli; yönlendirmedeki her adres de aynı süzgeçten geçer. IP başına 10 dk'da 10 istek. Sonuç ve adres kaydedilmez, Worker kaydına yazılmaz. Gizlilik metnine "Otomatik ön kontrol" bölümü üç dilde eklendi (güncelleme 26 Eylül 2026).
+
+Doğrulama: `lint`, `typecheck`, `test` (14/14), `build`. `wrangler dev` (Node 22): gzip başlığı, example.com ön kontrolü (HTTPS uygun, yönlendirme yok, 73 ms, açıklama yok), engelli adresler 422, yabancı origin 403, hız sınırı 429; kayıtlarda adres yok. Playwright: panel ve demo başarı (gerçek e-posta gitmedi), çakı etiketi aleti sülfüre çeviriyor, TR/DE/EN × 1440/820/390/360 sayfa taşması yok, tam kaydırmadan sonra görünür kalması gereken gizli öğe yok (çakı etiketleri katlanınca solar), alt düğme hero'da gizli ve Kontrol kapsamı'nda görünür. Deploy / push yok.
+
+Değişen dosyalar: `app/globals.css`, `components/Site.tsx`, `components/HeroKnife.tsx`, `components/LegalPage.tsx`, `lib/content.ts`, `lib/precheck.ts` (yeni), `lib/selfCheck.json` (yeni), `lib/formFlow.ts`, `lib/auditRateLimit.ts`, `lib/useScrollMotion.ts`, `worker/index.ts`, `worker/precheck.ts` (yeni), `scripts/measure-self.mjs` (yeni), `scripts/verify-precheck.ts` (yeni), `package.json`, `DOKUMANTASYON.md`.
+
 ### 2026-09-17 — Tarama raporunun kalan maddeleri
 
 Kullanıcı "tarama raporundaki her şey düzeldi mi" diye sordu; 27 madde canlıda ve kodda tek tek kontrol edildi: 17 tamam, 4 kısmen, 6 yapılmadı. Kullanıcı kalanların hepsini istedi ve kararları bana bıraktı.

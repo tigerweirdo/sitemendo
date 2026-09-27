@@ -137,7 +137,8 @@ export function useScrollMotion(
       const steps = q('.step');
       const stepsBox = root.querySelector<HTMLElement>('.steps');
       if (steps.length && stepsBox) {
-        const ink = getComputedStyle(root).getPropertyValue('--ink').trim();
+        const styles = getComputedStyle(stepsBox);
+        const ink = (styles.getPropertyValue('--step-done') || styles.getPropertyValue('--ink')).trim();
         const progress = gsap.timeline({
           scrollTrigger: { trigger: stepsBox, start: 'top 75%', end: 'bottom 55%', scrub: 0.4 },
         });
@@ -179,6 +180,11 @@ export function useScrollMotion(
           }, 0.5)
           .fromTo(kids([count], 'p'), { opacity: 0 }, { opacity: 1, duration: 0.4, ease: OUT }, 0.7);
       }
+
+      /* Kendi ölçümümüz: kart gelir, puan halkaları sıfırdan puana kadar çizilir. */
+      reveal(unseen(q('.proof')), 'top 85%', card => gsap.timeline({ paused: true })
+        .fromTo(card, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: OUT })
+        .fromTo(card, { '--p': 0 }, { '--p': 1, duration: 1.3, ease: 'power2.out' }, 0.3), 0);
 
       reveal(unseen(q('.finding')), 'top 90%', finding => gsap.timeline({ paused: true })
         .fromTo(finding, { '--rule': 0 }, { '--rule': 1, duration: 0.8, ease: LINE })

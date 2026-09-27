@@ -1,7 +1,12 @@
+import type { PrecheckCode, PrecheckId, PrecheckStatus } from './precheck';
+
 export type Lang = 'tr' | 'en' | 'de';
-export type Check = { no: string; title: string; desc: string };
+export type CheckKey = 'mobile' | 'speed' | 'links' | 'https' | 'forms' | 'stack' | 'index' | 'contact';
+/* tag: çakının alet etiketi ve ücretsiz kontrol kartındaki kısa ad. */
+export type Check = { no: string; key: CheckKey; tag: string; title: string; desc: string };
 export type Finding = { no: string; severity: string; level: 'crit' | 'med'; title: string; impact: string };
-export type Service = { no: string; stage: string; name: string; price: string; note: string; items: string[]; scope?: string; cta?: string; featured?: boolean };
+/* fromChecks: listenin başında kontrol kapsamının kısa adları durur (checks[].tag), items onlardan sonra gelir. */
+export type Service = { no: string; stage: string; name: string; price: string; time?: string; note: string; items: string[]; fromChecks?: boolean; scope?: string; cta?: string; featured?: boolean };
 export type FAQ = { q: string; a: string };
 export type ChecklistCell = { k: string; v: string; s: 'ok' | 'warn' | 'err' };
 export type LegalBlock = { h: string; p: string };
@@ -13,6 +18,8 @@ export type Copy = {
   about: {
     title: string; p1: string; p2: string;
     emailLabel: string; phoneLabel: string; whatsapp: string;
+    /* note içinde {tool}, {runs} ve {date} lib/selfCheck.json'dan doldurulur. */
+    proof: { label: string; title: string; note: string; metrics: { performance: string; accessibility: string; bestPractices: string; seo: string } };
   };
   checksTitle: string;
   checksSub: string;
@@ -32,7 +39,7 @@ export type Copy = {
   steps: [string, string][];
   faqTitle: string;
   faq: FAQ[];
-  final: string;
+  final: { title: string; sub: string };
   notFound: { title: string; text: string; home: string };
   errorPage: { title: string; text: string; retry: string };
   form: {
@@ -42,7 +49,14 @@ export type Copy = {
     back: string; sending: string; done: string; doneText: string; demo: string;
     demoNote: string; edit: string; reset: string; fail: string; privacy: string; privacyLink: string;
   };
-  footer: { tag: string; services: string; site: string; legal: string; privacy: string; rights: string; contact: string; contactHint: string; mark: string };
+  /* Anında ön kontrol paneli (lib/precheck.ts). {value}, {ok}, {warn}, {err} yer tutucu. */
+  precheck: {
+    title: string; loading: string; unreachable: string; noteEmail: string; noteDone: string; summary: string;
+    status: Record<PrecheckStatus, string>;
+    labels: Record<PrecheckId, string>;
+    msg: Record<PrecheckCode, string>;
+  };
+  footer: { tag: string; services: string; site: string; legal: string; privacy: string; rights: string; contact: string; contactHint: string };
   meta: {
     title: string; description: string; ogTitle: string; ogDescription: string; ogAlt: string;
     privacyTitle: string; privacyDescription: string; impressumTitle: string; impressumDescription: string;
@@ -72,19 +86,25 @@ export const content: Record<Lang, Copy> = {
       emailLabel: 'E-posta',
       phoneLabel: 'Telefon',
       whatsapp: 'WhatsApp',
+      proof: {
+        label: 'Kendi sitemiz',
+        title: 'Bu sitenin ölçüm sonuçları',
+        note: '{tool}, mobil, {runs} ölçümün ortancası, {date}. Sonuçlar ağa ve cihaza göre değişebilir.',
+        metrics: { performance: 'Performans', accessibility: 'Erişilebilirlik', bestPractices: 'En iyi uygulamalar', seo: 'SEO' },
+      },
     },
     checksTitle: 'Kontrol kapsamı',
     checksSub: 'Ücretsiz kontrolde şu sekiz noktayı inceleriz.',
     checksNote: 'Ücretsiz kontrol, sitenizin dışarıdan erişilebilen bölümlerini kapsar. Yönetim paneli, yedekleme ve e-posta teslimatı gibi kontroller ek erişim veya teyit gerektirebilir.',
     checks: [
-      { no: '01', title: 'Mobil görünüm ve temel kullanım', desc: 'Telefonda düzen, menü ve temel düğmeler gibi dışarıdan görünen kullanımı inceleriz.' },
-      { no: '02', title: 'Sayfa yüklenme performansı', desc: 'İncelediğimiz sayfaların açılma süresini ölçeriz.' },
-      { no: '03', title: 'İncelenen sayfalardaki bağlantılar', desc: 'Bu sayfalardaki bağlantıları deneriz.' },
-      { no: '04', title: 'HTTPS ve tarayıcı güvenlik uyarıları', desc: 'Adres çubuğundaki HTTPS ve güvenlik uyarılarına bakarız.' },
-      { no: '05', title: 'Formların görünür gönderim davranışı', desc: 'Formun sitede nasıl gönderildiğini inceleriz.' },
-      { no: '06', title: 'Dışarıdan tespit edilebilen altyapı bilgileri', desc: 'Dışarıdan görülebilen altyapı izlerini not ederiz.' },
-      { no: '07', title: 'Temel indekslenebilirlik kontrolleri', desc: 'Dışarıdan görülebilen temel indeks ayarlarını ve engelleri kontrol ederiz.' },
-      { no: '08', title: 'Telefon, adres ve iletişim yollarına erişim', desc: 'Telefon, adres ve diğer iletişim yollarının sitede bulunup bulunamadığına bakarız.' },
+      { no: '01', key: 'mobile', tag: 'Mobil', title: 'Mobil görünüm ve temel kullanım', desc: 'Telefonda düzen, menü ve temel düğmeler gibi dışarıdan görünen kullanımı inceleriz.' },
+      { no: '02', key: 'speed', tag: 'Hız', title: 'Sayfa yüklenme performansı', desc: 'İncelediğimiz sayfaların açılma süresini ölçeriz.' },
+      { no: '03', key: 'links', tag: 'Bağlantılar', title: 'İncelenen sayfalardaki bağlantılar', desc: 'Bu sayfalardaki bağlantıları deneriz.' },
+      { no: '04', key: 'https', tag: 'HTTPS', title: 'HTTPS ve tarayıcı güvenlik uyarıları', desc: 'Adres çubuğundaki HTTPS ve güvenlik uyarılarına bakarız.' },
+      { no: '05', key: 'forms', tag: 'Formlar', title: 'Formların görünür gönderim davranışı', desc: 'Formun sitede nasıl gönderildiğini inceleriz.' },
+      { no: '06', key: 'stack', tag: 'Altyapı', title: 'Dışarıdan tespit edilebilen altyapı bilgileri', desc: 'Dışarıdan görülebilen altyapı izlerini not ederiz.' },
+      { no: '07', key: 'index', tag: 'SEO', title: 'Temel indekslenebilirlik kontrolleri', desc: 'Dışarıdan görülebilen temel indeks ayarlarını ve engelleri kontrol ederiz.' },
+      { no: '08', key: 'contact', tag: 'İletişim', title: 'Telefon, adres ve iletişim yollarına erişim', desc: 'Telefon, adres ve diğer iletişim yollarının sitede bulunup bulunamadığına bakarız.' },
     ],
     reportTitle: 'Rapor örneği',
     reportSub: 'Sorunları, ziyaretçiye etkilerini ve önerilen adımları öncelik sırasıyla görün.',
@@ -117,15 +137,15 @@ export const content: Record<Lang, Copy> = {
     servicesCta: 'Ücretsiz kontrol isteyin',
     pricesNote: 'Fiyatlar nettir; %19 KDV eklenir. Hizmetlerimiz yalnızca işletmelere ve serbest çalışanlara yöneliktir.',
     services: [
-      { no: '01', stage: 'Adım 1 · Önce', name: 'Site kontrolü', price: '0 €', note: 'Sitenizdeki en önemli teknik ve kullanım sorunlarını ücretsiz buluruz.', items: ['Kırık bağlantılar', 'Mobil görünüm sorunları', 'Yavaş açılan sayfalar', 'Dışarıdan görülen eski bileşenler', 'Temel SEO sorunları', 'Form sorunları', 'Belirgin teknik hatalar', 'Rapor ve öncelik listesi 48 saat içinde'], cta: 'Ücretsiz kontrol isteyin', featured: true },
-      { no: '02', stage: 'Adım 2 · Kontrolden sonra', name: 'Hızlı düzeltme', price: '149 €', note: 'Küçük sorunlar. Hızlı çözüm.', items: ['Mobil düzen sorunları', 'Kırık bağlantılar', 'İletişim formu sorunları', 'Küçük görünüm hataları', 'Temel hız iyileştirmeleri', 'SSL ve yönlendirme sorunları', 'Küçük teknik düzeltmeler', 'Küçük SEO düzeltmeleri', '2 iş günü'], scope: 'Açıkça tanımlı küçük sorunlar içindir. Hangi sorunların dahil olduğunu işe başlamadan netleştiririz.' },
-      { no: '03', stage: 'Adım 2 · Kontrolden sonra', name: 'Site onarımı', price: '349 €', note: 'Birden fazla teknik, kullanım veya hız sorunu olan siteler için kapsamlı onarım.', items: ['Mobil uyum ve düzen düzeltmeleri', 'Hız iyileştirmeleri', 'Bozuk bölümler ve menü sorunları', 'Form düzeltmeleri', 'Temel SEO iyileştirmeleri', 'Belirgin erişilebilirlik sorunları', 'Teknik temizlik', 'İçerik ve düzen ayarları', 'Genellikle 5 iş günü'], scope: 'Mevcut sitenizin onarımıdır. Yeniden tasarım, yeni site, büyük özel geliştirme ve e-ticaret kurulumu dahil değildir.' },
-      { no: '04', stage: 'Adım 3 · Onarımdan sonra', name: 'Site bakımı', price: '49 € / ay', note: 'Sitenizi düzenli bakımla sağlıklı tutarız.', items: ['Kesinti takibi: site kapanırsa haber veririz', 'CMS ve eklenti güncellemeleri', 'Düzenli yedekleme (barındırma izin veriyorsa)', 'Temel güvenlik kontrolleri', 'Kırık bağlantı takibi', 'Aylık site sağlığı kontrolü ve kısa rapor', 'Küçük site değişiklikleri'], scope: 'Küçük değişiklikler için ayda en fazla 30 dakika dahildir.' },
+      { no: '01', stage: 'Önce', name: 'Site kontrolü', price: '0 €', time: 'Rapor 48 saat içinde', note: 'Sitenizdeki en önemli teknik ve kullanım sorunlarını ücretsiz buluruz.', items: ['Rapor ve öncelik listesi'], fromChecks: true, cta: 'Ücretsiz kontrol isteyin', featured: true },
+      { no: '02', stage: 'Kontrolden sonra · küçük sorunlar', name: 'Hızlı düzeltme', price: '149 €', time: '2 iş günü', note: 'Küçük sorunlar. Hızlı çözüm.', items: ['Mobil düzen sorunları', 'Kırık bağlantılar', 'İletişim formu sorunları', 'Küçük görünüm hataları', 'Temel hız iyileştirmeleri', 'SSL ve yönlendirme sorunları', 'Küçük teknik düzeltmeler', 'Küçük SEO düzeltmeleri'], scope: 'Açıkça tanımlı küçük sorunlar içindir. Hangi sorunların dahil olduğunu işe başlamadan netleştiririz.' },
+      { no: '03', stage: 'Kontrolden sonra · birden çok sorun', name: 'Site onarımı', price: '349 €', time: 'Genellikle 5 iş günü', note: 'Birden fazla teknik, kullanım veya hız sorunu olan siteler için kapsamlı onarım.', items: ['Mobil uyum ve düzen düzeltmeleri', 'Hız iyileştirmeleri', 'Bozuk bölümler ve menü sorunları', 'Form düzeltmeleri', 'Temel SEO iyileştirmeleri', 'Belirgin erişilebilirlik sorunları', 'Teknik temizlik', 'İçerik ve düzen ayarları'], scope: 'Mevcut sitenizin onarımıdır. Yeniden tasarım, yeni site, büyük özel geliştirme ve e-ticaret kurulumu dahil değildir.' },
+      { no: '04', stage: 'Onarımdan sonra · sürekli', name: 'Site bakımı', price: '49 € / ay', time: 'Her ay', note: 'Sitenizi düzenli bakımla sağlıklı tutarız.', items: ['Kesinti takibi: site kapanırsa haber veririz', 'CMS ve eklenti güncellemeleri', 'Düzenli yedekleme (barındırma izin veriyorsa)', 'Temel güvenlik kontrolleri', 'Kırık bağlantı takibi', 'Aylık site sağlığı kontrolü ve kısa rapor', 'Küçük site değişiklikleri'], scope: 'Küçük değişiklikler için ayda en fazla 30 dakika dahildir.' },
     ],
     howTitle: 'Nasıl çalışır',
     steps: [
       ['Site adresinizi paylaşın.', 'Site adresinizi ve raporu göndereceğimiz e-postayı iletin.'],
-      ['Kontrol raporunuzu alın.', 'Bulguları ve önerilen adımları 48 saat içinde gönderelim.'],
+      ['Kontrol raporunuzu alın.', 'Bulguları ve önerilen adımları 48 saat içinde göndeririz.'],
       ['Sonraki adımı seçin.', 'Düzeltmeleri kendiniz yapabilir, başka birine yaptırabilir ya da bize yaptırabilirsiniz. Ücreti işe başlamadan önce bilirsiniz.'],
     ],
     faqTitle: 'Sık sorulan sorular',
@@ -138,7 +158,10 @@ export const content: Record<Lang, Copy> = {
       { q: 'Hangi siteler destekleniyor?', a: 'Dışarıdan erişilebilen işletme siteleri. WordPress bu kapsamdadır.' },
       { q: 'Hangi dillerde hizmet veriliyor?', a: 'Raporu Türkçe, İngilizce veya Almanca göndeririz.' },
     ],
-    final: 'Ücretsiz kontrol isteyin',
+    final: {
+      title: 'Sitenizin neye ihtiyacı olduğunu 48 saat içinde öğrenin.',
+      sub: 'Ücretsiz kontrol için site adresiniz ve e-postanız yeterli. Düzeltme hizmeti isteğe bağlı.',
+    },
     notFound: {
       title: 'Bu sayfa bulunamadı.',
       text: 'Adres değişmiş ya da yanlış yazılmış olabilir. Ana sayfadan devam edebilirsiniz.',
@@ -151,7 +174,7 @@ export const content: Record<Lang, Copy> = {
     },
     form: {
       title: 'Ücretsiz site kontrolüyle başlayın.',
-      lead: 'Site adresinizi ve e-posta adresinizi paylaşın; ikisi de gerekir. Kontrol sonuçlarını ve önerilen adımları 48 saat içinde gönderelim.',
+      lead: 'Site adresinizi ve e-posta adresinizi paylaşın; ikisi de gerekir. Kontrol sonuçlarını ve önerilen adımları 48 saat içinde göndeririz.',
       url: 'Site adresi',
       urlPh: 'https://siteniz.com',
       submit: 'Devam et',
@@ -172,8 +195,38 @@ export const content: Record<Lang, Copy> = {
       edit: 'Adresi veya e-postayı düzelt',
       reset: 'Yeni istek',
       fail: 'Talebiniz gönderilemedi. Lütfen tekrar deneyin veya e-posta ile bize ulaşın.',
-      privacy: 'Bilgilerinizi sadece size cevap yazmak için kullanıyoruz.',
+      privacy: 'Site adresini ön kontrol ve rapor için, e-postanızı yalnızca size yazmak için kullanırız.',
       privacyLink: 'Gizlilik',
+    },
+    precheck: {
+      title: 'İlk sonuçlar',
+      loading: 'Ana sayfanız açılıyor…',
+      unreachable: 'Ana sayfanız otomatik ön kontrolde açılamadı. Tam kontrolü yine de isteyebilirsiniz.',
+      noteEmail: 'Otomatik ön kontrol, ana sayfanın yalnızca birkaç teknik işaretini ölçer. Sekiz noktalı tam rapor için e-postanızı girin.',
+      noteDone: 'Otomatik ön kontrol, ana sayfanın yalnızca birkaç teknik işaretini ölçer. Sekiz noktalı tam rapor 48 saat içinde e-postanıza gelir.',
+      summary: 'İlk sonuçlar hazır: {ok} uygun, {warn} dikkat, {err} sorun.',
+      status: { ok: 'Uygun', warn: 'Dikkat', err: 'Sorun' },
+      labels: { https: 'HTTPS', redirect: 'HTTP yönlendirmesi', speed: 'Sunucu yanıtı', viewport: 'Mobil görünüm ayarı', title: 'Sayfa başlığı', description: 'Arama açıklaması', index: 'Arama motoru erişimi' },
+      msg: {
+        'https.ok': 'Bağlantı şifreli.',
+        'https.none': 'Bağlantı şifreli değil.',
+        'redirect.ok': 'Şifresiz adres HTTPS’e yönleniyor.',
+        'redirect.none': 'Şifresiz adres HTTPS’e yönlenmiyor.',
+        'speed.fast': '{value}',
+        'speed.mid': '{value}, biraz yavaş.',
+        'speed.slow': '{value}, yavaş.',
+        'viewport.ok': 'Telefon ekranına göre ayarlı.',
+        'viewport.partial': 'Ayar var ama ekran genişliğine bağlı değil.',
+        'viewport.none': 'Telefon ekranı için ayar yok.',
+        'title.ok': 'Var.',
+        'title.long': 'Uzun ({value} karakter); arama sonuçlarında kesilebilir.',
+        'title.none': 'Yok.',
+        'description.ok': 'Var.',
+        'description.length': '{value} karakter; önerilen 50–170.',
+        'description.none': 'Yok.',
+        'index.ok': 'Engel görünmüyor.',
+        'index.blocked': 'Sayfa arama motorlarına kapalı (noindex).',
+      },
     },
     footer: {
       tag: 'Web sitesi kontrolü, düzeltme ve bakım.',
@@ -184,7 +237,6 @@ export const content: Record<Lang, Copy> = {
       rights: 'Tüm hakları saklıdır',
       contact: 'İletişim',
       contactHint: 'Site adresi gerekmez — doğrudan yazın veya arayın.',
-      mark: 'Sitemendo',
     },
     meta: {
       title: 'Sitemendo — Web siteniz için kontrol, düzeltme ve bakım',
@@ -199,13 +251,14 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Ana sayfa',
-      updated: 'Son güncelleme: 17 Eylül 2026',
+      updated: 'Son güncelleme: 26 Eylül 2026',
       controller: 'Veri sorumlusu',
       privacyTitle: 'Gizlilik',
       privacyLead: 'Yalnızca isteğiniz ve bu sitenin güvenli çalışması için gereken verileri işliyoruz. İzleme veya reklam çerezi ve analiz aracı kullanmıyoruz.',
       privacy: [
         { h: 'Barındırma ve sunucu kayıtları', p: 'Bu site Cloudflare (Cloudflare, Inc., ABD) altyapısında çalışır; sayfalar en yakın Cloudflare veri merkezinden sunulur. Bir sayfa açıldığında Cloudflare, sayfayı sunmak ve kötüye kullanımı önlemek için IP adresi, zaman, açılan adres ve tarayıcı bilgisi gibi teknik olarak gerekli verileri işler. Hukuki dayanak, sitenin güvenli çalışmasındaki meşru menfaatimizdir (GDPR md. 6/1-f).' },
         { h: 'Ücretsiz kontrol talebi', p: 'Formu gönderdiğinizde site adresinizi, e-posta adresinizi ve seçtiğiniz dili; kontrolü yapmak, raporu göndermek ve sorularınızı yanıtlamak için işleriz. Hukuki dayanak, talebiniz üzerine yapılan sözleşme öncesi işlemlerdir (GDPR md. 6/1-b). Bu bilgiler olmadan raporu gönderemeyiz.' },
+        { h: 'Otomatik ön kontrol', p: 'Formda site adresini girip devam ettiğinizde sunucumuz bu adresin ana sayfasını bir kez açar ve sayfanın başından birkaç teknik bilgiyi okur (HTTPS, yönlendirme, yanıt süresi, sayfa başlığı, açıklama, mobil görünüm ve arama motoru ayarı). Sonuç yalnızca size gösterilir ve kaydedilmez. Kötüye kullanımı önlemek için IP adresiniz kısa süre sunucu belleğinde tutulur. Hukuki dayanak, talebiniz üzerine yapılan sözleşme öncesi işlemlerdir (GDPR md. 6/1-b).' },
         { h: 'E-posta', p: 'Onay ve iç bildirim e-postalarını Resend (Resend, Inc., ABD) üzerinden göndeririz. hello@sitemendo.com adresine gelen e-postalar Cloudflare (Cloudflare, Inc., ABD) üzerinden Google’daki (Gmail) bir posta kutusuna yönlendirilir.' },
         { h: 'Telefon ve WhatsApp', p: 'Bizi arar ya da WhatsApp’tan yazarsanız bilgilerinizi isteğinizle ilgilenmek için işleriz (GDPR md. 6/1-b veya f). WhatsApp’ta ayrıca WhatsApp Ireland Limited kendi koşullarına göre veri işler. Bunu istemiyorsanız bize e-posta veya telefonla ulaşabilirsiniz.' },
         { h: 'ABD’ye aktarım', p: 'Cloudflare, Resend, Google ve WhatsApp (Meta) verileri ABD’de işleyebilir. Aktarım, sağlayıcı sertifikalıysa AB-ABD Veri Gizliliği Çerçevesi’ne (Data Privacy Framework), değilse AB standart sözleşme maddelerine dayanır (GDPR md. 45 ve 46).' },
@@ -241,19 +294,25 @@ export const content: Record<Lang, Copy> = {
       emailLabel: 'Email',
       phoneLabel: 'Phone',
       whatsapp: 'WhatsApp',
+      proof: {
+        label: 'Our own site',
+        title: 'Measured results for this website',
+        note: '{tool}, mobile, median of {runs} runs, {date}. Results vary with network and device.',
+        metrics: { performance: 'Performance', accessibility: 'Accessibility', bestPractices: 'Best practices', seo: 'SEO' },
+      },
     },
     checksTitle: 'What the check covers',
     checksSub: 'The free check looks at these eight points.',
     checksNote: 'The free check covers the publicly reachable parts of your site. Checks such as the admin panel, backups and email delivery may need extra access or confirmation.',
     checks: [
-      { no: '01', title: 'Mobile layout and basic use', desc: 'We review layout, menus and basic controls as they appear on a phone.' },
-      { no: '02', title: 'Page-load performance', desc: 'We measure how long the pages we review take to open.' },
-      { no: '03', title: 'Links on the pages we review', desc: 'We try the links on those pages.' },
-      { no: '04', title: 'HTTPS and browser security warnings', desc: 'We look at HTTPS and any security warning in the address bar.' },
-      { no: '05', title: 'Visible form-submit behaviour', desc: 'We review how a form appears to submit on the site.' },
-      { no: '06', title: 'Infrastructure details visible from outside', desc: 'We note infrastructure traces that can be seen without admin access.' },
-      { no: '07', title: 'Basic indexability checks', desc: 'We check basic index settings and visible blockers.' },
-      { no: '08', title: 'Access to phone, address and contact routes', desc: 'We check whether phone, address and other contact routes can be found on the site.' },
+      { no: '01', key: 'mobile', tag: 'Mobile', title: 'Mobile layout and basic use', desc: 'We review layout, menus and basic controls as they appear on a phone.' },
+      { no: '02', key: 'speed', tag: 'Speed', title: 'Page-load performance', desc: 'We measure how long the pages we review take to open.' },
+      { no: '03', key: 'links', tag: 'Links', title: 'Links on the pages we review', desc: 'We try the links on those pages.' },
+      { no: '04', key: 'https', tag: 'HTTPS', title: 'HTTPS and browser security warnings', desc: 'We look at HTTPS and any security warning in the address bar.' },
+      { no: '05', key: 'forms', tag: 'Forms', title: 'Visible form-submit behaviour', desc: 'We review how a form appears to submit on the site.' },
+      { no: '06', key: 'stack', tag: 'Tech stack', title: 'Infrastructure details visible from outside', desc: 'We note infrastructure traces that can be seen without admin access.' },
+      { no: '07', key: 'index', tag: 'SEO', title: 'Basic indexability checks', desc: 'We check basic index settings and visible blockers.' },
+      { no: '08', key: 'contact', tag: 'Contact', title: 'Access to phone, address and contact routes', desc: 'We check whether phone, address and other contact routes can be found on the site.' },
     ],
     reportTitle: 'Sample report',
     reportSub: 'See the issues, how they affect visitors and the suggested next steps — in order of priority.',
@@ -286,10 +345,10 @@ export const content: Record<Lang, Copy> = {
     servicesCta: 'Request a free check',
     pricesNote: 'Prices are net; 19% VAT is added. Our services are for businesses and self-employed professionals only.',
     services: [
-      { no: '01', stage: 'Step 1 · First', name: 'Website Check', price: '0 €', note: 'A free check that finds the most important technical and usability problems on your website.', items: ['Broken links', 'Mobile issues', 'Slow pages', 'Outdated components visible from outside', 'Basic SEO issues', 'Form problems', 'Obvious technical errors', 'Report and priority list within 48 hours'], cta: 'Request a free check', featured: true },
-      { no: '02', stage: 'Step 2 · After the check', name: 'Quick Fix', price: '149 €', note: 'Small problems. Fixed quickly.', items: ['Mobile layout issues', 'Broken links', 'Contact form problems', 'Minor layout bugs', 'Basic speed improvements', 'SSL and redirect issues', 'Small technical fixes', 'Minor SEO corrections', '2 working days'], scope: 'For small, clearly defined issues. We agree which issues are included before we start.' },
-      { no: '03', stage: 'Step 2 · After the check', name: 'Website Repair', price: '349 €', note: 'A broader repair for websites with several technical, usability or speed problems.', items: ['Mobile optimisation and layout fixes', 'Speed improvements', 'Broken sections and navigation problems', 'Form fixes', 'Basic SEO improvements', 'Obvious accessibility issues', 'Technical clean-up', 'Content and layout adjustments', 'Usually 5 working days'], scope: 'Repairs your existing website. A redesign, a new website, large custom development and e-commerce builds are not included.' },
-      { no: '04', stage: 'Step 3 · After the repair', name: 'Website Care', price: '49 € / month', note: 'We keep your website healthy with regular care.', items: ['Uptime monitoring: we let you know if the site goes down', 'CMS and plugin updates', 'Regular backups (where the hosting allows it)', 'Basic security checks', 'Broken-link monitoring', 'Monthly health check with a short report', 'Small website changes'], scope: 'Includes up to 30 minutes of small changes per month.' },
+      { no: '01', stage: 'First', name: 'Website Check', price: '0 €', time: 'Report within 48 hours', note: 'A free check that finds the most important technical and usability problems on your website.', items: ['Report and priority list'], fromChecks: true, cta: 'Request a free check', featured: true },
+      { no: '02', stage: 'After the check · small issues', name: 'Quick Fix', price: '149 €', time: '2 working days', note: 'Small problems. Fixed quickly.', items: ['Mobile layout issues', 'Broken links', 'Contact form problems', 'Minor layout bugs', 'Basic speed improvements', 'SSL and redirect issues', 'Small technical fixes', 'Minor SEO corrections'], scope: 'For small, clearly defined issues. We agree which issues are included before we start.' },
+      { no: '03', stage: 'After the check · several issues', name: 'Website Repair', price: '349 €', time: 'Usually 5 working days', note: 'A broader repair for websites with several technical, usability or speed problems.', items: ['Mobile optimisation and layout fixes', 'Speed improvements', 'Broken sections and navigation problems', 'Form fixes', 'Basic SEO improvements', 'Obvious accessibility issues', 'Technical clean-up', 'Content and layout adjustments'], scope: 'Repairs your existing website. A redesign, a new website, large custom development and e-commerce builds are not included.' },
+      { no: '04', stage: 'After the repair · ongoing', name: 'Website Care', price: '49 € / month', time: 'Every month', note: 'We keep your website healthy with regular care.', items: ['Uptime monitoring: we let you know if the site goes down', 'CMS and plugin updates', 'Regular backups (where the hosting allows it)', 'Basic security checks', 'Broken-link monitoring', 'Monthly health check with a short report', 'Small website changes'], scope: 'Includes up to 30 minutes of small changes per month.' },
     ],
     howTitle: 'How it works',
     steps: [
@@ -307,7 +366,10 @@ export const content: Record<Lang, Copy> = {
       { q: 'Which websites do you support?', a: 'Publicly reachable business websites. WordPress is included.' },
       { q: 'Which languages do you work in?', a: 'We send the report in Turkish, English or German.' },
     ],
-    final: 'Request a free check',
+    final: {
+      title: 'Find out within 48 hours what your website needs.',
+      sub: 'The free check only needs your website address and email. Repair work is optional.',
+    },
     notFound: {
       title: 'This page could not be found.',
       text: 'The address may have changed or been mistyped. You can continue from the home page.',
@@ -341,8 +403,38 @@ export const content: Record<Lang, Copy> = {
       edit: 'Edit the address or email',
       reset: 'New request',
       fail: 'Your request could not be sent. Please try again or contact us by email.',
-      privacy: 'We use your details only to write back to you.',
+      privacy: 'We use the site address for the pre-check and the report, and your email only to write to you.',
       privacyLink: 'Privacy',
+    },
+    precheck: {
+      title: 'First results',
+      loading: 'Opening your homepage…',
+      unreachable: 'The automatic pre-check could not open your homepage. You can still request the full check.',
+      noteEmail: 'The automatic pre-check only measures a few technical signals on the homepage. Enter your email for the full eight-point report.',
+      noteDone: 'The automatic pre-check only measures a few technical signals on the homepage. The full eight-point report arrives by email within 48 hours.',
+      summary: 'First results ready: {ok} good, {warn} attention, {err} problems.',
+      status: { ok: 'Good', warn: 'Attention', err: 'Problem' },
+      labels: { https: 'HTTPS', redirect: 'HTTP redirect', speed: 'Server response', viewport: 'Mobile viewport', title: 'Page title', description: 'Search description', index: 'Search engine access' },
+      msg: {
+        'https.ok': 'The connection is encrypted.',
+        'https.none': 'The connection is not encrypted.',
+        'redirect.ok': 'The unencrypted address redirects to HTTPS.',
+        'redirect.none': 'The unencrypted address does not redirect to HTTPS.',
+        'speed.fast': '{value}',
+        'speed.mid': '{value}, a little slow.',
+        'speed.slow': '{value}, slow.',
+        'viewport.ok': 'Set up for phone screens.',
+        'viewport.partial': 'Set, but not tied to the screen width.',
+        'viewport.none': 'No setting for phone screens.',
+        'title.ok': 'Present.',
+        'title.long': 'Long ({value} characters); may be cut off in search results.',
+        'title.none': 'Missing.',
+        'description.ok': 'Present.',
+        'description.length': '{value} characters; 50–170 recommended.',
+        'description.none': 'Missing.',
+        'index.ok': 'No blocker found.',
+        'index.blocked': 'The page is closed to search engines (noindex).',
+      },
     },
     footer: {
       tag: 'Website checks, repairs and maintenance.',
@@ -353,7 +445,6 @@ export const content: Record<Lang, Copy> = {
       rights: 'All rights reserved',
       contact: 'Contact',
       contactHint: 'No website address needed — just write or call.',
-      mark: 'Sitemendo',
     },
     meta: {
       title: 'Sitemendo — Checks, repairs and maintenance for your website',
@@ -368,13 +459,14 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Home',
-      updated: 'Last updated: 17 September 2026',
+      updated: 'Last updated: 26 September 2026',
       controller: 'Controller',
       privacyTitle: 'Privacy',
       privacyLead: 'We only process the data needed for your request and to run this website securely. We use no tracking or advertising cookies and no analytics tools.',
       privacy: [
         { h: 'Hosting and server logs', p: 'This website runs on Cloudflare (Cloudflare, Inc., USA); pages are served from the nearest Cloudflare data center. When you open a page, Cloudflare processes technically necessary data such as IP address, time, requested address and browser details to deliver the page and prevent abuse. The legal basis is our legitimate interest in running the site securely (Art. 6(1)(f) GDPR).' },
         { h: 'Free check request', p: 'When you send the form, we process your website address, email address and chosen language to run the check, send you the report and answer your questions. The legal basis is pre-contractual steps taken at your request (Art. 6(1)(b) GDPR). Without these details we cannot send the report.' },
+        { h: 'Automatic pre-check', p: 'When you enter a website address in the form and continue, our server opens that address’s homepage once and reads a few technical details from the start of the page (HTTPS, redirects, response time, page title, description, mobile viewport and search engine settings). The result is only shown to you and is not stored. To prevent abuse, your IP address is kept briefly in server memory. The legal basis is pre-contractual steps taken at your request (Art. 6(1)(b) GDPR).' },
         { h: 'Email', p: 'We send confirmations and internal notifications through Resend (Resend, Inc., USA). Emails to hello@sitemendo.com are forwarded through Cloudflare (Cloudflare, Inc., USA) to a mailbox at Google (Gmail).' },
         { h: 'Phone and WhatsApp', p: 'If you call us or write on WhatsApp, we process your details to handle your request (Art. 6(1)(b) or (f) GDPR). On WhatsApp, WhatsApp Ireland Limited also processes data under its own terms. If you prefer not to use it, reach us by email or phone.' },
         { h: 'Transfers to the USA', p: 'Cloudflare, Resend, Google and WhatsApp (Meta) may process data in the USA. Transfers rely on the EU-US Data Privacy Framework where the provider is certified, and otherwise on EU standard contractual clauses (Art. 45 and 46 GDPR).' },
@@ -410,19 +502,25 @@ export const content: Record<Lang, Copy> = {
       emailLabel: 'E-Mail',
       phoneLabel: 'Telefon',
       whatsapp: 'WhatsApp',
+      proof: {
+        label: 'Unsere eigene Website',
+        title: 'Messergebnisse dieser Website',
+        note: '{tool}, mobil, Median aus {runs} Messungen, {date}. Die Ergebnisse schwanken je nach Netz und Gerät.',
+        metrics: { performance: 'Performance', accessibility: 'Barrierefreiheit', bestPractices: 'Best Practices', seo: 'SEO' },
+      },
     },
     checksTitle: 'Was die Prüfung umfasst',
     checksSub: 'Die kostenlose Prüfung umfasst diese acht Punkte.',
     checksNote: 'Die kostenlose Prüfung umfasst die von außen erreichbaren Teile Ihrer Website. Prüfungen wie der Verwaltungsbereich, Sicherungen und die E-Mail-Zustellung können zusätzlichen Zugang oder eine Bestätigung erfordern.',
     checks: [
-      { no: '01', title: 'Mobile Ansicht und grundlegende Bedienung', desc: 'Wir prüfen Layout, Menü und grundlegende Schaltflächen, wie sie auf dem Handy erscheinen.' },
-      { no: '02', title: 'Ladezeit der Seiten', desc: 'Wir messen, wie lange die von uns geprüften Seiten zum Öffnen brauchen.' },
-      { no: '03', title: 'Links auf den geprüften Seiten', desc: 'Wir testen die Links auf diesen Seiten.' },
-      { no: '04', title: 'HTTPS und Browser-Sicherheitswarnungen', desc: 'Wir achten auf HTTPS und Warnungen in der Adresszeile.' },
-      { no: '05', title: 'Sichtbares Absendeverhalten von Formularen', desc: 'Wir prüfen, wie ein Formular auf der Seite abgeschickt wird.' },
-      { no: '06', title: 'Von außen erkennbare Infrastruktur', desc: 'Wir notieren Infrastrukturspuren, die ohne Admin-Zugang sichtbar sind.' },
-      { no: '07', title: 'Grundlegende Indexierbarkeit', desc: 'Wir prüfen grundlegende Index-Einstellungen und sichtbare Blockaden.' },
-      { no: '08', title: 'Zugang zu Telefon, Adresse und Kontaktwegen', desc: 'Wir prüfen, ob Telefon, Adresse und andere Kontaktwege auf der Seite zu finden sind.' },
+      { no: '01', key: 'mobile', tag: 'Mobil', title: 'Mobile Ansicht und grundlegende Bedienung', desc: 'Wir prüfen Layout, Menü und grundlegende Schaltflächen, wie sie auf dem Handy erscheinen.' },
+      { no: '02', key: 'speed', tag: 'Tempo', title: 'Ladezeit der Seiten', desc: 'Wir messen, wie lange die von uns geprüften Seiten zum Öffnen brauchen.' },
+      { no: '03', key: 'links', tag: 'Links', title: 'Links auf den geprüften Seiten', desc: 'Wir testen die Links auf diesen Seiten.' },
+      { no: '04', key: 'https', tag: 'HTTPS', title: 'HTTPS und Browser-Sicherheitswarnungen', desc: 'Wir achten auf HTTPS und Warnungen in der Adresszeile.' },
+      { no: '05', key: 'forms', tag: 'Formulare', title: 'Sichtbares Absendeverhalten von Formularen', desc: 'Wir prüfen, wie ein Formular auf der Seite abgeschickt wird.' },
+      { no: '06', key: 'stack', tag: 'Technik', title: 'Von außen erkennbare Infrastruktur', desc: 'Wir notieren Infrastrukturspuren, die ohne Admin-Zugang sichtbar sind.' },
+      { no: '07', key: 'index', tag: 'SEO', title: 'Grundlegende Indexierbarkeit', desc: 'Wir prüfen grundlegende Index-Einstellungen und sichtbare Blockaden.' },
+      { no: '08', key: 'contact', tag: 'Kontakt', title: 'Zugang zu Telefon, Adresse und Kontaktwegen', desc: 'Wir prüfen, ob Telefon, Adresse und andere Kontaktwege auf der Seite zu finden sind.' },
     ],
     reportTitle: 'Beispielbericht',
     reportSub: 'Sehen Sie die Probleme, ihre Wirkung auf Besucher und die empfohlenen nächsten Schritte — nach Dringlichkeit.',
@@ -455,10 +553,10 @@ export const content: Record<Lang, Copy> = {
     servicesCta: 'Kostenlose Prüfung anfordern',
     pricesNote: 'Alle Preise netto zzgl. 19 % USt. Unsere Leistungen richten sich ausschließlich an Unternehmen und Selbstständige.',
     services: [
-      { no: '01', stage: 'Schritt 1 · Zuerst', name: 'Website-Prüfung', price: '0 €', note: 'Wir finden kostenlos die wichtigsten technischen Fehler und Nutzungsprobleme Ihrer Website.', items: ['Kaputte Links', 'Probleme auf dem Smartphone', 'Langsame Seiten', 'Veraltete Komponenten, soweit von außen sichtbar', 'Grundlegende SEO-Probleme', 'Probleme mit Formularen', 'Offensichtliche technische Fehler', 'Bericht und Prioritätenliste innerhalb von 48 Stunden'], cta: 'Kostenlose Prüfung anfordern', featured: true },
-      { no: '02', stage: 'Schritt 2 · Nach der Prüfung', name: 'Schnellreparatur', price: '149 €', note: 'Kleine Probleme. Schnell behoben.', items: ['Fehler in der mobilen Ansicht', 'Kaputte Links', 'Probleme mit dem Kontaktformular', 'Kleine Darstellungsfehler', 'Grundlegende Ladezeit-Verbesserungen', 'SSL- und Weiterleitungsprobleme', 'Kleine technische Korrekturen', 'Kleine SEO-Korrekturen', '2 Werktage'], scope: 'Für kleine, klar abgegrenzte Probleme. Welche Punkte dazugehören, klären wir vor Arbeitsbeginn.' },
-      { no: '03', stage: 'Schritt 2 · Nach der Prüfung', name: 'Website-Reparatur', price: '349 €', note: 'Die umfassende Reparatur für Websites mit mehreren technischen Fehlern, Nutzungs- oder Ladezeitproblemen.', items: ['Mobile Optimierung und Layoutkorrekturen', 'Schnellere Ladezeiten', 'Defekte Bereiche und Navigationsprobleme', 'Formularkorrekturen', 'Grundlegende SEO-Verbesserungen', 'Offensichtliche Probleme bei der Barrierefreiheit', 'Technische Bereinigung', 'Anpassungen an Inhalt und Layout', 'In der Regel 5 Werktage'], scope: 'Reparatur Ihrer bestehenden Website. Nicht enthalten: Redesign, neue Website, größere Individualentwicklung und Onlineshop-Entwicklung.' },
-      { no: '04', stage: 'Schritt 3 · Nach der Reparatur', name: 'Website-Pflege', price: '49 € / Monat', note: 'Wir halten Ihre Website mit regelmäßiger Pflege in gutem Zustand.', items: ['Erreichbarkeit: Wir melden uns, wenn die Seite ausfällt', 'CMS- und Plugin-Updates', 'Regelmäßige Datensicherung (sofern das Hosting es zulässt)', 'Grundlegende Sicherheitsprüfungen', 'Überwachung auf kaputte Links', 'Monatlicher Website-Check mit kurzem Bericht', 'Kleine Änderungen an der Website'], scope: 'Enthält bis zu 30 Minuten kleine Änderungen pro Monat.' },
+      { no: '01', stage: 'Zuerst', name: 'Website-Prüfung', price: '0 €', time: 'Bericht innerhalb von 48 Stunden', note: 'Wir finden kostenlos die wichtigsten technischen Fehler und Nutzungsprobleme Ihrer Website.', items: ['Bericht und Prioritätenliste'], fromChecks: true, cta: 'Kostenlose Prüfung anfordern', featured: true },
+      { no: '02', stage: 'Nach der Prüfung · kleine Probleme', name: 'Schnellreparatur', price: '149 €', time: '2 Werktage', note: 'Kleine Probleme. Schnell behoben.', items: ['Fehler in der mobilen Ansicht', 'Kaputte Links', 'Probleme mit dem Kontaktformular', 'Kleine Darstellungsfehler', 'Grundlegende Ladezeit-Verbesserungen', 'SSL- und Weiterleitungsprobleme', 'Kleine technische Korrekturen', 'Kleine SEO-Korrekturen'], scope: 'Für kleine, klar abgegrenzte Probleme. Welche Punkte dazugehören, klären wir vor Arbeitsbeginn.' },
+      { no: '03', stage: 'Nach der Prüfung · mehrere Probleme', name: 'Website-Reparatur', price: '349 €', time: 'In der Regel 5 Werktage', note: 'Die umfassende Reparatur für Websites mit mehreren technischen Fehlern, Nutzungs- oder Ladezeitproblemen.', items: ['Mobile Optimierung und Layoutkorrekturen', 'Schnellere Ladezeiten', 'Defekte Bereiche und Navigationsprobleme', 'Formularkorrekturen', 'Grundlegende SEO-Verbesserungen', 'Offensichtliche Probleme bei der Barrierefreiheit', 'Technische Bereinigung', 'Anpassungen an Inhalt und Layout'], scope: 'Reparatur Ihrer bestehenden Website. Nicht enthalten: Redesign, neue Website, größere Individualentwicklung und Onlineshop-Entwicklung.' },
+      { no: '04', stage: 'Nach der Reparatur · laufend', name: 'Website-Pflege', price: '49 € / Monat', time: 'Jeden Monat', note: 'Wir halten Ihre Website mit regelmäßiger Pflege in gutem Zustand.', items: ['Erreichbarkeit: Wir melden uns, wenn die Seite ausfällt', 'CMS- und Plugin-Updates', 'Regelmäßige Datensicherung (sofern das Hosting es zulässt)', 'Grundlegende Sicherheitsprüfungen', 'Überwachung auf kaputte Links', 'Monatlicher Website-Check mit kurzem Bericht', 'Kleine Änderungen an der Website'], scope: 'Enthält bis zu 30 Minuten kleine Änderungen pro Monat.' },
     ],
     howTitle: 'So läuft es',
     steps: [
@@ -476,7 +574,10 @@ export const content: Record<Lang, Copy> = {
       { q: 'Welche Websites werden unterstützt?', a: 'Öffentlich erreichbare Unternehmensseiten. WordPress ist eingeschlossen.' },
       { q: 'In welchen Sprachen wird der Service angeboten?', a: 'Den Bericht senden wir auf Türkisch, Englisch oder Deutsch.' },
     ],
-    final: 'Kostenlose Prüfung anfordern',
+    final: {
+      title: 'Erfahren Sie innerhalb von 48 Stunden, was Ihre Website braucht.',
+      sub: 'Für die kostenlose Prüfung genügen Website-Adresse und E-Mail. Die Reparatur bleibt optional.',
+    },
     notFound: {
       title: 'Diese Seite wurde nicht gefunden.',
       text: 'Die Adresse hat sich vielleicht geändert oder ist falsch geschrieben. Auf der Startseite geht es weiter.',
@@ -510,8 +611,38 @@ export const content: Record<Lang, Copy> = {
       edit: 'Adresse oder E-Mail ändern',
       reset: 'Neue Anfrage',
       fail: 'Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie uns eine E-Mail.',
-      privacy: 'Ihre Angaben nutzen wir nur, um Ihnen zu antworten.',
+      privacy: 'Die Website-Adresse nutzen wir für die Vorprüfung und den Bericht, Ihre E-Mail nur, um Ihnen zu antworten.',
       privacyLink: 'Datenschutz',
+    },
+    precheck: {
+      title: 'Erste Ergebnisse',
+      loading: 'Ihre Startseite wird geöffnet…',
+      unreachable: 'Die automatische Vorprüfung konnte Ihre Startseite nicht öffnen. Die vollständige Prüfung können Sie trotzdem anfordern.',
+      noteEmail: 'Die automatische Vorprüfung misst nur einige technische Merkmale der Startseite. Für den vollständigen Bericht mit acht Punkten geben Sie Ihre E-Mail an.',
+      noteDone: 'Die automatische Vorprüfung misst nur einige technische Merkmale der Startseite. Den vollständigen Bericht mit acht Punkten erhalten Sie innerhalb von 48 Stunden per E-Mail.',
+      summary: 'Erste Ergebnisse: {ok} in Ordnung, {warn} Achtung, {err} Probleme.',
+      status: { ok: 'In Ordnung', warn: 'Achtung', err: 'Problem' },
+      labels: { https: 'HTTPS', redirect: 'HTTP-Weiterleitung', speed: 'Serverantwort', viewport: 'Mobile Ansicht', title: 'Seitentitel', description: 'Suchbeschreibung', index: 'Zugang für Suchmaschinen' },
+      msg: {
+        'https.ok': 'Die Verbindung ist verschlüsselt.',
+        'https.none': 'Die Verbindung ist nicht verschlüsselt.',
+        'redirect.ok': 'Die unverschlüsselte Adresse leitet auf HTTPS weiter.',
+        'redirect.none': 'Die unverschlüsselte Adresse leitet nicht auf HTTPS weiter.',
+        'speed.fast': '{value}',
+        'speed.mid': '{value}, etwas langsam.',
+        'speed.slow': '{value}, langsam.',
+        'viewport.ok': 'Für Handybildschirme eingerichtet.',
+        'viewport.partial': 'Eingerichtet, aber nicht an die Bildschirmbreite gebunden.',
+        'viewport.none': 'Keine Einstellung für Handybildschirme.',
+        'title.ok': 'Vorhanden.',
+        'title.long': 'Lang ({value} Zeichen); kann in Suchergebnissen abgeschnitten werden.',
+        'title.none': 'Fehlt.',
+        'description.ok': 'Vorhanden.',
+        'description.length': '{value} Zeichen; empfohlen sind 50–170.',
+        'description.none': 'Fehlt.',
+        'index.ok': 'Keine Sperre gefunden.',
+        'index.blocked': 'Die Seite ist für Suchmaschinen gesperrt (noindex).',
+      },
     },
     footer: {
       tag: 'Website-Prüfung, Reparatur und Wartung.',
@@ -522,7 +653,6 @@ export const content: Record<Lang, Copy> = {
       rights: 'Alle Rechte vorbehalten',
       contact: 'Kontakt',
       contactHint: 'Keine Website-Adresse nötig — einfach schreiben oder anrufen.',
-      mark: 'Sitemendo',
     },
     meta: {
       title: 'Sitemendo — Prüfung, Reparatur und Wartung für Ihre Website',
@@ -537,13 +667,14 @@ export const content: Record<Lang, Copy> = {
     },
     legal: {
       back: 'Startseite',
-      updated: 'Zuletzt aktualisiert: 17. September 2026',
+      updated: 'Zuletzt aktualisiert: 26. September 2026',
       controller: 'Verantwortlicher',
       privacyTitle: 'Datenschutz',
       privacyLead: 'Wir verarbeiten nur die Daten, die für Ihre Anfrage und den sicheren Betrieb dieser Website nötig sind. Wir setzen keine Tracking- oder Werbecookies und keine Analysewerkzeuge ein.',
       privacy: [
         { h: 'Hosting und Server-Logs', p: 'Diese Website läuft bei Cloudflare (Cloudflare, Inc., USA); Seiten werden aus dem nächstgelegenen Cloudflare-Rechenzentrum ausgeliefert. Beim Aufruf einer Seite verarbeitet Cloudflare technisch notwendige Daten wie IP-Adresse, Zeitpunkt, aufgerufene Adresse und Browserangaben, um die Seite auszuliefern und Missbrauch abzuwehren. Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).' },
         { h: 'Anfrage zur kostenlosen Prüfung', p: 'Wenn Sie das Formular senden, verarbeiten wir Ihre Website-Adresse, Ihre E-Mail-Adresse und die gewählte Sprache, um die Prüfung durchzuführen, Ihnen den Bericht zu senden und Rückfragen zu beantworten. Rechtsgrundlage sind vorvertragliche Maßnahmen auf Ihre Anfrage (Art. 6 Abs. 1 lit. b DSGVO). Ohne diese Angaben können wir den Bericht nicht senden.' },
+        { h: 'Automatische Vorprüfung', p: 'Wenn Sie im Formular eine Website-Adresse eingeben und fortfahren, ruft unser Server die Startseite dieser Adresse einmal auf und liest einige technische Angaben vom Anfang der Seite (HTTPS, Weiterleitung, Antwortzeit, Seitentitel, Beschreibung, mobile Ansicht und Suchmaschinen-Einstellung). Das Ergebnis wird nur Ihnen angezeigt und nicht gespeichert. Zur Missbrauchsabwehr wird Ihre IP-Adresse kurz im Arbeitsspeicher des Servers gehalten. Rechtsgrundlage sind vorvertragliche Maßnahmen auf Ihre Anfrage (Art. 6 Abs. 1 lit. b DSGVO).' },
         { h: 'E-Mail', p: 'Bestätigungen und interne Benachrichtigungen versenden wir über Resend (Resend, Inc., USA). E-Mails an hello@sitemendo.com werden über Cloudflare (Cloudflare, Inc., USA) an ein Postfach bei Google (Gmail) weitergeleitet.' },
         { h: 'Telefon und WhatsApp', p: 'Wenn Sie uns anrufen oder per WhatsApp schreiben, verarbeiten wir Ihre Angaben, um Ihr Anliegen zu bearbeiten (Art. 6 Abs. 1 lit. b oder f DSGVO). Bei WhatsApp verarbeitet zusätzlich WhatsApp Ireland Limited Daten nach eigenen Bedingungen. Wenn Sie das nicht möchten, erreichen Sie uns per E-Mail oder Telefon.' },
         { h: 'Übermittlung in die USA', p: 'Cloudflare, Resend, Google und WhatsApp (Meta) können Daten in den USA verarbeiten. Die Übermittlung stützt sich auf das EU-US Data Privacy Framework, soweit der Anbieter danach zertifiziert ist, und im Übrigen auf EU-Standardvertragsklauseln (Art. 45 und 46 DSGVO).' },

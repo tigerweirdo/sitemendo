@@ -1,20 +1,35 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode, type Ref } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type FormEvent, type ReactNode, type Ref } from 'react';
 import { normalizeWebsite } from '@/lib/auditRequest';
-import { content, type Lang } from '@/lib/content';
+import { content, type CheckKey, type Lang } from '@/lib/content';
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN, WHATSAPP_HREF } from '@/lib/company';
-import { createSendLock, formDoneView, nextEmailStep, nextUrlStep, submitAuditRequest } from '@/lib/formFlow';
+import { createSendLock, formDoneView, nextEmailStep, nextUrlStep, requestPrecheck, submitAuditRequest } from '@/lib/formFlow';
+import type { PrecheckResult } from '@/lib/precheck';
 import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMode, type FormStep } from '@/lib/formPersist';
 import { withLangParam } from '@/lib/lang';
+import SELF_CHECK from '@/lib/selfCheck.json';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
 import { useOpenReveal, useScrollMotion } from '@/lib/useScrollMotion';
 import { useActiveSection } from '@/lib/useActiveSection';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
-import { HeroKnife } from '@/components/HeroKnife';
+import { HeroKnife, type KnifeTag, type ToolId } from '@/components/HeroKnife';
+import { CheckIcon } from '@/components/CheckIcon';
+import { RailDots } from '@/components/RailDots';
+
+/* Çakının her aleti kontrol kapsamındaki bir maddeye karşılık gelir; etiket o maddenin kısa adıdır. */
+const KNIFE_CHECKS: Record<ToolId, CheckKey> = {
+  blade: 'speed', saw: 'links', opener: 'forms', small: 'mobile', driver: 'https', cork: 'index',
+};
+
+/* Ön kontrolün durumu, hangi adres için olduğuyla birlikte: adres değişince eski sonuç gösterilmez. */
+type PrecheckView = 'loading' | 'unreachable' | PrecheckResult;
+type PrecheckState = { target: string; view: PrecheckView } | null;
 
 type SharedForm = {
+  precheck: PrecheckState;
+  runPrecheck: (target: string) => void;
   step: FormStep;
   url: string;
   email: string;
@@ -35,7 +50,7 @@ type SharedForm = {
 
 const AuditFormContext = createContext<SharedForm | null>(null);
 
-const COMPACT_NAV_MQ = '(max-width: 1023px) and (min-width: 401px)';
+const COMPACT_NAV_MQ = '(max-width: 1023px) and (min-width: 768px)';
 
 function subscribeCompactNav(onChange: () => void) {
   const mq = window.matchMedia(COMPACT_NAV_MQ);
@@ -53,7 +68,26 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<FormMode>(null);
+  const [precheck, setPrecheck] = useState<PrecheckState>(null);
+  const precheckTarget = useRef<string | null>(null);
   const sendLock = useRef(createSendLock());
+
+  /* Aynı adres için tek istek. Yanıt geldiğinde adres değişmişse sonuç atılır; uç nokta
+     yoksa ya da istek sınırı aşıldıysa panel kapanır. */
+  const runPrecheck = useCallback((target: string) => {
+    if (precheckTarget.current === target) return;
+    precheckTarget.current = target;
+    setPrecheck({ target, view: 'loading' });
+    void requestPrecheck(target).then(res => {
+      if (precheckTarget.current !== target) return;
+      if (!res) {
+        precheckTarget.current = null;
+        setPrecheck(null);
+        return;
+      }
+      setPrecheck({ target, view: 'error' in res ? 'unreachable' : res });
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const saved = readPersistedForm();
@@ -78,6 +112,8 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
     setError('');
     setBusy(false);
     setMode(null);
+    precheckTarget.current = null;
+    setPrecheck(null);
     clearPersistedForm();
   }, []);
   const editForm = useCallback(() => {
@@ -95,9 +131,10 @@ function AuditFormProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(() => ({
+    precheck, runPrecheck,
     step, url, email, error, busy, mode,
     setStep, setUrl, setEmail, setError, setBusy, setMode, resetForm, editForm, tryBeginSend, endSend,
-  }), [step, url, email, error, busy, mode, resetForm, editForm, tryBeginSend, endSend]);
+  }), [precheck, runPrecheck, step, url, email, error, busy, mode, resetForm, editForm, tryBeginSend, endSend]);
 
   return <AuditFormContext.Provider value={value}>{children}</AuditFormContext.Provider>;
 }
@@ -111,6 +148,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
   const navRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const footerRef = useRef<HTMLElement>(null);
+  const servicesRef = useRef<HTMLOListElement>(null);
   const wasOpen = useRef(false);
   const compactNavCta = useSyncExternalStore(subscribeCompactNav, getCompactNav, () => false);
   useLangDocument(lang);
@@ -167,6 +205,24 @@ export function Site({ initialLang }: { initialLang: Lang }) {
     }, reduce ? 40 : 250);
   };
 
+  /* Çakıdan ya da ücretsiz karttan bir maddeye gidiş: madde ekranın ortasına gelir ve kısa
+     süre sülfürle yanar (globals.css, .check[data-flash]). */
+  const flashTimer = useRef(0);
+  const pickCheck = (key: CheckKey) => {
+    const el = document.getElementById(`check-${key}`);
+    if (!el) return;
+    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    el.removeAttribute('data-flash');
+    window.clearTimeout(flashTimer.current);
+    requestAnimationFrame(() => el.setAttribute('data-flash', ''));
+    flashTimer.current = window.setTimeout(() => el.removeAttribute('data-flash'), 2400);
+  };
+  const knifeTags = Object.fromEntries(Object.entries(KNIFE_CHECKS).map(([tool, key]) => [
+    tool,
+    { label: c.checks.find(x => x.key === key)?.tag ?? '', href: `#check-${key}` },
+  ])) as Record<ToolId, KnifeTag>;
+
   const closeMenuAndGo = (href: string) => {
     document.body.classList.remove('menu-open');
     setMenuOpen(false);
@@ -206,7 +262,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           </nav>
           <div className="nav__right">
             <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-            <button className="btn btn--sm nav-cta" type="button" onClick={jumpToForm}>
+            <button className="btn btn--sm nav-cta nav-cta--main" type="button" onClick={jumpToForm}>
               {navCta}
             </button>
             <button
@@ -251,7 +307,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               {c.hero.place && <p className="hero__place">{c.hero.place}</p>}
             </div>
             <div className="hero__art">
-              <HeroKnife label={c.a11y.knife}/>
+              <HeroKnife label={c.a11y.knife} tags={knifeTags} onPick={tool => pickCheck(KNIFE_CHECKS[tool])}/>
             </div>
             <div className="hero__form">
               <AuditForm lang={lang} idPrefix="hero" privacyHref={privacyHref} intro/>
@@ -259,7 +315,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           </div>
         </section>
 
-        <Section id="report">
+        <Section id="report" tone="dark">
           <div className="report-layout">
             <div className="report-copy">
               <h2 className="h2">{c.reportTitle}</h2>
@@ -277,6 +333,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
               <p className="lead" data-reveal>{c.about.p1}</p>
               <p className="lead" data-reveal>{c.about.p2}</p>
             </div>
+            <SelfProof lang={lang}/>
           </div>
         </section>
 
@@ -287,7 +344,9 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           </div>
           <div className="checks">
             {c.checks.map(x => (
-              <div className="check" key={x.no}>
+              <div className="check" id={`check-${x.key}`} key={x.key}>
+                <CheckIcon name={x.key}/>
+                <p className="check__tag">{x.no} · {x.tag}</p>
                 <h3 className="check__title">{x.title}</h3>
                 <p className="check__desc">{x.desc}</p>
               </div>
@@ -296,7 +355,7 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           <p className="checks-note" data-reveal>{c.checksNote}</p>
         </Section>
 
-        <Section id="how">
+        <Section id="how" tone="dark">
           <h2 className="h2 how-heading">{c.howTitle}</h2>
           <div className="steps">
             {c.steps.map((s, i) => (
@@ -315,22 +374,39 @@ export function Site({ initialLang }: { initialLang: Lang }) {
             <p className="lead" data-reveal>{c.servicesLead}</p>
           </div>
           {/* Sıra müşterinin yolu: ücretsiz kontrol → hızlı düzeltme ya da onarım → bakım.
-              Ücretli paketlerde satın alma düğmesi yok; her yol ücretsiz kontrolden geçer. */}
-          <div className="services">
+              Ücretli paketlerde satın alma düğmesi yok; her yol ücretsiz kontrolden geçer.
+              Her kartın alt öğe sayısı sabit: masaüstünde satırlar kartlar arasında hizalanır (subgrid). */}
+          <RailDots rail={servicesRef} labels={c.services.map(s => s.name)}/>
+          <ol className="services" aria-label={c.servicesTitle} ref={servicesRef}>
             {c.services.map(s => (
-              <div className={`service ${s.featured ? 'featured' : ''}`} key={s.no}>
-                <div className="service__head">
-                  <p className="service__stage">{s.stage}</p>
-                  <p className="service__price">{s.price}</p>
-                  <h3 className="service__name">{s.name}</h3>
-                  <p className="service__note">{s.note}</p>
+              <li className={`service ${s.featured ? 'featured' : ''}`} key={s.no}>
+                <p className="service__stage"><span className="service__node" aria-hidden="true"/>{s.stage}</p>
+                <h3 className="service__name">{s.name}</h3>
+                <p className="service__price">{s.price}</p>
+                <p className="service__time">{s.time}</p>
+                <p className="service__note">{s.note}</p>
+                <div className="service__body">
+                  {s.fromChecks && (
+                    <ul className="service__chips">
+                      {c.checks.map(x => (
+                        <li key={x.key}>
+                          <a
+                            href={`#check-${x.key}`}
+                            onClick={e => { e.preventDefault(); pickCheck(x.key); }}
+                          >{x.tag}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <ul className="service__items">{s.items.map(i => <li key={i}>{i}</li>)}</ul>
+                </div>
+                <div className="service__foot">
+                  {s.scope && <p className="service__scope">{s.scope}</p>}
                   {s.cta && <button className="btn service__cta" type="button" onClick={jumpToForm}>{s.cta}</button>}
                 </div>
-                <ul className="service__items">{s.items.map(i => <li key={i}>{i}</li>)}</ul>
-                {s.scope && <p className="service__scope">{s.scope}</p>}
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
           <p className="services-note" data-reveal>{c.pricesNote}</p>
           <div className="services-cta" data-reveal>
             <button className="btn" type="button" onClick={jumpToForm}>{c.servicesCta}</button>
@@ -342,10 +418,11 @@ export function Site({ initialLang }: { initialLang: Lang }) {
           <FAQList items={c.faq}/>
         </Section>
 
-        <Section id="start">
+        <Section id="start" tone="sulfur">
           <div className="final">
             <div className="final__copy">
-              <h2 className="h2 h2--lg">{c.final}</h2>
+              <h2 className="h2 h2--lg">{c.final.title}</h2>
+              <p className="lead" data-reveal>{c.final.sub}</p>
             </div>
             <div className="final__form">
               <div className="form-panel">
@@ -357,13 +434,40 @@ export function Site({ initialLang }: { initialLang: Lang }) {
       </main>
 
       <Footer ref={footerRef} lang={lang} setLang={setLang} privacyHref={privacyHref} impressumHref={impressumHref} navItems={navItems}/>
+      <MobileCta label={c.nav.cta} onGo={jumpToForm}/>
     </AuditFormProvider>
   );
 }
 
-function Section({ dark, id, children }: { dark?: boolean; id?: string; children: ReactNode }) {
+/* Telefonda alttaki sabit düğme: iki formdan biri ya da footer ekrandayken gizlenir. Küçük
+   ekranda hero formu ilk ekranın altında kalabilir; o zaman düğme ilk ekranda da görünür.
+   Alt kenar payı, düğmenin kendi örttüğü şeridi "görünür" saymamak için (globals.css, .mcta). */
+function MobileCta({ label, onGo }: { label: string; onGo: () => void }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const targets = [...document.querySelectorAll('#top .audit-form, #start, #contact')];
+    if (!targets.length) return;
+    const inView = new Set<Element>();
+    const io = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) inView.add(entry.target);
+        else inView.delete(entry.target);
+      }
+      setShow(inView.size === 0);
+    }, { rootMargin: '0px 0px -90px 0px' });
+    targets.forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, []);
   return (
-    <section className={`sec ${dark ? 'sec--dark' : ''}`} id={id}>
+    <div className="mcta" data-show={show || undefined} inert={!show}>
+      <button className="btn" type="button" onClick={onGo}>{label}</button>
+    </div>
+  );
+}
+
+function Section({ tone, id, children }: { tone?: 'dark' | 'sulfur'; id?: string; children: ReactNode }) {
+  return (
+    <section className={`sec ${tone ? `sec--${tone}` : ''}`} id={id}>
       <div className="wrap">{children}</div>
     </section>
   );
@@ -392,7 +496,8 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   }, [ctx?.step, ctx?.error, ctx?.mode]);
 
   if (!ctx) throw new Error('AuditForm needs provider');
-  const { step, email, error, busy, mode, setStep, setUrl, setEmail, setError, setMode, resetForm, editForm, tryBeginSend, endSend } = ctx;
+  const { precheck, runPrecheck, step, email, error, busy, mode, setStep, setUrl, setEmail, setError, setMode, resetForm, editForm, tryBeginSend, endSend } = ctx;
+  const precheckView = precheck && precheck.target === normalized ? precheck.view : null;
   const urlId = `${idPrefix}-url`;
   const emailId = `${idPrefix}-email`;
   const errId = `${idPrefix}-error`;
@@ -415,6 +520,7 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
       setError('');
       ownedFocus.current = 'email';
       setStep('email');
+      if (normalized) runPrecheck(normalized);
       return;
     }
     if (step !== 'email') return;
@@ -536,6 +642,7 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
             )}
             <button className="btn" disabled={busy} type="submit">{busy ? f.sending : f.prepare}</button>
           </div>
+          {precheckView && <PrecheckPanel lang={lang} view={precheckView} after="email"/>}
           <p className="privacy-note">{f.privacy} <a href={privacyHref}>{f.privacyLink}</a></p>
           <button className="form-back" type="button" disabled={busy} onClick={goBack}>{f.back}</button>
         </>
@@ -547,6 +654,7 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
             <p className="h3">{done.title}</p>
             <p className="done__text">{done.text}</p>
             {done.live && email && <p className="done__text"><b>{email}</b></p>}
+            {precheckView && <PrecheckPanel lang={lang} view={precheckView} after="done"/>}
             <div className="done__actions">
               <button className="form-back" type="button" onClick={onEdit}>{f.edit}</button>
               <button className="btn btn--sm" type="button" onClick={resetForm}>{f.reset}</button>
@@ -608,6 +716,79 @@ function SampleReport({ lang }: { lang: Lang }) {
         </div>
       </article>
     </div>
+  );
+}
+
+function fill(template: string, values: Record<string, string | number | undefined>) {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? ''));
+}
+
+/* Anında ön kontrolün sonuçları. Satırlar sırayla gelir (CSS, --i); ekran okuyucuya yalnız
+   kısa özet okunur. */
+function PrecheckPanel({ lang, view, after }: { lang: Lang; view: PrecheckView; after: 'email' | 'done' }) {
+  const p = content[lang].precheck;
+  const result = typeof view === 'object' ? view : null;
+  const counts = { ok: 0, warn: 0, err: 0 };
+  result?.items.forEach(item => { counts[item.status] += 1; });
+  return (
+    <section className="precheck" aria-label={p.title} aria-busy={view === 'loading'} data-state={result ? 'done' : view}>
+      <p className="precheck__head">
+        <span>{p.title}</span>
+        {result && <b>{result.host}</b>}
+      </p>
+      {view === 'loading' && <p className="precheck__wait">{p.loading}</p>}
+      {view === 'unreachable' && <p className="precheck__wait">{p.unreachable}</p>}
+      {result && (
+        <>
+          <ul className="precheck__list">
+            {result.items.map((item, i) => (
+              <li className={`precheck__item precheck__item--${item.status}`} key={item.id} style={{ '--i': i } as CSSProperties}>
+                <span className="precheck__mark" aria-hidden="true"/>
+                <span className="sr-only">{p.status[item.status]}:</span>
+                <span className="precheck__label">{p.labels[item.id]}</span>
+                <span className="precheck__msg">{fill(p.msg[item.code], { value: item.value })}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="precheck__note">{after === 'email' ? p.noteEmail : p.noteDone}</p>
+        </>
+      )}
+      <p className="sr-only" aria-live="polite">{result ? fill(p.summary, counts) : ''}</p>
+    </section>
+  );
+}
+
+const PROOF_KEYS = ['performance', 'accessibility', 'bestPractices', 'seo'] as const;
+const LOCALES: Record<Lang, string> = { tr: 'tr-TR', en: 'en-GB', de: 'de-DE' };
+
+/* Sitenin kendi Lighthouse sonuçları: sayılar lib/selfCheck.json'dan (npm run measure).
+   Halka markanın puan halkası; kaydırınca 0'dan puana kadar çizilir (--p). */
+function SelfProof({ lang }: { lang: Lang }) {
+  const p = content[lang].about.proof;
+  const date = new Intl.DateTimeFormat(LOCALES[lang], { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${SELF_CHECK.date}T00:00:00Z`));
+  const note = p.note.replace('{tool}', SELF_CHECK.tool).replace('{runs}', String(SELF_CHECK.runs)).replace('{date}', date);
+  return (
+    <aside className="proof" aria-labelledby="proof-title">
+      <p className="proof__label">{p.label}</p>
+      <h3 className="proof__title" id="proof-title">{p.title}</h3>
+      <ul className="proof__scores">
+        {PROOF_KEYS.map(key => {
+          const score = SELF_CHECK.scores[key];
+          return (
+            <li className="proof__score" key={key}>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                <circle className="proof__track" cx="24" cy="24" r="20" pathLength={100}/>
+                <circle className="proof__ring" cx="24" cy="24" r="20" pathLength={100} style={{ '--score': score } as CSSProperties}/>
+              </svg>
+              <b>{score}<span className="sr-only"> / 100</span></b>
+              <span className="proof__name">{p.metrics[key]}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="proof__note">{note}</p>
+    </aside>
   );
 }
 
@@ -675,7 +856,6 @@ function Footer({
         <div className="footer__bottom">
           <p>© {new Date().getFullYear()} Sitemendo · {c.footer.rights}</p>
           <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-          <p>{c.footer.mark}</p>
         </div>
       </div>
     </footer>
