@@ -48,7 +48,9 @@ Kullanıcı çalışma kopyasındaki son hali sitemendo.com'a almamı istedi. Bu
 
 Yayına giren, 26 Eylül'den beri commit edilmemiş iş: kontrol ızgarası ve çakı bağlantısı, mobil hizmet sayacı, anında ön kontrol, kendi ölçüm kartı (karttaki 82), Inter alt kümesi, HTML gzip, mono ve betiklerin ilk boyamadan sonra gelmesi, kısaltılmış açılış. Fiyatlar ve kapsam değişmedi.
 
-Yerel doğrulama (Node 22): `npm test` 14/14, `typecheck`, `lint`, `next build` (20 statik sayfa). Gerçek form gönderilmedi. Canlı kontrol push'tan sonra.
+Yerel doğrulama (Node 22): `npm test` 14/14, `typecheck`, `lint`, `next build` (20 statik sayfa). Commit `7b78a56`, `main`'e push. GitHub Check işi geçti.
+
+Canlı (https://sitemendo.com): Türkçe sayfada kontrol ızgarası, ölçüm kartı (82) ve fiyatlar duruyor. HTML gzip (yaklaşık 13 KB). Boş form "Geçerli bir site adresi girin. Örnek: siteadi.com" diyor; e-posta gitmedi. `www` 308 ile ana adrese gidiyor. Almanca sayfa açılıyor. `POST /api/precheck` yerel adrese 422 `BLOCKED` (dış site açılmadı, e-posta yok). Karttaki 82 bu yayından sonra yeniden ölçülmedi.
 
 ### 2026-09-26 — Performans: mono ve betikler ilk boyamadan sonra
 
