@@ -42,6 +42,12 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-09-27 — Manifest kalktı
+
+Kullanıcı manifest’in gerekli olmadığını söyledi. `app/manifest.ts` silindi; sayfa artık `manifest.webmanifest` üretmiyor ve ona bağlanmıyor. Favicon ve apple ikonu duruyor. Worker’daki gecikmeli manifest ekleme ve uçuş verisinden silme de kalktı. Fiyat ve kapsam aynı. Karttaki 98 elle değişmedi.
+
+Doğrulama: `build` (TypeScript geçti, 19 sayfa, `manifest.webmanifest` rotası yok). `out/en.html` içinde manifest yok; favicon ve apple ikonu duruyor. Yerel sayfa stilli. Boş form "Geçerli bir site adresi girin. Örnek: siteadi.com". E-posta gitmedi. Fiyatlar aynı. Kullanıcı yayın sordu; bu hali `main`'e push edilir.
+
 ### 2026-09-27 — İlk gezinti: CSS, mono, manifest
 
 Kullanıcı İngilizce sayfanın ilk gezintisinde şu isteklerin puanı düşürdüğünü söyledi: belge 150 ms, `/fonts/mono.css` 904 ms, iki Plex latin dosyası ~1 sn, `manifest.webmanifest` 252 ms, Next CSS parçası 195 ms / 10 KB. Fiyat ve kapsam aynı. Karttaki 98 elle değiştirilmedi.
