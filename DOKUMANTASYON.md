@@ -42,6 +42,18 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-09-27 — İlk gezinti: CSS, mono, manifest
+
+Kullanıcı İngilizce sayfanın ilk gezintisinde şu isteklerin puanı düşürdüğünü söyledi: belge 150 ms, `/fonts/mono.css` 904 ms, iki Plex latin dosyası ~1 sn, `manifest.webmanifest` 252 ms, Next CSS parçası 195 ms / 10 KB. Fiyat ve kapsam aynı. Karttaki 98 elle değiştirilmedi.
+
+1. **CSS.** `experimental.inlineCss` stili HTML'nin içine gömer. Yazı tipi adresi `/_next/static/media/...` olur. Ayrı stil parçası isteği kalktı. Belge büyür (yerelde gzip yaklaşık 34 KB); o istek ilk boyamayı artık bekletmez.
+2. **Mono.** Worker ilk büyük boyamada `/fonts/mono.css` eklemiyor. İlk kaydırmada, yoksa 8 sn sonra gelir; o zamana kadar fiyatlar `ui-monospace`. İki woff2 ancak o CSS inince istenir.
+3. **Manifest.** `<link rel="manifest">` ilk HTML'den ve uçuş verisinden çıkarılıyor. Hidrasyon bağlantıyı geri koyuyordu. Mono ile aynı anda, 8 sn sonra ekleniyor.
+
+Doğrulama: `typecheck` derlemenin içinde geçti, `build` 20 sayfa. Yerel Worker `/?lang=en`: stil gömülü, ayrı CSS parçası yok, ilk saniyelerde mono ve manifest yok. Taze yüklemede mono.css 8,0 sn'de indi. Lighthouse 12, mobil, tek çalıştırma: istek listesinde belge ve Inter var; `mono.css`, iki Plex dosyası, manifest ve CSS parçası yok. Puan 96–99 arası oynadı (TBT gürültüsü); karttaki 98 elle değişmedi, beş ölçüm yayından sonra. Sayfa stilli. Boş form "Enter a valid website address. Example: yoursite.com". Çakı etiketi Hız bölümüne gidiyor. E-posta gitmedi.
+
+Değişen dosyalar: `next.config.ts`, `worker/index.ts`, `app/globals.css`, `DOKUMANTASYON.md`.
+
 ### 2026-09-27 — Performans: hidrasyon görevini kısalt
 
 Kullanıcı canlı puanın düşük kaldığını, yükseltilmesini istedi. Karttaki 82, 26 Eylül ölçümü; elle değiştirilmedi. Fiyat ve kapsam aynı.

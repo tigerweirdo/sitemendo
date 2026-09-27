@@ -71,23 +71,29 @@ function secure(response: Response, cache?: string) {
 
 /* Next betikleri sayfada durursa hızlı makinede hero metninden önce iner ve Lighthouse
    onları LCP'nin önüne yazar. defer ilk boyamayı geciktirmişti. Etiketleri çıkarıp
-   ilk büyük boyamadan sonra ekliyoruz; aynı anda /fonts/mono.css ve data-mono gelir.
-   noModule yedeği yerinde kalır: güncel tarayıcı onu indirmez. */
+   ilk büyük boyamadan sonra ekliyoruz. noModule yedeği yerinde kalır.
+   Mono yazı tipi ve manifest ilk gezintiye girince zinciri uzatıyordu; ikisi de
+   ilk kaydırmada, yoksa 8 sn sonra iner. O zamana kadar fiyatlar ui-monospace. */
 function postponeScripts(html: string) {
   const scripts: { src: string; id?: string }[] = [];
-  const stripped = html.replace(/<link rel="preload" as="script"[^>]*>/g, '').replace(
-    /<script\b([^>]*)><\/script>/g,
-    (full, attrs: string) => {
-      if (/\snoModule\b|\snomodule\b/i.test(attrs)) return full;
-      const src = attrs.match(/\ssrc="(\/_next\/static\/[^"]+)"/);
-      if (!src) return full;
-      const id = attrs.match(/\sid="([^"]*)"/);
-      scripts.push(id?.[1] ? { src: src[1], id: id[1] } : { src: src[1] });
-      return '';
-    },
-  );
+  const stripped = html
+    .replace(/<link rel="preload" as="script"[^>]*>/g, '')
+    .replace(/<link rel="manifest"[^>]*>/g, '')
+    /* Uçuş verisinde kalan bağlantıyı hidrasyon geri koyuyordu; istek ilk gezintiye dönüyordu. */
+    .replace(/,?\[\\"\$\\",\\"link\\",\\"[^\\"]*\\",\{\\"rel\\":\\"manifest\\"[^}]*\}\]/g, '')
+    .replace(
+      /<script\b([^>]*)><\/script>/g,
+      (full, attrs: string) => {
+        if (/\snoModule\b|\snomodule\b/i.test(attrs)) return full;
+        const src = attrs.match(/\ssrc="(\/_next\/static\/[^"]+)"/);
+        if (!src) return full;
+        const id = attrs.match(/\sid="([^"]*)"/);
+        scripts.push(id?.[1] ? { src: src[1], id: id[1] } : { src: src[1] });
+        return '';
+      },
+    );
   if (!scripts.length || !stripped.includes('</body>')) return html;
-  const boot = `<script>(function(){var s=${JSON.stringify(scripts)};var ran=false;function run(){if(ran)return;ran=true;var l=document.createElement("link");l.rel="stylesheet";l.href="/fonts/mono.css";document.head.appendChild(l);document.documentElement.setAttribute("data-mono","1");for(var i=0;i<s.length;i++){var e=document.createElement("script");e.async=true;e.src=s[i].src;if(s[i].id)e.id=s[i].id;document.body.appendChild(e);}}function arm(){try{var po=new PerformanceObserver(function(l){if(!l.getEntries().length)return;po.disconnect();run();});po.observe({type:"largest-contentful-paint",buffered:true});}catch(e){run();}setTimeout(run,2500);}requestAnimationFrame(function(){requestAnimationFrame(function(){document.documentElement.setAttribute("data-motion","1");});});if(document.readyState==="loading")addEventListener("DOMContentLoaded",arm);else arm();})()</script>`;
+  const boot = `<script>(function(){var s=${JSON.stringify(scripts)};var ran=false;function run(){if(ran)return;ran=true;for(var i=0;i<s.length;i++){var e=document.createElement("script");e.async=true;e.src=s[i].src;if(s[i].id)e.id=s[i].id;document.body.appendChild(e);}}function arm(){try{var po=new PerformanceObserver(function(l){if(!l.getEntries().length)return;po.disconnect();run();});po.observe({type:"largest-contentful-paint",buffered:true});}catch(e){run();}setTimeout(run,2500);}var lateRan=false;function late(){if(lateRan)return;lateRan=true;var l=document.createElement("link");l.rel="stylesheet";l.href="/fonts/mono.css";document.head.appendChild(l);document.documentElement.setAttribute("data-mono","1");var m=document.createElement("link");m.rel="manifest";m.href="/manifest.webmanifest";document.head.appendChild(m);}addEventListener("scroll",late,{passive:true,once:true});setTimeout(late,8000);requestAnimationFrame(function(){requestAnimationFrame(function(){document.documentElement.setAttribute("data-motion","1");});});if(document.readyState==="loading")addEventListener("DOMContentLoaded",arm);else arm();})()</script>`;
   return stripped.replace('</body>', `${boot}</body>`);
 }
 

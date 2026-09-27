@@ -16,6 +16,8 @@ function devRewrites() {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  /* Stil dosyası ayrı istek olunca ilk boyama onu bekliyordu. Gömülü CSS o turu kaldırır. */
+  experimental: { inlineCss: true },
   /* Dışa aktarım kipi geliştirmede yeniden yazmaları engelliyor; yalnız derlemede açık. */
   ...(process.env.NODE_ENV === 'development'
     ? { rewrites: async () => ({ beforeFiles: devRewrites(), afterFiles: [], fallback: [] }) }

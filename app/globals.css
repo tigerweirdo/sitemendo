@@ -47,7 +47,8 @@
   /* Mürekkep kenar: çizilerek kapanan çerçevelerde (--frame). */
   --edge: linear-gradient(var(--ink), var(--ink));
 }
-/* Worker ilk büyük boyamadan sonra data-mono koyar ve /fonts/mono.css yükler. */
+/* Worker ilk kaydırmada ya da 8 sn sonra data-mono koyar ve /fonts/mono.css yükler.
+   Daha erken inince mono.css ve iki woff2 ilk gezintinin zincirine giriyordu. */
 html[data-mono] {
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
