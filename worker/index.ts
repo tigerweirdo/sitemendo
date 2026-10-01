@@ -50,6 +50,12 @@ const SECURITY_HEADERS: Record<string, string> = {
    Aynı adres dile göre farklı dosya döndürdüğü için sayfalar paylaşılan önbelleğe girmez. */
 const PAGE_CACHE = 'private, no-cache, no-transform';
 
+/* Almanca Ratgeber (/ratgeber, /ratgeber/<ad>): tek dilli, adrese bağlı sayfalar. Dil seçimi, yönlendirme
+   ve dil çerezi yok; herkes aynı dosyayı alır, bu yüzden paylaşılan önbelleğe girebilir (her seferinde
+   doğrulanır). Derlemede out/ratgeber.html ve out/ratgeber/<ad>.html olarak durur. */
+const GUIDE_PATH = /^\/ratgeber(?:\/[a-z0-9-]+)?$/;
+const GUIDE_CACHE = 'public, no-cache, no-transform';
+
 /* Derlemenin iç dosyaları (/de.html, /de/privacy.txt, /404.html …) dışarıdan açılmaz;
    /de ya da /de/privacy yazan ziyaretçi herkese açık adrese yönlenir. */
 const LANG_PAGE = new RegExp(`^/(tr|de|en)(${SEO_PATHS.filter(p => p !== '/').map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})?$`);
@@ -162,13 +168,20 @@ async function page(request: Request, env: Env, url: URL, path: SeoPath) {
   return preparePage(request, res);
 }
 
-async function notFound(request: Request, env: Env, url: URL) {
-  const lang = parseLang(url.searchParams.get('lang'))
+async function notFound(request: Request, env: Env, url: URL, forced?: 'de') {
+  const lang = forced
+    ?? parseLang(url.searchParams.get('lang'))
     ?? parseLang(cookieValue(request, LANG_COOKIE))
     ?? preferredLang(request.headers.get('accept-language'))
     ?? 'tr';
   const res = await env.ASSETS.fetch(new Request(new URL(`/${lang}/not-found`, url.origin)));
   return preparePage(request, secure(new Response(request.method === 'HEAD' ? null : res.body, { status: 404, headers: res.headers }), PAGE_CACHE));
+}
+
+async function guidePage(request: Request, env: Env, url: URL) {
+  const res = await asset(env, request, url, url.pathname);
+  if (res.status === 404) return notFound(request, env, url, 'de');
+  return preparePage(request, secure(res, GUIDE_CACHE));
 }
 
 async function route(request: Request, env: Env, url: URL) {
@@ -186,6 +199,7 @@ async function route(request: Request, env: Env, url: URL) {
   if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
     return redirect(`${url.pathname.replace(/\/+$/, '') || '/'}${url.search}`, 308);
   }
+  if (GUIDE_PATH.test(url.pathname)) return guidePage(request, env, url);
   if (isSeoPath(url.pathname)) return page(request, env, url, url.pathname);
 
   const langPage = url.pathname.match(LANG_PAGE);

@@ -56,7 +56,7 @@ export type Copy = {
     labels: Record<PrecheckId, string>;
     msg: Record<PrecheckCode, string>;
   };
-  footer: { tag: string; services: string; site: string; legal: string; privacy: string; rights: string; contact: string; contactHint: string };
+  footer: { tag: string; services: string; site: string; legal: string; privacy: string; rights: string; contact: string; contactHint: string; guides: string };
   meta: {
     title: string; description: string; ogTitle: string; ogDescription: string; ogAlt: string;
     privacyTitle: string; privacyDescription: string; impressumTitle: string; impressumDescription: string;
@@ -237,6 +237,7 @@ export const content: Record<Lang, Copy> = {
       rights: 'Tüm hakları saklıdır',
       contact: 'İletişim',
       contactHint: 'Site adresi gerekmez — doğrudan yazın veya arayın.',
+      guides: 'Rehberler (Almanca)',
     },
     meta: {
       title: 'Sitemendo — Web siteniz için kontrol, düzeltme ve bakım',
@@ -446,6 +447,7 @@ export const content: Record<Lang, Copy> = {
       rights: 'All rights reserved',
       contact: 'Contact',
       contactHint: 'No website address needed — just write or call.',
+      guides: 'Guides (in German)',
     },
     meta: {
       title: 'Sitemendo — Checks, repairs and maintenance for your website',
@@ -655,6 +657,7 @@ export const content: Record<Lang, Copy> = {
       rights: 'Alle Rechte vorbehalten',
       contact: 'Kontakt',
       contactHint: 'Keine Website-Adresse nötig — einfach schreiben oder anrufen.',
+      guides: 'Ratgeber',
     },
     meta: {
       title: 'Sitemendo — Prüfung, Reparatur und Wartung für Ihre Website',

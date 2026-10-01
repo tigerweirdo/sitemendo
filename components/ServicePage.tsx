@@ -1,6 +1,8 @@
 'use client';
 
 import { content, type Lang } from '@/lib/content';
+import { LINKS } from '@/lib/guides/links';
+import type { GuideCard } from '@/lib/guides/related';
 import { withLangParam } from '@/lib/lang';
 import { SERVICE_PAGES, servicePages, serviceUi, type ServiceKey } from '@/lib/servicePages';
 import { useLangDocument } from '@/lib/useLangDocument';
@@ -9,7 +11,7 @@ import { LanguageSwitch } from '@/components/LanguageSwitch';
 
 /* Hizmet sayfası (kontrol, onarım, bakım). LegalPage'in sade kabuğu: üst menü, içerik, küçük
    altbilgi. Fiyat ve süre content.ts'teki paket kartlarından gelir; metin servicePages.ts'ten. */
-export function ServicePage({ service, initialLang }: { service: ServiceKey; initialLang: Lang }) {
+export function ServicePage({ service, initialLang, guides = [] }: { service: ServiceKey; initialLang: Lang; guides?: GuideCard[] }) {
   const [lang, setLang] = useStoredLang(initialLang);
   const c = content[lang];
   const ui = serviceUi[lang];
@@ -127,6 +129,22 @@ export function ServicePage({ service, initialLang }: { service: ServiceKey; ini
               })}
             </div>
           </section>
+
+          {lang === 'de' && guides.length > 0 && (
+            <section className="sp-section" aria-labelledby="sp-guides">
+              <h2 className="h2" id="sp-guides">Passende Ratgeber</h2>
+              <p className="sp-note">Ausführliche Anleitungen zum Selbermachen, kostenlos und ohne Anmeldung.</p>
+              <div className="gd-cards">
+                {guides.map(g => (
+                  <a className="gd-card" key={g.slug} href={`${LINKS.guides}/${g.slug}`}>
+                    <span className="gd-card__t">{g.title}</span>
+                    <span className="gd-card__d">{g.teaser}</span>
+                  </a>
+                ))}
+              </div>
+              <p className="sp-note"><a href={LINKS.guides}>Alle Ratgeber ansehen</a></p>
+            </section>
+          )}
 
           <section className="sp-band" aria-labelledby="sp-cta">
             <h2 className="h2" id="sp-cta">{page.ctaTitle}</h2>

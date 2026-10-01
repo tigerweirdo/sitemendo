@@ -2,11 +2,13 @@ import { ServicePage } from '@/components/ServicePage';
 import { SeoLinks } from '@/components/SeoLinks';
 import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/company';
 import type { Lang } from '@/lib/content';
+import { guideCardsFor } from '@/lib/guides/related';
 import { SERVICE_PAGES, servicePages, serviceUi, type ServiceKey } from '@/lib/servicePages';
 import { absolutePageUrl } from '@/lib/seo';
 
 /* Üç hizmet rotasının ortak gövdesi (sunucu bileşeni): canonical ve hreflang, yapısal veri,
-   sayfa. Yapısal veride fiyat yok; ana sayfadaki gibi, content.ts ile ayrı kopya tutulmasın. */
+   sayfa. Yapısal veride fiyat yok; ana sayfadaki gibi, content.ts ile ayrı kopya tutulmasın.
+   Ratgeber kartları yalnız Almanca sayfada gösterilir (ratgeberler Almanca). */
 export function ServiceRoute({ service, lang }: { service: ServiceKey; lang: Lang }) {
   const entry = SERVICE_PAGES.find(p => p.key === service)!;
   const page = servicePages[lang][service];
@@ -41,7 +43,7 @@ export function ServiceRoute({ service, lang }: { service: ServiceKey; lang: Lan
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }}
       />
-      <ServicePage service={service} initialLang={lang} />
+      <ServicePage service={service} initialLang={lang} guides={guideCardsFor(service)} />
     </>
   );
 }

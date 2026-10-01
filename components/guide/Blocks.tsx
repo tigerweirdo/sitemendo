@@ -1,0 +1,65 @@
+import { Inline } from '@/lib/guides/inline';
+import type { Block } from '@/lib/guides/types';
+
+/* Rehber gövdesi: sunucu bileşeni, istemci JS yok. Tablolar klavyeyle odaklanabilir (tabIndex), böylece
+   yatay kayan içerik klavye kullanıcısına da açıktır. Dar ekranda (<640px) tablo yana kaydırılmaz: her satır
+   bir kart olur, her hücre kendi sütun başlığıyla (data-label) gösterilir. CSS .gd-table görüntüyü değiştirir;
+   display:block tablo anlamını kaldırabildiği için roller açıkça verilir. */
+
+function BlockView({ block: b }: { block: Block }) {
+  switch (b.t) {
+    case 'p':
+      return <p><Inline text={b.x} /></p>;
+    case 'h3':
+      return <h3><Inline text={b.x} /></h3>;
+    case 'ul':
+      return <ul>{b.items.map((x, i) => <li key={i}><Inline text={x} /></li>)}</ul>;
+    case 'ol':
+      return <ol>{b.items.map((x, i) => <li key={i}><Inline text={x} /></li>)}</ol>;
+    case 'steps':
+      return (
+        <ol className="gd-steps">
+          {b.items.map((s, i) => (
+            <li key={i}>
+              <strong className="gd-steps__h"><Inline text={s.h} /></strong>
+              <span><Inline text={s.x} /></span>
+            </li>
+          ))}
+        </ol>
+      );
+    case 'table':
+      return (
+        <div className="gd-table" role="region" aria-label={b.caption} tabIndex={0}>
+          <table role="table">
+            <caption>{b.caption}</caption>
+            <thead role="rowgroup"><tr role="row">{b.head.map((h, i) => <th key={i} scope="col" role="columnheader">{h}</th>)}</tr></thead>
+            <tbody role="rowgroup">
+              {b.rows.map((row, r) => (
+                <tr key={r} role="row">{row.map((cell, c) => (c === 0
+                  ? <th key={c} scope="row" role="rowheader"><Inline text={cell} /></th>
+                  : <td key={c} data-label={b.head[c]} role="cell"><Inline text={cell} /></td>))}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    case 'note':
+      return (
+        <aside className={`gd-note gd-note--${b.kind}`}>
+          <p className="gd-note__h">{b.title}</p>
+          <p><Inline text={b.x} /></p>
+        </aside>
+      );
+    case 'code':
+      return (
+        <figure className="gd-code">
+          <figcaption>{b.label}</figcaption>
+          <pre tabIndex={0}><code>{b.x}</code></pre>
+        </figure>
+      );
+  }
+}
+
+export function Blocks({ blocks }: { blocks: Block[] }) {
+  return <>{blocks.map((b, i) => <BlockView key={i} block={b} />)}</>;
+}

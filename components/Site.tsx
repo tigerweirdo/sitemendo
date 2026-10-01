@@ -7,6 +7,7 @@ import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, SAMPLE_DOMAIN
 import { createSendLock, formDoneView, nextEmailStep, nextUrlStep, requestPrecheck, submitAuditRequest } from '@/lib/formFlow';
 import type { PrecheckResult } from '@/lib/precheck';
 import { clearPersistedForm, readPersistedForm, writePersistedForm, type FormMode, type FormStep } from '@/lib/formPersist';
+import { LINKS } from '@/lib/guides/links';
 import { withLangParam } from '@/lib/lang';
 import SELF_CHECK from '@/lib/selfCheck.json';
 import { useLangDocument } from '@/lib/useLangDocument';
@@ -885,6 +886,7 @@ function Footer({
           <div>
             <p className="footer__h">{c.footer.site}</p>
             {navItems.map(item => <a key={item.href} href={item.href}>{item.label}</a>)}
+            <a href={LINKS.guides} hrefLang="de">{c.footer.guides}</a>
             <a href={`mailto:${CONTACT_EMAIL}`}>{c.footer.contact}</a>
           </div>
           <div>

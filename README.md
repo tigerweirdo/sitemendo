@@ -68,6 +68,16 @@ Worker secrets (in addition to the ones above): `PSI_API_KEY` (Google PageSpeed;
 
 Free plan: 10 ms CPU per step (network waiting does not count). All HTML parsing is linear and bounded (`lib/report/analyze.ts`, tested against hostile input in `scripts/verify-report.ts`). Workflow state is kept up to 3 days. Local run (Node 22): `npx wrangler dev --var REPORT_APPROVAL_SECRET:local` with the demo `.dev.vars`; no mail is sent without `RESEND_API_KEY`.
 
+## Guides (Ratgeber)
+
+German guides at `/ratgeber` (hub) and `/ratgeber/<slug>`, written for search intent: one problem, one answer, sourced and dated. Strategy, topic map, measurement plan and the freshness calendar: `docs/seo-strategie.md`.
+
+- One file per guide in `lib/guides/<slug>.ts` (typed blocks: paragraph, list, steps, table, note, code; inline `**bold**`, `` `code` ``, `[text](url)`), registered in `lib/guides/index.ts` (the order decides the footer and the hub). Prices and times are never typed into the copy: use `{price.quick}`, `{time.quick}` and so on (they come from the package cards in `content.ts`).
+- Own root layout (`app/ratgeber/layout.tsx`, `<html lang="de">`), static HTML without client JS, Article + BreadcrumbList JSON-LD, canonical to itself (no `?lang=`), no hreflang. The Worker serves `/ratgeber` and `/ratgeber/<slug>`; unknown slugs get the German 404.
+- Tables turn into cards below 640 px (each cell shows its column header). German service pages show matching guides (`lib/guides/related.ts`); the homepage footer links to the hub.
+- `npm test` runs `scripts/verify-guides.ts`: unique addresses, meta lengths, the "Sie" form, no fixed prices, no hype, every internal link and anchor resolves, JSON-LD, sitemap, rendered HTML (one H1, heading order, anchors).
+- `npm run check:links` checks every external address of the guides live (network, not part of `npm test`); `npm run check:freshness` lists date-bound statements that are due (PHP end of support, Chrome 154, certificate lifetimes, DMARC policies, legal references). Run both now and then; a new date-bound statement needs a rule in `scripts/check-guide-freshness.ts`.
+
 ## Structure
 
 - `app/[lang]/layout.tsx` — metadata, fonts, global shell (one static copy per language)
@@ -80,4 +90,5 @@ Free plan: 10 ms CPU per step (network waiting does not count). All HTML parsing
 - `components/Site.tsx` — page components and interactions
 - `lib/content.ts` — Turkish/English/German content model
 - `lib/servicePages.ts`, `components/ServicePage.tsx`, `components/ServiceRoute.tsx`, `app/[lang]/website-{check,repair,care}` — three service pages for search intent (`/website-check`, `/website-repair`, `/website-care`); text is in `servicePages.ts`, prices and times come from the package cards in `content.ts` and are never repeated in the copy
+- `lib/guides/`, `components/guide/`, `app/ratgeber/` — German guides (see above); `scripts/verify-guides.ts`, `scripts/check-guide-links.ts`, `scripts/check-guide-freshness.ts`
 - `lib/report/` — free check report: page analysis, thresholds, texts, emails, approval token; `worker/report.ts` (Workflow), `worker/reportNet.ts` (network), `worker/approve.ts` (approval page)
