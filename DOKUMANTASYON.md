@@ -42,6 +42,30 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-10-01 — Ücretsiz kontrol raporu otomatik (Cloudflare Workflow)
+
+Kullanıcı rapor hazırlamayı elle yapmak istemiyor (bildirim e-postasındaki "Hızlı başlangıç" araçlarıyla bakıyordu) ve kimseyle kendiliğinden iletişime geçmek istemiyor. Karar (kullanıcı): motor Cloudflare Workflows'ta çalışsın (ek sunucu yok, "barındırma ücretsiz" kararına uyar); ilk haftalar rapor önce kullanıcıya gelsin, onayla müşteriye gitsin.
+
+Ne değişti:
+1. **Rapor motoru** (`lib/report/`): sekiz noktanın dışarıdan ölçülebilen karşılığı. Mobil (viewport, PageSpeed mobil puanı), hız (LCP, sunucu yanıtı), bağlantılar (ana sayfadaki en çok 12 iç bağlantı; 401/403/429 kırık sayılmaz), HTTPS (yönlendirme, karışık içerik), formlar (şifresiz ya da mailto gönderim; form gönderilmez), altyapı (CMS, eski jQuery < 3.5, desteği biten PHP; yalnız kesin eşikler), indeks (noindex, robots.txt, başlık, açıklama, site haritası), iletişim (tel, e-posta, adres, iletişim ve Impressum bağlantısı). Ölçülemeyen şey "ölçülemedi" ya da "bilgi" olarak gösterilir, uydurulmaz. Metinler üç dilde (`copy.ts`), site metin kurallarına uygun.
+2. **Workflow** (`worker/report.ts`): ana sayfa → (bağlantılar, robots.txt, PageSpeed paralel) → rapor → mail. Adımlar ayrı kaydedilir, yeniden denenir; Resend idempotency anahtarı iki kez gönderimi engeller. Kayıtlara adres/e-posta/içerik yazılmaz.
+3. **Onay** (`worker/approve.ts`): taslak yalnız sana gider; imzalı (HMAC) bağlantı bir onay sayfası açar, gönderim yalnız sayfadaki düğmeyle (POST). GET hiçbir şeyi tetiklemez (e-posta tarayıcıları bağlantıyı önceden açar). Aynı kaynak (Origin) denetimi, tamamlanmış örneğe ikinci onay reddi, IP başına deneme sınırı. `REPORT_APPROVAL_SECRET` yoksa rapor kendiliğinden gitmez.
+4. Form (`worker/audit.ts`) başarılı olunca Workflow'u başlatır; başlatılamazsa form yine başarılıdır. Sana ve ziyaretçiye giden mevcut iki mail aynı.
+5. **Gizlilik metni** üç dilde "Ücretsiz kontrol raporu" bölümü (Google PageSpeed'e yalnız site adresi gider, Workflow durumu en çok 3 gün); "Son güncelleme" 1 Ekim 2026.
+6. **Güvenlik düzeltmesi (mevcut canlı kod):** `analyzeHead` (`lib/precheck.ts`, anında ön kontrol) kapanışsız `<meta>` etiketleriyle dolu 256 KB'lık bir sayfada ~15 sn CPU yakıyordu (kuadratik regex). Sınırlı kalıba çevrildi (1 ms); sonuç normal sayfalarda aynı, mevcut testler geçiyor. Yeni kod aynı hataya karşı testli.
+
+Doğrulama: `lint`, `typecheck`, `build`, `npm test` 37/37 (14'ü eski, 23 yeni). `wrangler deploy --dry-run` (Node 22): `REPORT_WORKFLOW` bağlaması tanındı. `wrangler dev`: form → Workflow → rapor (`example.com`) → taslak adımı; onay akışı uçtan uca (yanlış imza 404, GET durumu değiştirmez, başka kaynaktan POST 404, imzalı POST Workflow'u devam ettirip müşteri adımına getirdi). E-posta anahtarı yok, hiçbir mail gitmedi. Ortak mail stilinde TR/DE/EN ve onay taslağı tarayıcıda görsel olarak kontrol edildi. Deploy / push yok.
+
+**Canlıya almadan önce kullanıcıda kalanlar:**
+- [ ] Cloudflare Worker secret'ları: `PSI_API_KEY` (Google PageSpeed anahtarı; anahtarsız kota dolu, hız "ölçülemedi" olur), `REPORT_APPROVAL_SECRET` (uzun rastgele metin). `RESEND_API_KEY`, `AUDIT_NOTIFY_EMAIL` zaten var.
+- [ ] PageSpeed `fields` daraltması anahtarsız doğrulanamadı (kota dolu). İlk gerçek raporda "ölçülemedi" çıkarsa Workers kaydında `report psi: response too large` aranır; kod büyük yanıtı ayrıştırmaz, değer uydurmaz.
+- [ ] Adım başına 10 ms CPU yerelde ölçülemez (wrangler dev sınırı uygulamaz). Büyük bir sitede adım hata verirse Workers kaydına bakılır; ücretli plan sınırı 30 sn.
+- [ ] Gizlilik metni hukuki kontrolü (yukarıdaki madde) yeni bölümü de kapsamalı: Google LLC (ABD) aktarımı ve Workflow durum kaydı.
+- [ ] Mevcut onay e-postası "48 saat içinde" diyor: onay modunda rapor ancak onayla gider. Taslaktaki "Söz verilen teslim" saatine dikkat; 2 gün içinde onaylanmazsa rapor hiç gitmez.
+- [ ] Güven oluşunca `REPORT_SEND_MODE=customer`.
+
+Değişen dosyalar: `lib/report/*` (yeni), `worker/report.ts`, `worker/reportNet.ts`, `worker/approve.ts`, `worker/cloudflare-workers.d.ts` (yeni), `worker/audit.ts`, `worker/index.ts`, `worker/precheck.ts` (dışa aktarım), `lib/auditMail.ts` (yardımcılar dışa aktarıldı), `lib/precheck.ts` (sınırlı regex, dışa aktarım), `lib/auditRateLimit.ts`, `lib/content.ts` (gizlilik), `wrangler.jsonc`, `package.json`, `.env.example`, `README.md`, `scripts/verify-report.ts`, `scripts/verify-report-worker.ts`, `DOKUMANTASYON.md`.
+
 ### 2026-09-27 — Manifest kalktı
 
 Kullanıcı manifest’in gerekli olmadığını söyledi. `app/manifest.ts` silindi; sayfa artık `manifest.webmanifest` üretmiyor ve ona bağlanmıyor. Favicon ve apple ikonu duruyor. Worker’daki gecikmeli manifest ekleme ve uçuş verisinden silme de kalktı. Fiyat ve kapsam aynı. Karttaki 98 elle değişmedi.

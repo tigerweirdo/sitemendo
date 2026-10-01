@@ -56,6 +56,16 @@ If `RESEND_API_KEY` is set, two emails are sent: one to `AUDIT_NOTIFY_EMAIL` and
 
 Deploys run on every push to `main` through Workers Builds (build command `npm run build`, deploy command `npx wrangler deploy`). The Worker name in the dashboard must be `sitemendo`.
 
+## Free check report (Workflow)
+
+After the form is accepted, `worker/audit.ts` starts a Cloudflare Workflow (`worker/report.ts`, binding `REPORT_WORKFLOW` in `wrangler.jsonc`). It measures what is visible from the outside: the homepage and up to 12 internal links, `robots.txt`/sitemap, and a mobile Google PageSpeed run, then builds the eight-point report (`lib/report/*`, texts in TR/DE/EN in `lib/report/copy.ts`). Nothing is invented: what could not be measured is shown as "not measurable".
+
+Default mode (`REPORT_SEND_MODE` empty): the report is emailed to `AUDIT_NOTIFY_EMAIL` only, with an **approve** link. The link opens a confirmation page (GET changes nothing, so email link scanners are harmless); the button on that page (POST) sends the exact same report to the visitor. No click, no send. `REPORT_SEND_MODE=customer` sends straight to the visitor with a blind copy to you.
+
+Worker secrets (in addition to the ones above): `PSI_API_KEY` (Google PageSpeed; without it speed is "not measurable"), `REPORT_APPROVAL_SECRET` (signs the approve links; without it nothing is sent automatically).
+
+Free plan: 10 ms CPU per step (network waiting does not count). All HTML parsing is linear and bounded (`lib/report/analyze.ts`, tested against hostile input in `scripts/verify-report.ts`). Workflow state is kept up to 3 days. Local run (Node 22): `npx wrangler dev --var REPORT_APPROVAL_SECRET:local` with the demo `.dev.vars`; no mail is sent without `RESEND_API_KEY`.
+
 ## Structure
 
 - `app/[lang]/layout.tsx` — metadata, fonts, global shell (one static copy per language)
@@ -67,3 +77,4 @@ Deploys run on every push to `main` through Workers Builds (build command `npm r
 - `public/og/{tr,de,en}.png` — share image per language (`scripts/build-og.mjs`); alt text in `content.ts` (`meta.ogAlt`)
 - `components/Site.tsx` — page components and interactions
 - `lib/content.ts` — Turkish/English/German content model
+- `lib/report/` — free check report: page analysis, thresholds, texts, emails, approval token; `worker/report.ts` (Workflow), `worker/reportNet.ts` (network), `worker/approve.ts` (approval page)
