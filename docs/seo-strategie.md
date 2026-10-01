@@ -1,6 +1,6 @@
 # SEO stratejisi: Almanca Ratgeber ve Türkçe pilot (sitemendo.com)
 
-Tarih: 2026-10-01 · Kapsam: `/ratgeber` bölümü, Türkçe pilot `/rehber`, teknik SEO, iç bağlantı, ölçüm planı · Dil: Almanca öncelikli (kullanıcı kararı, 2026-10-01). Türkçe pilot (4 rehber) hazır; **yayından önce kullanıcının okuması bekleniyor** (bkz. bölüm 8 ve 11).
+Tarih: 2026-10-01 · Kapsam: `/ratgeber` bölümü, Türkçe pilot `/rehber`, teknik SEO, iç bağlantı, ölçüm planı · Dil: Almanca öncelikli (kullanıcı kararı, 2026-10-01). Türkçe pilot (4 rehber) **2026-10-01'de yayınlandı** (kullanıcı onayıyla; bkz. bölüm 8 ve 11).
 
 ## 1. Amaç, sınırlar, başarı ölçütü
 
@@ -20,7 +20,7 @@ Tarih: 2026-10-01 · Kapsam: `/ratgeber` bölümü, Türkçe pilot `/rehber`, te
 - 11 Almanca Ratgeber (`lib/guides/*.ts`, ayrıntılı, kaynaklı, 1.400+ kelime) + özet sayfası `/ratgeber`.
 - Teknik altyapı: statik HTML (JS gerektirmez), kendi kök düzeni, canonical, Article + BreadcrumbList + CollectionPage JSON-LD, sitemap (`lastModified` her Ratgeber'in kendi tarihi), Worker yönlendirmesi, mobilde kart biçimine dönen tablolar.
 - İç bağlantı: ana sayfa altbilgisi → `/ratgeber` (DE/EN) ve `/rehber` (TR); Almanca hizmet sayfaları → "Passende Ratgeber" (3–4 kart), Türkçe hizmet sayfaları → "İlgili rehberler" (2–4 kart); Ratgeber'ler birbirine ve hizmet sayfalarına bağlı.
-- **Türkçe pilot (`/rehber`):** Almanca aslı olan 4 rehberin Türkçe uyarlaması (`lib/guides/tr/*.ts`): `impressum-zorunlulugu`, `web-sitesi-google-da-gorunmuyor`, `iletisim-formu-calismiyor`, `web-sitesi-bakimi` + özet sayfası `/rehber`. Birebir çeviri değil, Almanya'daki Türkçe konuşan işletme sahibine uyarlama: olgular Almanca asıllarla aynı (aynı kaynaklar), hukuki terimler ve arayüz terimleri Almanca/İngilizce aslıyla birlikte verilir, Google kaynakları Türkçe belgeleri (`?hl=tr`). Almanca ve Türkçe eşler hreflang ile bağlıdır (`x-default` = Almanca). Yapay zekâ ile yazıldı: yayından önce yerel okuma şart.
+- **Türkçe pilot (`/rehber`):** Almanca aslı olan 4 rehberin Türkçe uyarlaması (`lib/guides/tr/*.ts`): `impressum-zorunlulugu`, `web-sitesi-google-da-gorunmuyor`, `iletisim-formu-calismiyor`, `web-sitesi-bakimi` + özet sayfası `/rehber`. Birebir çeviri değil, Almanya'daki Türkçe konuşan işletme sahibine uyarlama: olgular Almanca asıllarla aynı (aynı kaynaklar), hukuki terimler ve arayüz terimleri Almanca/İngilizce aslıyla birlikte verilir, Google kaynakları Türkçe belgeleri (`?hl=tr`). Almanca ve Türkçe eşler hreflang ile bağlıdır (`x-default` = Almanca). Yapay zekâ ile yazıldı; yayından önce kullanıcı onayı alındı (2026-10-01), yeni Türkçe rehberler için aynı kural geçerli.
 - Denetimler: `npm test` (`scripts/verify-guides.ts`, 14 test, iki dil için), `npm run check:links` (95 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar; Türkçe dosyalar dâhil).
 
 ## 3. Arama sonuçlarından gözlemler (sınırlı, ölçüm değil)
@@ -100,10 +100,9 @@ Hizmet sayfası eşlemesi `lib/guides/related.ts` içindedir, dil başına ayrı
 
 **Almanca bölüm 2026-10-01'de yayınlandı** (push yapıldı; canlıda `/ratgeber` ve 11 Ratgeber 200, sitemap 30 adres). Aşağıdaki 1–6 yine geçerli kontrol listesidir.
 
-**Türkçe pilot için (yayın öncesi ve sonrası):**
-- **Önce okuyun.** Dört Türkçe rehberi (`lib/guides/tr/*.ts`, ya da hazırlanan okuma dosyası) baştan sona okuyun. Özellikle doğrulayın: (a) Search Console arayüz terimleri (Google'ın Türkçe belgelerinden alındı; kendi Türkçe arayüzünüzde aynı mı?), (b) hukuki terimlerin Türkçe karşılıkları (Impressum, ihtarname/Abmahnung, yetkili temsilci, denetleyici makam, idari para cezası), (c) WordPress Türkçe ayar adı ("Ayarlar → Okuma", "Arama motorlarının bu siteyi dizine eklemesine engel olmaya çalış"), (d) Chrome Geliştirici Araçları'ndaki "Ağ" sekmesi, (e) genel üslup ("siz", sakin, abartısız).
-- Düzeltme isterseniz söyleyin; metin değişince `modified` yükseltilir ve test yeniden çalıştırılır.
-- Uygun bulursanız önce dalı birleştirin: `git switch main && git merge turkish-pilot`, sonra `git push origin main`. Türkçe pilot şu an yalnızca yerelde `turkish-pilot` dalındadır, `main`'de değildir; **okumadan yayınlanmaz**.
+**Türkçe pilot (2026-10-01'de yayınlandı):**
+- Kullanıcı okuma dosyasını alıp onayladı; `turkish-pilot` dalı `main`'e birleştirilip push edildi. Metin değişirse Almanca eşiyle birlikte güncellenir, `modified` yükseltilir ve test yeniden çalıştırılır.
+- **Açık kalan doğrulamalar (isteğe bağlı):** (a) Search Console arayüz terimleri (Google'ın Türkçe belgelerinden alındı; kendi Türkçe arayüzünüzde aynı mı?), (b) hukuki terimlerin Türkçe karşılıkları (Impressum, ihtarname/Abmahnung, yetkili temsilci, denetleyici makam, idari para cezası; avukat onayı yok), (c) WordPress Türkçe ayar adı ("Ayarlar → Okuma", "Arama motorlarının bu siteyi dizine eklemesine engel olmaya çalış"), (d) Chrome Geliştirici Araçları'ndaki "Ağ" sekmesi adı.
 - Yayından sonra: `/rehber` ve 4 `/rehber/<slug>` 200 dönmeli; `https://sitemendo.com/sitemap.xml` 35 adres içermeli; bir Türkçe rehberin kaynağında `hreflang` `de`, `tr`, `x-default` ve `<html lang="tr">` görülmeli. Search Console'da sitemap'i yeniden gönderin; `/rehber` ve 4 rehber için "Dizine ekleme iste" (günlük kota; aynı adres tekrar gönderilmez).
 
 **Almanca yayın kontrol listesi:**
@@ -175,12 +174,12 @@ Almanca Ratgeber'ler Almanya hukukuna ve Almanya'daki araçlara dayanır (DDG, I
 | Seçenek | Artı | Eksi |
 |---|---|---|
 | A. Hepsini şimdi (11 × 2) | Tek seferde bitmiş görünür | Almanca'nın işe yaradığı henüz bilinmiyor; her tarihe bağlı bilgi ve hukuki atıf 3 kez bakım ister; hukuki terimlerde çeviri hatası riski |
-| **B. Pilot (seçildi ve yazıldı, yayın öncesi okuma bekliyor):** Türkçe 4 rehber, İngilizce 0 | Varsayımı ucuza sınar; bakım yükü küçük | Küçük örnek, sonuç gürültülü olabilir |
+| **B. Pilot (seçildi, yazıldı ve 2026-10-01'de yayınlandı):** Türkçe 4 rehber, İngilizce 0 | Varsayımı ucuza sınar; bakım yükü küçük | Küçük örnek, sonuç gürültülü olabilir |
 | C. 12. haftadan sonra | Karar gerçek veriye dayanır | 3 ay kaybedilir |
 
 Pilot konuları (hukuki ve "problem" niyetli, Almanya'daki küçük işletme sahibini en çok korkutanlar; dördü de yazıldı): Impressum zorunluluğu, "web sitem Google'da çıkmıyor", iletişim formu e-postaları gelmiyor, web sitesi bakımı. Türkçe önce (hedef kitle Türkçe ve Almanca iki dilli, kullanıcı kararı 2026-09-17); İngilizce yalnızca Türkçe pilot veri verirse.
 
-Uygulama (2026-10-01): adres düzeni `/rehber/<slug>` ↔ `/ratgeber/<slug>` (yol tabanlı `/tr/…` değil; mevcut Ratgeber düzeniyle aynı); yalnız çevirisi olan rehberler birbirine hreflang ile bağlanır (`guideMetadata`, sitemap, test genişletildi); yeni bir dil eklemek için `GuideLang`, `UI`, `linksFor` ve `RULES` (test) girdisi, bir kök düzen ve Worker yolu gerekir. Hukuki terimler çeviride Almanca aslıyla birlikte verilir (Impressum, Abmahnung, Anbieterkennzeichnung). Metinler yapay zekâ ile yazıldı; doğrudan yayınlanmaz, yerel okuma şart (kullanıcı okuyacak).
+Uygulama (2026-10-01): adres düzeni `/rehber/<slug>` ↔ `/ratgeber/<slug>` (yol tabanlı `/tr/…` değil; mevcut Ratgeber düzeniyle aynı); yalnız çevirisi olan rehberler birbirine hreflang ile bağlanır (`guideMetadata`, sitemap, test genişletildi); yeni bir dil eklemek için `GuideLang`, `UI`, `linksFor` ve `RULES` (test) girdisi, bir kök düzen ve Worker yolu gerekir. Hukuki terimler çeviride Almanca aslıyla birlikte verilir (Impressum, Abmahnung, Anbieterkennzeichnung). Metinler yapay zekâ ile yazıldı; doğrudan yayınlanmaz, yayın öncesi kullanıcı onayı şart (pilot için alındı, 2026-10-01).
 
 **Pilot kararı (12. hafta):** Türkçe sayfalar gösterim ve ücretsiz kontrol isteği üretiyorsa kalan 7 Ratgeber sırayla Türkçeye uyarlanır (her biri aynı testten geçer, aynı okuma kuralıyla). Üretmiyorsa Türkçe bölüm olduğu gibi kalır, yeni çeviri yapılmaz; İngilizce hiç başlamaz.
 
