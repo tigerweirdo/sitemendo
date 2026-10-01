@@ -79,4 +79,5 @@ Free plan: 10 ms CPU per step (network waiting does not count). All HTML parsing
 - `public/og/{tr,de,en}.png` — share image per language (`scripts/build-og.mjs`); alt text in `content.ts` (`meta.ogAlt`)
 - `components/Site.tsx` — page components and interactions
 - `lib/content.ts` — Turkish/English/German content model
+- `lib/servicePages.ts`, `components/ServicePage.tsx`, `components/ServiceRoute.tsx`, `app/[lang]/website-{check,repair,care}` — three service pages for search intent (`/website-check`, `/website-repair`, `/website-care`); text is in `servicePages.ts`, prices and times come from the package cards in `content.ts` and are never repeated in the copy
 - `lib/report/` — free check report: page analysis, thresholds, texts, emails, approval token; `worker/report.ts` (Workflow), `worker/reportNet.ts` (network), `worker/approve.ts` (approval page)

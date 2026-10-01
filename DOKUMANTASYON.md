@@ -42,6 +42,22 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-10-01 — Hizmet sayfaları (arama niyetine cevap veren üç sayfa)
+
+Amaç: kimseyle iletişime geçmeden forma trafik. Site yalnızca marka adıyla bulunabiliyordu (tek sayfa); insanların gerçekten arayacağı konulara cevap veren sayfa yoktu. Eklenenler (TR/DE/EN):
+- `/website-check`: ücretsiz kontrol (sekiz nokta, kimler için, adımlar, SSS).
+- `/website-repair`: Hızlı düzeltme ve Site onarımı (paket kartları, hangi paket uygun, yeni site yapmadığımızın açık söylenmesi, SSS).
+- `/website-care`: Site bakımı (kapsam, 30 dakikalık küçük değişiklik, SSS).
+
+Tasarım kararları: (1) Aynı URL şeması (`?lang=`); yeni yollar `SEO_PATHS` ve `SERVICE_PAGES` ile kayıtlı, canonical, hreflang, sitemap (öncelik 0,8) ve `Service` yapısal verisi otomatik. (2) Fiyat ve süre sayfa metninde TEKRARLANMAZ; paket kartlarından (`content.ts`) okunur, yapısal veride de fiyat yok (ana sayfadaki aynı karar). Test, metinde sabit fiyat olmadığını denetler. (3) LegalPage'in sade kabuğu ve mevcut tasarım belirteçleri; ana sayfanın hareket ve performans ayarlarına dokunulmadı. (4) Ana sayfa altbilgisindeki hizmet bağlantıları artık bu sayfalara gider (arama motorları ve ziyaretçi için). (5) Metin kuralları: abartı yok, uydurma referans yok; kapsam dışı olanlar açıkça yazılı; AGB henüz yazılmadığı için iptal/süre gibi koşullar hakkında söz verilmedi ("başlamadan önce netleştiririz").
+Düzeltme: `next.config.ts` geliştirme yeniden yazmaları yolları elle sayıyordu; yeni yollar eklendi. `worker/index.ts` iç dil adresi yönlendirmesi (`/de/website-check` → `/website-check?lang=de`) artık `SEO_PATHS`'ten üretiliyor.
+
+Doğrulama: `npm test` 57/57 (5 yeni: üç dilde eksiksizlik, meta uzunlukları, fiyat tekrarı yok, metin kuralları, SEO kaydı), `lint`, `typecheck`, `build` (28 sayfa). `wrangler dev`: üç sayfa üç dilde 200; başlık, canonical, hreflang, `Service` yapısal verisi doğru; fiyatlar kartlardan (149 €, 349 €, 49 € / month); iç adres 301; ana sayfa altbilgisi yeni sayfalara bağlı. Tarayıcıda mobil (371 px) ve masaüstü (1280 px): iki paket kartı yan yana, yatay taşma yok, SSS ve çağrı bandı yerinde. Lighthouse bu sayfalarda ölçülmedi (`npm run measure` yalnız ana sayfa); sayfalar statik ve hafif. Deploy / push yok.
+
+**Yayından sonra kullanıcıda kalanlar:** Google Search Console (mülk ekle, sitemap'i gönder; doğrulama etiketi verilirse `layout.tsx` metadata'sına `verification.google` eklenir), Google işletme profili (hizmet bölgesi işletmesi).
+
+Değişen dosyalar: `lib/servicePages.ts`, `components/ServicePage.tsx`, `components/ServiceRoute.tsx`, `app/[lang]/website-{check,repair,care}/page.tsx` (yeni), `lib/seo.ts`, `app/sitemap.ts`, `app/globals.css`, `components/Site.tsx` (altbilgi bağlantıları), `next.config.ts`, `worker/index.ts`, `scripts/verify-service-pages.ts` (yeni), `package.json`, `README.md`, `DOKUMANTASYON.md`.
+
 ### 2026-10-01 — Hata uyarısı, onay hatırlatması ve önizleme
 
 Rapor ancak onayla gittiği için sessiz kalan bir Workflow müşteriye verilen 48 saatlik sözü kaçırtabilir. Eklenenler:

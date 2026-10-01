@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from './company';
 import { content, type Lang } from './content';
+import { SERVICE_PAGES, servicePages } from './servicePages';
 
-export const SEO_PATHS = ['/', '/privacy', '/impressum'] as const;
+export const SEO_PATHS = ['/', '/privacy', '/impressum', ...SERVICE_PAGES.map(p => p.path)] as const;
 export type SeoPath = (typeof SEO_PATHS)[number];
 
 export function absolutePageUrl(path: SeoPath, lang: Lang): string {
@@ -18,8 +19,10 @@ export function ogLocale(lang: Lang) {
 export function routeMetadata(path: SeoPath, lang: Lang): Metadata {
   const m = content[lang].meta;
   const home = path === '/';
-  const title = path === '/privacy' ? m.privacyTitle : path === '/impressum' ? m.impressumTitle : m.title;
-  const description = path === '/privacy' ? m.privacyDescription : path === '/impressum' ? m.impressumDescription : m.description;
+  const service = SERVICE_PAGES.find(p => p.path === path);
+  const sp = service ? servicePages[lang][service.key] : null;
+  const title = sp ? sp.metaTitle : path === '/privacy' ? m.privacyTitle : path === '/impressum' ? m.impressumTitle : m.title;
+  const description = sp ? sp.metaDescription : path === '/privacy' ? m.privacyDescription : path === '/impressum' ? m.impressumDescription : m.description;
   const ogTitle = home ? m.ogTitle : title;
   const ogDescription = home ? m.ogDescription : description;
   const url = absolutePageUrl(path, lang);

@@ -877,10 +877,10 @@ function Footer({
           </div>
           <div>
             <p className="footer__h">{c.footer.services}</p>
-            <a href="#services">{c.services[0].name}</a>
-            <a href="#services">{c.services[1].name}</a>
-            <a href="#services">{c.services[2].name}</a>
-            <a href="#services">{c.services[3].name}</a>
+            <a href={withLangParam('/website-check', lang)}>{c.services[0].name}</a>
+            <a href={withLangParam('/website-repair', lang)}>{c.services[1].name}</a>
+            <a href={withLangParam('/website-repair', lang)}>{c.services[2].name}</a>
+            <a href={withLangParam('/website-care', lang)}>{c.services[3].name}</a>
           </div>
           <div>
             <p className="footer__h">{c.footer.site}</p>

@@ -52,7 +52,7 @@ const PAGE_CACHE = 'private, no-cache, no-transform';
 
 /* Derlemenin iç dosyaları (/de.html, /de/privacy.txt, /404.html …) dışarıdan açılmaz;
    /de ya da /de/privacy yazan ziyaretçi herkese açık adrese yönlenir. */
-const LANG_PAGE = /^\/(tr|de|en)(\/privacy|\/impressum)?$/;
+const LANG_PAGE = new RegExp(`^/(tr|de|en)(${SEO_PATHS.filter(p => p !== '/').map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})?$`);
 const BUILD_FILE = /^\/(?:tr|de|en|404|_not-found)(?:[./]|$)/;
 
 function cookieValue(request: Request, name: string) {

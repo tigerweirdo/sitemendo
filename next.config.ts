@@ -4,7 +4,7 @@ import type { NextConfig } from 'next';
    güvenlik başlıkları ve form API'si canlıda Cloudflare Worker'da: worker/index.ts.
    Geliştirmede Worker yok; aynı adresler (/?lang=de) burada dil sayfasına yeniden yazılır. */
 function devRewrites() {
-  return ['/', '/privacy', '/impressum'].flatMap(path => {
+  return ['/', '/privacy', '/impressum', '/website-check', '/website-repair', '/website-care'].flatMap(path => {
     const suffix = path === '/' ? '' : path;
     return [
       ...['tr', 'de', 'en'].map(lang => ({ source: path, has: [{ type: 'query' as const, key: 'lang', value: lang }], destination: `/${lang}${suffix}` })),
