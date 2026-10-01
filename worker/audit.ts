@@ -2,9 +2,12 @@ import { Resend } from 'resend';
 import { CONTACT_EMAIL } from '@/lib/company';
 import { confirmEmail, fromAddress, mailHeaders, notifyAddresses, notifyEmail, requestMeta } from '@/lib/auditMail';
 import { clientIp, tooManyForEmail, tooManyRequests } from '@/lib/auditRateLimit';
-import { botSignal, parseAuditPayload, type AuditMode } from '@/lib/auditRequest';
+import { botSignal, parseAuditPayload, type AuditMode, type AuditPayload } from '@/lib/auditRequest';
+import { startReport, type ReportBinding } from './report';
 
 const MAX_BODY = 8192;
+
+type AuditEnv = { REPORT_WORKFLOW?: ReportBinding };
 
 /* Demo yalnız açıkça açıldığında (yerelde .dev.vars): canlıda anahtar eksik kalırsa ziyaretçi
    "demo" görüp talebi sessizce kaybetmesin, hata ve e-posta yolu görsün. */
@@ -16,8 +19,12 @@ function json(body: { mode?: AuditMode; error?: string }, status = 200) {
   return Response.json(body, { status });
 }
 
+function reportParams(payload: AuditPayload, meta: { ref: string; receivedAt: Date }) {
+  return { websiteUrl: payload.websiteUrl, email: payload.email, language: payload.language, ref: meta.ref, receivedAt: meta.receivedAt.toISOString() };
+}
+
 /* POST /api/audit: ücretsiz kontrol talebi. Bildirim bize, onay ziyaretçiye gider. */
-export async function audit(request: Request) {
+export async function audit(request: Request, env: AuditEnv = {}) {
   const length = Number(request.headers.get('content-length') || 0);
   if (Number.isFinite(length) && length > MAX_BODY) {
     return json({ error: 'TOO_LARGE' }, 413);
@@ -44,14 +51,17 @@ export async function audit(request: Request) {
   if (!payload) return json({ error: 'INVALID' }, 400);
   if (tooManyForEmail(payload.email)) return json({ error: 'RATE' }, 429);
 
+  const meta = requestMeta();
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
-    if (demoAllowed()) return json({ mode: 'demo' });
+    if (demoAllowed()) {
+      await startReport(env, reportParams(payload, meta));
+      return json({ mode: 'demo' });
+    }
     console.error('audit: RESEND_API_KEY missing');
     return json({ error: 'NOT_CONFIGURED' }, 503);
   }
 
-  const meta = requestMeta();
   const from = fromAddress();
   const notifyTo = notifyAddresses();
   const owner = notifyEmail(payload, meta);
@@ -91,6 +101,9 @@ export async function audit(request: Request) {
   if (confirm.error) {
     console.error('audit confirm email failed:', confirm.error.name);
   }
+
+  /* Rapor ayrı bir Workflow'da hazırlanır; başlatılamazsa form yine de başarılıdır. */
+  await startReport(env, reportParams(payload, meta));
 
   console.log('audit request sent:', payload.language);
   return json({ mode: 'live' });

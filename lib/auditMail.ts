@@ -7,19 +7,19 @@ import type { AuditPayload } from '@/lib/auditRequest';
    adım işaretleri). Tablo düzeni ve satır içi stil, Gmail / Outlook / Apple Mail'de
    aynı görünsün diye. Pazarlama maili gibi görünmesin: görsel yok, metin önde. */
 
-const INK = '#090909';
-const SULFUR = '#E8F000';
-const MUTED = '#4A4A46';
-const SOFT = '#6B6A64';
-const LINE = '#E6E5E0';
-const PANEL = '#F7F7F4';
-const WHITE = '#FFFFFF';
-const SANS = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+export const INK = '#090909';
+export const SULFUR = '#E8F000';
+export const MUTED = '#4A4A46';
+export const SOFT = '#6B6A64';
+export const LINE = '#E6E5E0';
+export const PANEL = '#F7F7F4';
+export const WHITE = '#FFFFFF';
+export const SANS = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
 const LOCALE: Record<Lang, string> = { tr: 'tr-TR', en: 'en-GB', de: 'de-DE' };
 const TZ = 'Europe/Berlin';
 /* Site ve form ile aynı teslim: 48 saat. Yeni süre uydurulmaz. */
-const REPORT_HOURS = 48;
+export const REPORT_HOURS = 48;
 
 export type RequestMeta = { ref: string; receivedAt: Date };
 
@@ -30,7 +30,7 @@ export function requestMeta(now = new Date()): RequestMeta {
   return { ref: `SM-${stamp}${salt}`, receivedAt: now };
 }
 
-function esc(value: string) {
+export function esc(value: string) {
   return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -40,11 +40,11 @@ function esc(value: string) {
 }
 
 /* Son iki kelimeyi birbirine bağla: satır sonunda tek başına “mı / mu” gibi bir kelime kalmasın. */
-function keepTail(text: string) {
+export function keepTail(text: string) {
   return esc(text).replace(/ (\S+)$/, '&nbsp;$1');
 }
 
-function hostOf(url: string) {
+export function hostOf(url: string) {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
   } catch {
@@ -52,28 +52,28 @@ function hostOf(url: string) {
   }
 }
 
-function prettyUrl(url: string) {
+export function prettyUrl(url: string) {
   return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 }
 
-function when(date: Date, lang: Lang) {
+export function when(date: Date, lang: Lang) {
   const day = new Intl.DateTimeFormat(LOCALE[lang], { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(date);
   const time = new Intl.DateTimeFormat(LOCALE[lang], { timeZone: TZ, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(date);
   return lang === 'de' ? `${day}, ${time} Uhr` : `${day}, ${time}`;
 }
 
-function dueOf(received: Date) {
+export function dueOf(received: Date) {
   return new Date(received.getTime() + REPORT_HOURS * 60 * 60 * 1000);
 }
 
-function legalLink(path: 'impressum' | 'privacy', lang: Lang) {
+export function legalLink(path: 'impressum' | 'privacy', lang: Lang) {
   return `${SITE_URL}/${path}?lang=${lang}`;
 }
 
 /* Önizleme satırından sonra gövde metni sızmasın diye görünmez dolgu. */
 const PREVIEW_PAD = '&#847;&zwnj;&nbsp;'.repeat(48);
 
-function shell(o: { lang: Lang; title: string; preview: string; meta: string; body: string; foot: string }) {
+export function shell(o: { lang: Lang; title: string; preview: string; meta: string; body: string; foot: string }) {
   return `<!doctype html>
 <html lang="${o.lang}">
 <head>
@@ -117,11 +117,11 @@ function shell(o: { lang: Lang; title: string; preview: string; meta: string; bo
 </html>`;
 }
 
-function rule() {
+export function rule() {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" bgcolor="${LINE}" style="height:1px;line-height:1px;font-size:0;background:${LINE};">&nbsp;</td></tr></table>`;
 }
 
-function masthead(meta: string) {
+export function masthead(meta: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr><td colspan="2" style="padding:0 0 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="40" height="4" bgcolor="${SULFUR}" style="width:40px;height:4px;line-height:4px;font-size:0;background:${SULFUR};">&nbsp;</td></tr></table></td></tr>
   <tr>
@@ -132,32 +132,32 @@ function masthead(meta: string) {
 </table>`;
 }
 
-function badge(text: string) {
+export function badge(text: string) {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0;"><tr><td bgcolor="${SULFUR}" style="background:${SULFUR};padding:6px 10px;font-family:${SANS};font-size:12px;line-height:1;font-weight:600;letter-spacing:0.02em;color:${INK};">${esc(text)}</td></tr></table>`;
 }
 
-function title(text: string) {
+export function title(text: string) {
   return `<h1 class="sm-h1" style="margin:14px 0 0;font-family:${SANS};font-size:28px;line-height:1.22;font-weight:600;letter-spacing:-0.02em;color:${INK};">${keepTail(text)}</h1>`;
 }
 
-function lead(html: string) {
+export function lead(html: string) {
   return `<p style="margin:14px 0 0;font-family:${SANS};font-size:16px;line-height:1.6;color:${MUTED};">${html}</p>`;
 }
 
-function heading(text: string) {
+export function heading(text: string) {
   return `<p style="margin:40px 0 16px;font-family:${SANS};font-size:13px;line-height:1.3;font-weight:600;letter-spacing:0.02em;color:${INK};">${esc(text)}</p>`;
 }
 
-function para(html: string, top = 12) {
+export function para(html: string, top = 12) {
   return `<p style="margin:${top}px 0 0;font-family:${SANS};font-size:15px;line-height:1.6;color:${INK};">${html}</p>`;
 }
 
-function link(href: string, text: string, color = INK) {
+export function link(href: string, text: string, color = INK) {
   return `<a href="${esc(href)}" style="color:${color};text-decoration:underline;">${esc(text)}</a>`;
 }
 
 /* Etiket–değer satırları, açık gri panelde. Telefonda etiket değerin üstüne iner. */
-function summary(rows: [string, string][], top = 28) {
+export function summary(rows: [string, string][], top = 28) {
   const body = rows.map(([k, v], i) => `<tr>
     <td class="sm-stack sm-k" valign="top" width="150" style="padding:${i ? 12 : 0}px 16px 0 0;font-family:${SANS};font-size:13px;line-height:1.5;color:${SOFT};">${esc(k)}</td>
     <td class="sm-stack sm-v" valign="top" style="padding:${i ? 12 : 0}px 0 0;font-family:${SANS};font-size:15px;line-height:1.5;font-weight:500;color:${INK};word-break:break-word;">${v}</td>
@@ -169,7 +169,7 @@ function summary(rows: [string, string][], top = 28) {
 
 type Step = { title: string; note: string; state: 'done' | 'now' | 'next' };
 
-function steps(items: Step[]) {
+export function steps(items: Step[]) {
   const rows = items.map((s, i) => {
     const marker = s.state === 'done'
       ? `<td width="22" height="22" align="center" valign="middle" bgcolor="${SULFUR}" style="width:22px;height:22px;background:${SULFUR};font-family:${SANS};font-size:12px;line-height:22px;font-weight:700;color:${INK};">&#10003;</td>`
@@ -187,7 +187,7 @@ function steps(items: Step[]) {
 }
 
 /* Sekiz kontrol başlığı, iki sütun; telefonda tek sütun. */
-function checklist(items: string[]) {
+export function checklist(items: string[]) {
   const cell = (t: string) => `<td class="sm-stack" valign="top" width="50%" style="padding:0 14px 10px 0;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
       <td valign="top" width="16" style="width:16px;min-width:16px;padding:7px 0 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="6" height="6" bgcolor="${INK}" style="width:6px;height:6px;line-height:6px;font-size:0;background:${INK};">&nbsp;</td></tr></table></td>
@@ -202,7 +202,7 @@ function checklist(items: string[]) {
 }
 
 /* Sitedeki düğmeyle aynı: sarı zemin, ince mürekkep çerçeve. İkincil olan beyaz. */
-function button(href: string, text: string, primary = true) {
+export function button(href: string, text: string, primary = true) {
   const bg = primary ? SULFUR : WHITE;
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="sm-btn-t"><tr>
     <td bgcolor="${bg}" style="background:${bg};border:1px solid ${INK};">
@@ -211,14 +211,14 @@ function button(href: string, text: string, primary = true) {
   </tr></table>`;
 }
 
-function buttons(a: string, b: string) {
+export function buttons(a: string, b: string) {
   return `<table role="presentation" class="sm-full" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0;"><tr>
     <td class="sm-stack" valign="top" style="padding:0 10px 10px 0;">${a}</td>
     <td class="sm-stack" valign="top" style="padding:0 0 10px;">${b}</td>
   </tr></table>`;
 }
 
-function deadline(label: string, valueHtml: string) {
+export function deadline(label: string, valueHtml: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 0;"><tr>
     <td width="4" bgcolor="${SULFUR}" style="width:4px;background:${SULFUR};font-size:0;line-height:0;">&nbsp;</td>
     <td bgcolor="${PANEL}" style="background:${PANEL};padding:14px 18px;">
@@ -228,20 +228,20 @@ function deadline(label: string, valueHtml: string) {
   </tr></table>`;
 }
 
-function tools(rows: [string, string, string][]) {
+export function tools(rows: [string, string, string][]) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${rows.map(([k, t, h], i) => `<tr>
     <td class="sm-stack sm-k" valign="top" width="170" style="padding:${i ? 10 : 0}px 16px 0 0;font-family:${SANS};font-size:14px;line-height:1.5;color:${MUTED};">${esc(k)}</td>
     <td class="sm-stack sm-v" valign="top" style="padding:${i ? 10 : 0}px 0 0;font-family:${SANS};font-size:14px;line-height:1.5;"><a href="${esc(h)}" style="color:${INK};text-decoration:underline;">${esc(t)}</a>&nbsp;<span style="color:${SOFT};">&#8599;</span></td>
   </tr>`).join('')}</table>`;
 }
 
-function footer(lines: string[], links: [string, string][]) {
+export function footer(lines: string[], links: [string, string][]) {
   return `${rule()}
   <p style="margin:20px 0 0;font-family:${SANS};font-size:12px;line-height:1.65;color:${SOFT};">${lines.map(esc).join('<br>')}</p>
   ${links.length ? `<p style="margin:10px 0 0;font-family:${SANS};font-size:12px;line-height:1.65;color:${SOFT};">${links.map(([t, h]) => link(h, t, SOFT)).join(' &nbsp;·&nbsp; ')}</p>` : ''}`;
 }
 
-function contactLine() {
+export function contactLine() {
   const cells = [
     link(`mailto:${CONTACT_EMAIL}`, CONTACT_EMAIL),
     link(`tel:${CONTACT_PHONE_E164}`, CONTACT_PHONE_DISPLAY),

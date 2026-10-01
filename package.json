@@ -9,7 +9,7 @@
     "deploy": "next build && wrangler deploy",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "tsx --test scripts/verify-form-faq.ts scripts/verify-precheck.ts",
+    "test": "tsx --test scripts/verify-form-faq.ts scripts/verify-precheck.ts scripts/verify-report.ts scripts/verify-report-worker.ts",
     "icons": "node scripts/build-icons.mjs",
     "measure": "node scripts/measure-self.mjs"
   },

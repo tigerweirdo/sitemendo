@@ -1,14 +1,19 @@
 import { SITE_URL } from '@/lib/company';
 import { LANG_COOKIE, parseLang, preferredLang } from '@/lib/lang';
 import { SEO_PATHS, type SeoPath } from '@/lib/seo';
+import { approve } from './approve';
 import { audit } from './audit';
 import { precheck } from './precheck';
+import type { ReportBinding, ReportEnv } from './report';
+
+/* Workflow sınıfı ana modülden dışa aktarılır (wrangler.jsonc: workflows.class_name). */
+export { ReportWorkflow } from './report';
 
 /* Cloudflare Worker: out/ içindeki statik dil sayfalarını ziyaretçinin diline göre sunar,
    yönlendirmeleri ve güvenlik başlıklarını ekler, formu işler. Next'in hash'li dosyaları
    (/_next/static) Worker'a uğramadan doğrudan gelir (wrangler.jsonc). */
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> } };
+type Env = ReportEnv & { ASSETS: { fetch: (request: Request) => Promise<Response> }; REPORT_WORKFLOW?: ReportBinding };
 
 /* Kopya adres ana adrese kalıcı yönlenir; canonical tek başına yetmiyor. */
 const ALIAS_HOSTS = ['www.sitemendo.com'];
@@ -169,7 +174,11 @@ async function notFound(request: Request, env: Env, url: URL) {
 async function route(request: Request, env: Env, url: URL) {
   if (url.pathname === '/api/audit' || url.pathname === '/api/precheck') {
     if (request.method !== 'POST') return secure(new Response(null, { status: 405, headers: { Allow: 'POST' } }));
-    return secure(await (url.pathname === '/api/audit' ? audit(request) : precheck(request)), 'no-store');
+    return secure(await (url.pathname === '/api/audit' ? audit(request, env) : precheck(request)), 'no-store');
+  }
+  if (url.pathname === '/api/report/approve') {
+    if (request.method !== 'GET' && request.method !== 'POST') return secure(new Response(null, { status: 405, headers: { Allow: 'GET, POST' } }));
+    return secure(await approve(request, env), 'no-store');
   }
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     return secure(new Response(null, { status: 405, headers: { Allow: 'GET, HEAD' } }));

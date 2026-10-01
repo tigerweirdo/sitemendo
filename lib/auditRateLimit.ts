@@ -36,3 +36,8 @@ export function tooManyPrechecks(ip: string) {
 export function tooManyForEmail(email: string) {
   return limited(`mail:${email.toLowerCase()}`, 2, 24 * 60 * 60 * 1000);
 }
+
+/* Onay sayfasına gelen geçersiz bağlantı denemeleri: IP başına 10 dakikada 30. */
+export function tooManyApprovals(ip: string) {
+  return limited(`approve:${ip}`, 30, 10 * 60 * 1000);
+}

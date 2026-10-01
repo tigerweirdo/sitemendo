@@ -11,5 +11,8 @@
     // sayfalar, form ve diğer her istek Worker'dan geçer.
     "run_worker_first": ["/*", "!/_next/static/*"]
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Ücretsiz kontrol raporu: form gönderilince bu Workflow çalışır (worker/report.ts).
+  // Gerekli secret'lar: RESEND_API_KEY, PSI_API_KEY, REPORT_APPROVAL_SECRET (README).
+  "workflows": [{ "name": "sitemendo-report", "binding": "REPORT_WORKFLOW", "class_name": "ReportWorkflow" }]
 }

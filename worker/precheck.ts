@@ -7,18 +7,18 @@ const MAX_BODY = 4096;
    ücretsiz plandaki istek başına 10 ms CPU'yu da korur. */
 const MAX_HTML = 256 * 1024;
 const MAX_REDIRECTS = 5;
-const TIMEOUT_MS = 8000;
-const USER_AGENT = 'Mozilla/5.0 (compatible; SitemendoPrecheck/1.0; +https://sitemendo.com)';
+export const TIMEOUT_MS = 8000;
+export const USER_AGENT = 'Mozilla/5.0 (compatible; SitemendoPrecheck/1.0; +https://sitemendo.com)';
 
 function json(body: PrecheckResponse, status = 200) {
   return Response.json(body, { status });
 }
 
-type Hop = { response: Response; url: URL; ms: number };
+export type Hop = { response: Response; url: URL; ms: number };
 
 /* Yönlendirmeler elle izlenir: her yeni adres safeTarget süzgecinden geçer. Süre, son
    adresin yanıt başlıklarının gelmesine kadar geçen süre (sunucu yanıtı). */
-async function open(start: URL): Promise<Hop | null> {
+export async function open(start: URL): Promise<Hop | null> {
   let url = start;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     const began = Date.now();
@@ -60,7 +60,7 @@ async function readHead(response: Response) {
 }
 
 /* Şifresiz adres HTTPS'e yönleniyor mu? Yalnız ilk yanıt: 3xx ve https hedef → uygun. */
-async function httpRedirect(host: string): Promise<PrecheckItem | null> {
+export async function httpRedirect(host: string): Promise<PrecheckItem | null> {
   try {
     const response = await fetch(`http://${host}/`, {
       method: 'GET',
