@@ -57,13 +57,13 @@ export function speedItem(ms: number): PrecheckItem {
 
 const ATTR = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g;
 
-function attributes(tag: string) {
+export function attributes(tag: string) {
   const out: Record<string, string> = {};
   for (const m of tag.matchAll(ATTR)) out[m[1].toLowerCase()] = (m[2] ?? m[3] ?? m[4] ?? '').trim();
   return out;
 }
 
-function decodeEntities(text: string) {
+export function decodeEntities(text: string) {
   return text
     .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
     .replace(/&#x([\da-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
@@ -77,7 +77,9 @@ function decodeEntities(text: string) {
 export function analyzeHead(html: string, robotsHeader: string | null): PrecheckItem[] {
   const bodyAt = html.search(/<body[\s>]/i);
   const head = bodyAt >= 0 ? html.slice(0, bodyAt) : html;
-  const metas = [...head.matchAll(/<meta\b[^>]*>/gi)].map(m => attributes(m[0]));
+  /* Etiket gövdesi en çok 2000 karakter ve '<' / '>' içermez: kapanışsız etiketlerle dolu bir
+     sayfa ([^>]* ile) kuadratik yavaşlatır, 256 KB'lık bir girdi ~15 sn CPU yakardı. */
+  const metas = [...head.matchAll(/<meta\b[^<>]{0,2000}>/gi)].map(m => attributes(m[0]));
   const meta = (name: string) => metas.find(a => a.name?.toLowerCase() === name)?.content;
 
   const items: PrecheckItem[] = [];
@@ -87,7 +89,7 @@ export function analyzeHead(html: string, robotsHeader: string | null): Precheck
   else if (/width\s*=\s*device-width/i.test(viewport)) items.push({ id: 'viewport', status: 'ok', code: 'viewport.ok' });
   else items.push({ id: 'viewport', status: 'warn', code: 'viewport.partial' });
 
-  const titleMatch = head.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
+  const titleMatch = head.match(/<title\b[^<>]{0,2000}>([^<]{0,2000})<\/title>/i);
   const title = titleMatch ? decodeEntities(titleMatch[1]) : '';
   if (!title) items.push({ id: 'title', status: 'err', code: 'title.none' });
   else if ([...title].length > 70) items.push({ id: 'title', status: 'warn', code: 'title.long', value: String([...title].length) });
