@@ -6,10 +6,11 @@
    müşteriye gönderir, sana gizli kopya düşer. Kayıtlara adres, e-posta ya da içerik yazılmaz. */
 
 import { Resend } from 'resend';
-import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep, type WorkflowStepConfig } from 'cloudflare:workers';
+import { WorkflowEntrypoint, type WorkflowDuration, type WorkflowEvent, type WorkflowStep, type WorkflowStepConfig } from 'cloudflare:workers';
 import { esc, fromAddress, notifyAddresses, type RequestMeta } from '@/lib/auditMail';
 import { CONTACT_EMAIL, SITE_URL } from '@/lib/company';
 import type { Lang } from '@/lib/content';
+import { expiredAlert, failedAlert, reminderAlert } from '@/lib/report/alerts';
 import { buildReport } from '@/lib/report/analyze';
 import { counts, draftEmail, reportEmail } from '@/lib/report/render';
 import { applyEdits, encodeFindings, NO_EDITS, sanitizeEdits } from '@/lib/report/edit';
@@ -21,6 +22,8 @@ export type ReportEnv = {
   PSI_API_KEY?: string;
   REPORT_SEND_MODE?: string;
   REPORT_APPROVAL_SECRET?: string;
+  /* Yalnız deneme için: onay bekleme süresi (ör. "10 seconds"). Boşsa 36 saat. */
+  REPORT_APPROVAL_WAIT?: string;
   AUDIT_FROM_EMAIL?: string;
   AUDIT_NOTIFY_EMAIL?: string;
 };
@@ -86,10 +89,36 @@ async function send(env: ReportEnv, mail: Mail) {
 
 const QUICK: WorkflowStepConfig = { retries: { limit: 1, delay: '10 seconds' }, timeout: '60 seconds' };
 const MAIL: WorkflowStepConfig = { retries: { limit: 3, delay: '15 seconds', backoff: 'exponential' }, timeout: '60 seconds' };
+/* Onay bekleme süresi: 36 saat; deneme için "<sayı> second|minute|hour" ile kısaltılabilir. */
+function approvalWait(env: ReportEnv): WorkflowDuration {
+  const m = env.REPORT_APPROVAL_WAIT?.trim().match(/^(\d{1,3}) (second|minute|hour)s?$/);
+  return m ? (`${m[1]} ${m[2]}s` as WorkflowDuration) : '36 hours';
+}
+
 const SLOW: WorkflowStepConfig = { retries: { limit: 1, delay: '20 seconds' }, timeout: '2 minutes' };
 
 export class ReportWorkflow extends WorkflowEntrypoint<ReportEnv, ReportParams> {
+  /* Beklenmedik bir hata Workflow'u sessizce durdurmasın: rapor ancak onayla gittiği için
+     müşteriye verilen 48 saatlik söz kaçabilir. Hata sana bildirilir, sonra yeniden fırlatılır. */
   async run(event: Readonly<WorkflowEvent<ReportParams>>, step: WorkflowStep) {
+    try {
+      await this.execute(event, step);
+    } catch (error) {
+      console.error('report failed:', error instanceof Error ? error.name : 'unknown');
+      const p = event.payload;
+      const meta: RequestMeta = { ref: p.ref, receivedAt: new Date(p.receivedAt) };
+      try {
+        await step.do('notify owner: failed', MAIL, () => send(this.env, {
+          to: listOf(this.env), ...failedAlert({ site: p.websiteUrl, requester: p.email, meta }), kind: 'report-error', key: `${event.instanceId}-error`,
+        }));
+      } catch {
+        console.error('report failure alert could not be sent');
+      }
+      throw error;
+    }
+  }
+
+  private async execute(event: Readonly<WorkflowEvent<ReportParams>>, step: WorkflowStep) {
     const p = event.payload;
     const id = event.instanceId;
     const meta: RequestMeta = { ref: p.ref, receivedAt: new Date(p.receivedAt) };
@@ -138,13 +167,27 @@ export class ReportWorkflow extends WorkflowEntrypoint<ReportEnv, ReportParams> 
     await step.do('send draft to owner', MAIL, () => send(this.env, { to: owner, ...draft, kind: 'report-draft', key: `${id}-draft` }));
     if (!secret) return;
 
+    /* 36 saat bekler; onay yoksa söz verilen teslime ~12 saat kala hatırlatır, 36 saat daha bekler.
+       Hâlâ onay yoksa rapor gönderilmez ve sana bildirilir. */
+    const base = { site: p.websiteUrl, requester: p.email, meta };
     let edits = NO_EDITS;
     try {
-      const approval = await step.waitForEvent<unknown>('wait for approval', { type: 'approve', timeout: '2 days' });
+      const approval = await step.waitForEvent<unknown>('wait for approval', { type: 'approve', timeout: approvalWait(this.env) });
       edits = sanitizeEdits(approval.payload, report.findings.length);
     } catch {
-      console.log('report approval timed out');
-      return;
+      await step.do('send reminder', MAIL, () => send(this.env, {
+        to: owner, ...reminderAlert({ ...base, approveUrl: approveUrl ?? p.websiteUrl, hoursLeft: 12 }), kind: 'report-reminder', key: `${id}-reminder`,
+      }));
+      try {
+        const approval = await step.waitForEvent<unknown>('wait for approval (last)', { type: 'approve', timeout: approvalWait(this.env) });
+        edits = sanitizeEdits(approval.payload, report.findings.length);
+      } catch {
+        console.log('report approval expired');
+        await step.do('notify owner: expired', MAIL, () => send(this.env, {
+          to: owner, ...expiredAlert(base), kind: 'report-expired', key: `${id}-expired`,
+        }));
+        return;
+      }
     }
     /* Elle düzeltmeler (çıkarılan bulgu, not, ek bulgu) gönderilen rapora yansır. */
     const edited = applyEdits(report, edits);

@@ -42,6 +42,17 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-10-01 — Hata uyarısı, onay hatırlatması ve önizleme
+
+Rapor ancak onayla gittiği için sessiz kalan bir Workflow müşteriye verilen 48 saatlik sözü kaçırtabilir. Eklenenler:
+- **Hata uyarısı** (`worker/report.ts`, `lib/report/alerts.ts`): Workflow beklenmedik bir hatayla durursa sana müşteri, site, söz verilen teslim ve elle başlangıç araçlarıyla (PageSpeed, SSL Labs, W3C) bir uyarı gelir; sonra hata yeniden fırlatılır (örnek "errored" görünür).
+- **Hatırlatma ve süre doldu:** taslaktan 36 saat sonra onay yoksa, söz verilen teslime ~12 saat kala hatırlatma (aynı düzenleme bağlantısıyla); 36 saat daha sonra hâlâ onay yoksa rapor gönderilmez ve sana "süre doldu" bildirimi gelir. Toplam bekleme 72 saat. `REPORT_APPROVAL_WAIT` ("6 seconds" gibi) yalnız yerel denemede süreyi kısaltır; boşsa 36 saat.
+- **Önizleme** (`worker/approve.ts`): düzenleme sayfasında "Önizleme" düğmesi, düzenlenmiş raporu müşterinin alacağı haliyle (izole `sandbox` çerçevede) gösterir; gönderilmez. Site adı bağlantıya konmadığı için örnek ad (`siteniz.com`) görünür. Düzenlemeler gizli alanlarla taşınır; "Bu haliyle müşteriye gönder" buradan gönderir.
+
+Doğrulama: `npm test` 52/52 (6 yeni), `lint`, `typecheck`, `wrangler deploy --dry-run`. `wrangler dev` (`REPORT_APPROVAL_WAIT=6 seconds`): taslak → hatırlatma → "onay süresi doldu" bildirimi → tamamlandı. Önizleme tarayıcıda açıldı: düzenlenmiş Almanca rapor örnek adla göründü, "Henüz gönderilmedi" uyarısı var, CSP `srcdoc` çerçevesine izin veriyor. E-posta anahtarı yok, hiçbir mail gitmedi. Hata uyarısının Workflow içindeki `catch` yolu yerelde tetiklenemedi (doğal bir hata üretmek zor); içeriği testli, bağlantısı kod incelemesiyle doğrulandı. Deploy / push yok.
+
+Değişen dosyalar: `lib/report/alerts.ts` (yeni), `worker/report.ts`, `worker/approve.ts`, `scripts/verify-report-alerts.ts` (yeni), `package.json`, `README.md`, `DOKUMANTASYON.md`.
+
 ### 2026-10-01 — Raporu elle düzeltme (onay sayfası düzenleyici)
 
 Kullanıcı otomatik raporu göndermeden önce elle düzeltebilmek istedi. Onay sayfası artık bir düzenleyici (`worker/approve.ts`):

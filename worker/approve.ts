@@ -6,12 +6,14 @@
    dil ve bulgular imzaya dahildir, bağlantıdaki hiçbir şey değiştirilemez. */
 
 import { clientIp, tooManyApprovals } from '@/lib/auditRateLimit';
+import { SAMPLE_DOMAIN } from '@/lib/company';
 import { content, type Lang } from '@/lib/content';
 import { parseLang } from '@/lib/lang';
 import { FINDING_COPY, REPORT_LABELS, localizeValue } from '@/lib/report/copy';
-import { clean, decodeFindings, EXTRA_MAX, NOTE_MAX, sanitizeEdits, STEP_MAX, TITLE_MAX, type Edits } from '@/lib/report/edit';
+import { applyEdits, clean, decodeFindings, EXTRA_MAX, NOTE_MAX, sanitizeEdits, STEP_MAX, TITLE_MAX, type Edits } from '@/lib/report/edit';
+import { reportEmail } from '@/lib/report/render';
 import { INSTANCE_ID, verifyApproval } from '@/lib/report/token';
-import { CHECK_ORDER, type Finding } from '@/lib/report/types';
+import { CHECK_ORDER, type Finding, type Report } from '@/lib/report/types';
 import type { ReportBinding } from './report';
 
 type ApproveEnv = { REPORT_WORKFLOW?: ReportBinding; REPORT_APPROVAL_SECRET?: string };
@@ -30,7 +32,7 @@ button{font:inherit;font-weight:600;padding:13px 20px;background:#e8f000;border:
 ul{list-style:none;margin:0 0 24px;padding:0}li{border:1px solid #e6e5e0;margin:0 0 8px}li label{display:flex;gap:12px;padding:12px 14px;cursor:pointer}
 li input{margin-top:5px}.chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;margin-right:6px;background:#e8f000}.chip.err{background:#090909;color:#fff}
 textarea,input[type=text],select{font:inherit;width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #c6c5be;margin:4px 0 12px;background:#fff}
-label.f{display:block;font-weight:600;margin-top:6px}details{border:1px solid #e6e5e0;padding:10px 14px;margin:0 0 24px}summary{cursor:pointer;font-weight:600}`;
+button.alt{background:#fff}label.f{display:block;font-weight:600;margin-top:6px}details{border:1px solid #e6e5e0;padding:10px 14px;margin:0 0 24px}summary{cursor:pointer;font-weight:600}`;
 
 function html(heading: string, inner: string, status = 200) {
   const doc = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -76,8 +78,22 @@ function editor(findings: Finding[], lang: Lang, f: { id: string; token: string;
         <textarea name="note" rows="3" maxlength="${NOTE_MAX}"></textarea></label>
       <p><small>Ölçülemeyen bir şey için (ör. telefonda menü açılmıyor) en çok ${EXTRA_MAX} ek bulgu yazabilirsin. Bulgu metni ${esc(LANG_TR[lang])} olmalı.</small></p>
       ${extras}
+      <button type="submit" class="alt" formaction="/api/report/approve?preview=1">Önizleme</button>
       <button type="submit">Raporu müşteriye gönder</button>
     </form>`);
+}
+
+/* Düzenlenmiş raporun müşteriye gidecek hali, gönderilmeden. Site adı yerine örnek ad gösterilir
+   (bağlantıya site adı konmaz). Aynı düzenlemeler gizli alanlarla taşınır: buradan gönderilebilir. */
+function preview(findings: Finding[], lang: Lang, edits: Edits, form: FormData) {
+  const base: Report = { host: SAMPLE_DOMAIN, finalUrl: `https://${SAMPLE_DOMAIN}/`, measuredAt: new Date().toISOString(), findings };
+  const mail = reportEmail(applyEdits(base, edits), lang, { ref: 'ÖNİZLEME', receivedAt: new Date() });
+  const fields = [...form.entries()].map(([k, v]) => hidden(k, String(v))).join('');
+  return html('Önizleme', `
+    <p>Müşterinin alacağı rapor aşağıda (${esc(LANG_TR[lang])}). <b>Henüz gönderilmedi.</b> Site adı yerine örnek ad gösterilir.</p>
+    <iframe sandbox title="Rapor önizlemesi" srcdoc="${esc(mail.html)}" style="width:100%;height:880px;border:1px solid #e6e5e0;margin:0 0 20px"></iframe>
+    <form method="post" action="/api/report/approve">${fields}<button type="submit">Bu haliyle müşteriye gönder</button></form>
+    <p style="margin-top:18px"><a href="#" onclick="history.back();return false">← Düzenlemeye dön</a></p>`);
 }
 
 function confirmOnly(f: { id: string; token: string }) {
@@ -135,6 +151,10 @@ export async function approve(request: Request, env: ApproveEnv) {
       key: field(`c${n + 1}_key`), status: field(`c${n + 1}_sev`), t: clean(field(`c${n + 1}_t`), TITLE_MAX), n: clean(field(`c${n + 1}_n`), STEP_MAX),
     })).filter(e => e.t && CHECK_ORDER.some(k => k === e.key));
     edits = sanitizeEdits({ drop: shownIndexes(link.findings).map(x => x.i).filter(i => !kept.has(i)), note: field('note'), extra }, link.findings.length);
+  }
+
+  if (new URL(request.url).searchParams.get('preview') === '1' && link.findings && link.lang) {
+    return preview(link.findings, link.lang, edits, form);
   }
 
   try {
