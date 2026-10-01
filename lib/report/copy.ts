@@ -174,6 +174,11 @@ export const FINDING_COPY: Record<string, Entry> = {
     de: { t: 'Auf der Startseite gibt es keine anklickbare Telefonnummer.', n: 'Eine Nummer ergänzen, die am Handy mit einem Tipp angerufen werden kann (tel:).' },
     en: { t: 'The homepage has no tappable phone number.', n: 'Add a number that can be called with one tap on a phone (tel:).' },
   },
+  'manual.ok': {
+    tr: { t: 'Elle kontrol edildi: müdahale gerektiren bir şey görünmüyor.' },
+    de: { t: 'Manuell geprüft: kein Handlungsbedarf erkennbar.' },
+    en: { t: 'Checked by hand: nothing that needs action.' },
+  },
   'contact.no_impressum': {
     tr: { t: 'Ana sayfada Impressum bağlantısı bulunamadı.', n: 'Almanya’daki ticari sitelerde Impressum bağlantısının her sayfadan erişilebilir olması gerekebilir; kontrol edilmeli.' },
     de: { t: 'Auf der Startseite wurde kein Impressum-Link gefunden.', n: 'Bei geschäftlichen Websites in Deutschland muss das Impressum unter Umständen von jeder Seite erreichbar sein; bitte prüfen.' },
@@ -194,6 +199,7 @@ type Labels = {
   impactMid: string;
   severity: { err: string; warn: string };
   checklistTitle: string;
+  noteLabel: string;
   more: (n: number) => string;
   status: Record<CheckStatus, string>;
   rows: { site: string; measured: string; ref: string };
@@ -222,6 +228,7 @@ export const REPORT_LABELS: Record<Lang, Labels> = {
     impactMid: 'Orta',
     severity: { err: 'Acil', warn: 'Orta' },
     checklistTitle: 'Kontrol listesi',
+    noteLabel: 'Notumuz',
     more: n => `+${n} daha`,
     status: { err: 'Sorunlu', warn: 'Dikkat', ok: 'Uygun', info: 'Bilgi', unknown: 'Ölçülemedi' },
     rows: { site: 'Site', measured: 'Ölçüm tarihi', ref: 'Referans' },
@@ -248,6 +255,7 @@ export const REPORT_LABELS: Record<Lang, Labels> = {
     impactMid: 'Mittel',
     severity: { err: 'Dringend', warn: 'Mittel' },
     checklistTitle: 'Checkliste',
+    noteLabel: 'Unsere Anmerkung',
     more: n => `+${n} weitere`,
     status: { err: 'Problem', warn: 'Beachten', ok: 'In Ordnung', info: 'Info', unknown: 'Nicht messbar' },
     rows: { site: 'Website', measured: 'Messung', ref: 'Referenz' },
@@ -274,6 +282,7 @@ export const REPORT_LABELS: Record<Lang, Labels> = {
     impactMid: 'Medium',
     severity: { err: 'Urgent', warn: 'Medium' },
     checklistTitle: 'Checklist',
+    noteLabel: 'Our note',
     more: n => `+${n} more`,
     status: { err: 'Problem', warn: 'Attention', ok: 'OK', info: 'Info', unknown: 'Not measurable' },
     rows: { site: 'Website', measured: 'Measured', ref: 'Reference' },

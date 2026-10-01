@@ -172,6 +172,7 @@ test('metinler: her kod üç dilde, acil ve orta bulgularda önerilen adım var'
     'stack.info', 'stack.none', 'stack.jquery_old', 'stack.php_old',
     'index.ok', 'index.noindex', 'index.robots_block', 'index.no_title', 'index.no_description', 'index.no_sitemap',
     'contact.ok', 'contact.none', 'contact.no_phone', 'contact.no_impressum',
+    'manual.ok',
   ];
   assert.deepEqual(Object.keys(FINDING_COPY).sort(), [...ALL].sort());
   const problem = /^(?:mobile\.(?:viewport|perf)|speed\.(?:mid|slow)|links\.broken|https\.(?:none|no_|mixed)|forms\.(?:insecure|mailto)|stack\.(?:jquery|php)|index\.(?!ok)|contact\.(?!ok))/;

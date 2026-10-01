@@ -12,6 +12,7 @@ import { CONTACT_EMAIL, SITE_URL } from '@/lib/company';
 import type { Lang } from '@/lib/content';
 import { buildReport } from '@/lib/report/analyze';
 import { counts, draftEmail, reportEmail } from '@/lib/report/render';
+import { applyEdits, encodeFindings, NO_EDITS, sanitizeEdits } from '@/lib/report/edit';
 import { approvalToken } from '@/lib/report/token';
 import { fetchPageFacts, fetchPsi, fetchRobots, probeLinks } from './reportNet';
 
@@ -128,19 +129,29 @@ export class ReportWorkflow extends WorkflowEntrypoint<ReportEnv, ReportParams> 
       return;
     }
 
-    const approveUrl = secret ? `${SITE_URL}/api/report/approve?i=${encodeURIComponent(id)}&t=${await approvalToken(secret, id)}` : null;
+    /* Bulgular ve dil bağlantıda imzalı taşınır: onay sayfası veritabanı olmadan düzenlenebilir. */
+    const data = encodeFindings(report.findings);
+    const approveUrl = secret
+      ? `${SITE_URL}/api/report/approve?i=${encodeURIComponent(id)}&l=${p.language}&d=${data}&t=${await approvalToken(secret, id, `${p.language}|${data}`)}`
+      : null;
     const draft = draftEmail(report, p.language, meta, { requester: p.email, approveUrl });
     await step.do('send draft to owner', MAIL, () => send(this.env, { to: owner, ...draft, kind: 'report-draft', key: `${id}-draft` }));
     if (!secret) return;
 
+    let edits = NO_EDITS;
     try {
-      await step.waitForEvent('wait for approval', { type: 'approve', timeout: '2 days' });
+      const approval = await step.waitForEvent<unknown>('wait for approval', { type: 'approve', timeout: '2 days' });
+      edits = sanitizeEdits(approval.payload, report.findings.length);
     } catch {
       console.log('report approval timed out');
       return;
     }
+    /* Elle düzeltmeler (çıkarılan bulgu, not, ek bulgu) gönderilen rapora yansır. */
+    const edited = applyEdits(report, edits);
+    const final = reportEmail(edited, p.language, meta);
+    console.log('report approved:', { dropped: edits.drop.length, extra: edits.extra.length, note: edits.note !== '' });
     await step.do('send report to customer', MAIL, () => send(this.env, {
-      to: p.email, bcc: owner, replyTo: CONTACT_EMAIL, ...customer, kind: 'report', key: `${id}-report`,
+      to: p.email, bcc: owner, replyTo: CONTACT_EMAIL, ...final, kind: 'report', key: `${id}-report`,
     }));
   }
 }

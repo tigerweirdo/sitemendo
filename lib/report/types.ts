@@ -18,6 +18,8 @@ export type Finding = {
   code: string;
   /* Rapor satırında gösterilen kısa değer (ör. "3,2 sn", "2 bağlantı"). */
   value?: string;
+  /* Elle eklenen bulgu: metni copy.ts'ten değil, onay sayfasında yazılandan gelir. */
+  text?: { t: string; n?: string };
 };
 
 export type PageFacts = {
@@ -58,4 +60,6 @@ export type Report = {
   finalUrl: string;
   measuredAt: string;
   findings: Finding[];
+  /* Onay sayfasında yazılan not; raporun başında gösterilir. */
+  note?: string;
 };

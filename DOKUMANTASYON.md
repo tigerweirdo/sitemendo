@@ -42,6 +42,22 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-10-01 — Raporu elle düzeltme (onay sayfası düzenleyici)
+
+Kullanıcı otomatik raporu göndermeden önce elle düzeltebilmek istedi. Onay sayfası artık bir düzenleyici (`worker/approve.ts`):
+- **Bulguyu çıkar:** sorunlu (acil/orta) her bulgu bir işaret kutusu; işareti kaldırılan rapordan çıkar. Bir kontrolün bütün bulguları çıkarılırsa o satırda "Elle kontrol edildi" yazar.
+- **Not:** raporun başında görünen, en çok 800 karakterlik not (müşterinin dilinde yazılır).
+- **Ek bulgu:** en çok 3; kontrol, önem (acil/orta), bulgu ve önerilen adım. Otomatik ölçülemeyen şeyler için (ör. telefonda menü açılmıyor).
+- Hiçbir şeye dokunmadan göndermek, e-postada görülen raporu aynen gönderir.
+
+Tasarım (veritabanı yok): bulgular `l` (dil) ve `d` (kodlanmış bulgular) olarak imzalı bağlantıda taşınır; HMAC örnek kimliği, dil ve bulguları kapsar, bağlantıdaki hiçbir şey değiştirilemez. Düzenleme onay olayının yükünde Workflow'a gider; Workflow yükü yeniden temizler (`sanitizeEdits`) ve gönderilen rapora uygular (`applyEdits`). Eski (bulgusuz) bağlantılar hâlâ çalışır. Sayfadan gelen her metin düz metindir; yazdırılırken kaçırılır. Taslak e-postadaki düğme "Raporu incele ve gönder".
+
+Doğrulama: `npm test` 46/46 (9 yeni: temizleme, uygulama, bağlantıda taşıma ve bozuk girdi reddi, e-postada kaçırma, sayfa davranışı, imzanın değiştirilememesi, tamamlanmış örneğe ikinci onay), `lint`, `typecheck`, `wrangler deploy --dry-run`. `wrangler dev` + gerçek tarayıcı: düzenleme sayfası açıldı, bir bulgu işareti kaldırıldı, not ve ek bulgu yazıldı, gönderildi; Workflow `report approved: { dropped: 1, extra: 1, note: true }` kaydetti ve tamamlandı. E-posta anahtarı yok, hiçbir mail gitmedi. Deploy / push / commit yok.
+
+Henüz yok: gönderilmeden önce **önizleme** (düzenlenmiş raporu görme). Düzenlenmiş raporun metni e-postada aynı şablonla üretiliyor ama sayfada gösterilmiyor; ilk haftalarda kendine bir test raporu göndermek en güvenlisi.
+
+Değişen dosyalar: `lib/report/edit.ts` (yeni), `lib/report/types.ts`, `lib/report/copy.ts` (`manual.ok`, not etiketi), `lib/report/render.ts`, `lib/report/token.ts` (imzaya ek veri), `worker/approve.ts`, `worker/report.ts`, `scripts/verify-report-edit.ts` (yeni), `scripts/verify-report.ts`, `package.json`, `README.md`, `DOKUMANTASYON.md`.
+
 ### 2026-10-01 — Ücretsiz kontrol raporu otomatik (Cloudflare Workflow)
 
 Kullanıcı rapor hazırlamayı elle yapmak istemiyor (bildirim e-postasındaki "Hızlı başlangıç" araçlarıyla bakıyordu) ve kimseyle kendiliğinden iletişime geçmek istemiyor. Karar (kullanıcı): motor Cloudflare Workflows'ta çalışsın (ek sunucu yok, "barındırma ücretsiz" kararına uyar); ilk haftalar rapor önce kullanıcıya gelsin, onayla müşteriye gitsin.

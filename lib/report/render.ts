@@ -15,8 +15,9 @@ import { CHECK_ORDER, type CheckKey, type CheckStatus, type Finding, type Report
 
 const RANK: Record<CheckStatus, number> = { err: 0, warn: 1, unknown: 2, info: 3, ok: 4 };
 
-function copyFor(code: string, lang: Lang) {
-  return (FINDING_COPY[code] ?? FINDING_COPY['stack.none'])[lang];
+/* Elle eklenen bulgunun metni kendisinde durur; diğerleri copy.ts'ten gelir. */
+function copyFor(f: Finding, lang: Lang) {
+  return f.text ?? (FINDING_COPY[f.code] ?? FINDING_COPY['stack.none'])[lang];
 }
 
 function shown(f: Finding, lang: Lang) {
@@ -45,7 +46,7 @@ export function worstByKey(report: Report): { key: CheckKey; finding: Finding; e
 
 function card(f: Finding, no: number, lang: Lang) {
   const l = REPORT_LABELS[lang];
-  const c = copyFor(f.code, lang);
+  const c = copyFor(f, lang);
   const urgent = f.status === 'err';
   const chipBg = urgent ? INK : SULFUR;
   const chipFg = urgent ? WHITE : INK;
@@ -68,7 +69,7 @@ function checklistRows(report: Report, lang: Lang) {
   const l = REPORT_LABELS[lang];
   const tags = Object.fromEntries(content[lang].checks.map(c => [c.key, c.tag]));
   const rows = worstByKey(report).map(({ key, finding, extra }, i) => {
-    const c = copyFor(finding.code, lang);
+    const c = copyFor(finding, lang);
     const value = shown(finding, lang);
     const more = extra > 0 ? ` · ${l.more(extra)}` : '';
     const tone = finding.status === 'err' ? INK : finding.status === 'warn' ? INK : SOFT;
@@ -86,7 +87,15 @@ function checklistRows(report: Report, lang: Lang) {
 export function reportBodyHtml(report: Report, lang: Lang) {
   const l = REPORT_LABELS[lang];
   const list = priorityList(report);
-  return `
+  const note = report.note
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0;"><tr>
+        <td width="4" bgcolor="${SULFUR}" style="width:4px;background:${SULFUR};font-size:0;line-height:0;">&nbsp;</td>
+        <td style="padding:2px 0 2px 16px;">
+          <p style="margin:0;font-family:${SANS};font-size:12px;line-height:1.4;color:${SOFT};">${esc(l.noteLabel)}</p>
+          <p style="margin:4px 0 0;font-family:${SANS};font-size:15px;line-height:1.6;color:${INK};">${esc(report.note)}</p>
+        </td></tr></table>`
+    : '';
+  return `${note}
     ${heading(l.priorityTitle)}
     ${list.length ? list.slice(0, 8).map((f, i) => card(f, i + 1, lang)).join('') : para(esc(l.noIssues), 0)}
     ${heading(l.checklistTitle)}
@@ -99,10 +108,11 @@ export function reportBodyText(report: Report, lang: Lang) {
   const l = REPORT_LABELS[lang];
   const tags = Object.fromEntries(content[lang].checks.map(c => [c.key, c.tag]));
   const list = priorityList(report);
-  const lines: string[] = [l.priorityTitle, ''];
+  const lines: string[] = report.note ? [`${l.noteLabel}: ${report.note}`, ''] : [];
+  lines.push(l.priorityTitle, '');
   if (!list.length) lines.push(l.noIssues);
   list.slice(0, 8).forEach((f, i) => {
-    const c = copyFor(f.code, lang);
+    const c = copyFor(f, lang);
     const value = shown(f, lang);
     lines.push(`${String(i + 1).padStart(2, '0')} [${l.severity[f.status === 'err' ? 'err' : 'warn']}] ${c.t}${value ? ` (${value})` : ''}`);
     lines.push(`   ${l.impact}: ${f.status === 'err' ? l.impactHigh : l.impactMid}`);
@@ -112,7 +122,7 @@ export function reportBodyText(report: Report, lang: Lang) {
   lines.push(l.checklistTitle, '');
   for (const { key, finding, extra } of worstByKey(report)) {
     const value = shown(finding, lang);
-    lines.push(`- ${tags[key] ?? key}: ${l.status[finding.status]}${extra > 0 ? ` · ${l.more(extra)}` : ''} — ${copyFor(finding.code, lang).t}${value ? ` (${value})` : ''}`);
+    lines.push(`- ${tags[key] ?? key}: ${l.status[finding.status]}${extra > 0 ? ` · ${l.more(extra)}` : ''} — ${copyFor(finding, lang).t}${value ? ` (${value})` : ''}`);
   }
   lines.push('', l.scope);
   return lines.join('\n');
@@ -207,8 +217,8 @@ export function draftEmail(
         ['Referans', esc(meta.ref)],
       ], 16)}
       ${o.approveUrl
-        ? `${buttons(button(o.approveUrl, 'Onayla ve müşteriye gönder'), button(report.finalUrl, 'Siteyi aç', false))}
-      ${para(`<span style="color:${SOFT};font-size:13px;">Düğmeye basmazsan rapor gönderilmez. Düğme önce bir onay sayfası açar; gönderim ancak o sayfadaki düğmeyle olur.</span>`, 4)}`
+        ? `${buttons(button(o.approveUrl, 'Raporu incele ve gönder'), button(report.finalUrl, 'Siteyi aç', false))}
+      ${para(`<span style="color:${SOFT};font-size:13px;">Düğme bir onay sayfası açar: orada yanlış çıkan bulguyu raporun dışına alabilir, not ya da ek bulgu yazabilirsin. Hiçbir şeye dokunmadan gönderirsen aşağıdaki hali gider. Düğmeye basmazsan rapor gönderilmez.</span>`, 4)}`
         : `${buttons(button(report.finalUrl, 'Siteyi aç', false), '')}
       ${para(`<span style="color:${SOFT};font-size:13px;">Onay bağlantısı kurulu değil (REPORT_APPROVAL_SECRET yok): rapor kendiliğinden gönderilmez. İstersen aşağıdaki raporu müşteriye elle ilet.</span>`, 4)}`}
       <div style="margin:30px 0 0;">${rule()}</div>
@@ -226,7 +236,7 @@ export function draftEmail(
     `Söz verilen teslim: ${due}`,
     '',
     o.approveUrl
-      ? `Onayla ve gönder: ${o.approveUrl}\n(Bağlantı önce bir onay sayfası açar; gönderim o sayfadaki düğmeyle olur.)`
+      ? `İncele, düzenle ve gönder: ${o.approveUrl}\n(Bağlantı bir onay sayfası açar; gönderim o sayfadaki düğmeyle olur. Yanlış bulguyu çıkarabilir, not ya da ek bulgu ekleyebilirsin.)`
       : 'Onay bağlantısı kurulu değil (REPORT_APPROVAL_SECRET yok): rapor kendiliğinden gönderilmez.',
     '',
     `--- Müşterinin alacağı rapor (${LANG_TR[lang]}) ---`,
