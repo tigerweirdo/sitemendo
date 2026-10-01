@@ -133,11 +133,27 @@ Dış bağlantılar için: `npm run check:links`. Google belgeleri taşınabilir
 - Barrierefreiheit (BFSG): kapsamı ve geçerlilik şartları doğrulanmadan yazılmaz.
 
 **Şimdilik yapılmayanlar (ve neden):**
-- Türkçe/İngilizce Ratgeber: önce Almanca'nın 12 haftalık verisi.
+- Türkçe/İngilizce Ratgeber: hepsini birden çevirmiyoruz (ayrıntı aşağıda, "Türkçe ve İngilizce için karar çerçevesi"). Ana sayfa ve üç hizmet sayfası zaten TR/DE/EN: başlık, açıklama, canonical, hreflang (`x-default` Türkçe kök adres), `ProfessionalService` ve `Service` verisi üç dilde hazır.
 - Yol tabanlı dil adresleri (`/de/...`): mevcut `?lang=` şeması hreflang ile çalışıyor; geçiş riskli. 12. haftada, hizmet sayfalarının verisine göre karar.
 - Şehir sayfaları (ör. "Webseite reparieren Berlin"): kural gereği Berlin'e özel izlenim yok; ayrıca benzer metinli çok sayıda sayfa spam riski taşır.
 - Sıfır-iletişim geri bağlantı fikirleri: yalnızca gerçek ve tutarlı kayıtlar (Google işletme profili, Bing Places, Apple Business Connect, kendi LinkedIn/GitHub profilleri, üyesi olunan IHK/Handwerkskammer'in firma rehberi). Her kayıtta ad, adres, telefon Impressum ile birebir aynı olmalı; toplu dizin gönderimi yapılmaz.
 - Üretken yapay zekâyla toplu içerik: yok. Her Ratgeber elle doğrulanmış kaynakla yazıldı.
+
+### Türkçe ve İngilizce için karar çerçevesi
+
+Almanca Ratgeber'ler Almanya hukukuna ve Almanya'daki araçlara dayanır (DDG, IHK, DSGVO, GMX/WEB.DE). Çeviri bu içeriği Almanya'daki Türkçe ve İngilizce konuşan işletme sahiplerine açar; kitle daha küçük, rekabet büyük olasılıkla daha az, ama bunlar ölçülmedi, yalnızca sınanacak varsayımlar.
+
+| Seçenek | Artı | Eksi |
+|---|---|---|
+| A. Hepsini şimdi (11 × 2) | Tek seferde bitmiş görünür | Almanca'nın işe yaradığı henüz bilinmiyor; her tarihe bağlı bilgi ve hukuki atıf 3 kez bakım ister; hukuki terimlerde çeviri hatası riski |
+| **B. Pilot (önerilen):** Türkçe 3–4, İngilizce 0–3 rehber | Varsayımı ucuza sınar; bakım yükü küçük | Küçük örnek, sonuç gürültülü olabilir |
+| C. 12. haftadan sonra | Karar gerçek veriye dayanır | 3 ay kaybedilir |
+
+Önerilen pilot konuları (hukuki ve "problem" niyetli, Almanya'daki küçük işletme sahibini en çok korkutanlar): Impressum zorunluluğu, "web sitem Google'da çıkmıyor", iletişim formu e-postaları gelmiyor, web sitesi bakımı. Türkçe önce (hedef kitle Türkçe ve Almanca iki dilli, kullanıcı kararı 2026-09-17; içeriği sen gözden geçirebilirsin); İngilizce yalnızca Türkçe pilot veri verirse.
+
+Teknik not: yeni dillerin adres düzeni ve hreflang bağı gerekir (ör. `/tr/rehber/<slug>` ↔ `/ratgeber/<slug>`; yalnız çevirisi olan rehberler birbirine bağlanır, `guideMetadata`, sitemap ve test genişletilir). Hukuki terimler çeviride Almanca aslıyla birlikte verilir (Impressum, Anbieterkennzeichnung). Makine çevirisi doğrudan yayınlanmaz; yerel okuma şart.
+
+Açık karar (acil değil): `x-default` ve dil belirtilmeyen istek şu an Türkçe (kullanıcı kararı, 2026-09-17). SEO artık Almanca öncelikli; Almanya hedefliyse kök adresin ve `x-default`'un Almanca olması düşünülebilir. Worker dil seçimini ve hreflang'ı etkilediği için verilerle (Search Console, hangi dilde gösterim) birlikte karar verilir.
 
 ## 12. Riskler ve açık noktalar
 
@@ -152,3 +168,36 @@ Dış bağlantılar için: `npm run check:links`. Google belgeleri taşınabilir
 ## 13. Birincil kaynaklar (özet)
 
 Tam liste her Ratgeber'in "Quellen" bölümünde. Başlıcaları: Google Search Central (indexing, noindex, robots.txt, site: operatörü, Seitenindexierung, URL-Prüftool, HTTP-Statuscodes, Spamrichtlinien, SEO-Starter-Guide, "Brauche ich einen SEO?"), blog.google (HTTPS by default), MDN (Mixed Content, HSTS, 5xx), php.net (Supported Versions, mail()), WordPress.org (Sicherheit, Updates, Debugging, Recovery Mode), Gmail Absenderrichtlinien, RFC 7208 ve RFC 9989, gesetze-im-internet.de (§ 5 ve § 33 DDG, § 36 VSBG), Medienstaatsvertrag § 18, IHK Merkblätter, Patchstack.
+
+## 14. Nasıl test edilir (adım adım)
+
+**A. Kod tarafı (kendi makinen):** `npm test` (70 test: ratgeber verisi, uzunluklar, bağlantılar, işaretleme, sitemap, HTML), `npm run lint`, `npm run typecheck`, `npm run build`. İsteğe bağlı: `npm run check:links` (dış adresler canlı), `npm run check:freshness` (tarihe bağlı iddialar).
+
+**B. Yayından hemen sonra, 5 dakika:**
+1. Bu 12 adres açılmalı: `https://sitemendo.com/ratgeber` ve 11 `/ratgeber/<slug>` (liste: `lib/guides/index.ts`). Kontrol: `curl -sI https://sitemendo.com/ratgeber/website-wartung` → `200`.
+2. Sayfa kaynağında (görünüm-kaynağı): `<title>`, `<link rel="canonical">` (kendi adresi), `<html lang="de">`, `application/ld+json` (Article + BreadcrumbList) ve **`noindex` olmaması**.
+3. `https://sitemendo.com/sitemap.xml` 30 adres içermeli (12'si `/ratgeber`).
+
+**C. Google araçları (hepsi ücretsiz):**
+- **Search Console → URL denetimi:** adresi yapıştır → "Canlı URL'yi test et": sayfa Google tarafından getirilebilir ve dizine eklenebilir görünmeli → "Dizine eklenmesini iste" (günlük kota var). Birkaç gün sonra aynı ekranda "URL Google'da" yazmalı. Genel görünüm: Dizinleme → Sayfalar.
+- **Zengin Sonuçlar Testi** (`search.google.com/test/rich-results`): canlı adresi gir; Breadcrumb (Ekmek kırıntısı) hatasız algılanmalı. Article için Google ayrıca görünür sonuç vaat etmez; sözdizimi için **Schema.org doğrulayıcı** (`validator.schema.org`).
+- **PageSpeed Insights** (`pagespeed.web.dev`): önce mobil sekme. Beklenti: dört kategori 90+ (yerel Lighthouse sonuçları aşağıda). "Gerçek kullanıcı verisi" bölümü trafik gelene kadar boş kalır; bu normal.
+- **Chrome DevTools → Lighthouse** (mobil, Performans + Erişilebilirlik + En iyi uygulamalar + SEO): benim yaptığım ölçümle aynı.
+- **Mobil görünüm:** DevTools cihaz modu (390 px) ve gerçek telefon: tablolar kart olmalı, yatay kayma olmamalı.
+
+**D. Dizinleme ve görünürlük (haftalar içinde):** `site:sitemendo.com/ratgeber` aramasını yalnızca kaba işaret say (Google da listenin tam olmadığını söyler); asıl kaynak Search Console → Sayfalar ve Performans (bölüm 9). Google, yeni sitenin fark edilmesinin "birkaç haftayı" bulabileceğini söyler.
+
+**E. Yerel Lighthouse sonuçları (2026-10-01, `wrangler dev`, Lighthouse 13, simüle yavaş 4G):**
+
+| Sayfa | Mobil (Perf / Erişilebilirlik / En iyi uyg. / SEO) | Masaüstü |
+|---|---|---|
+| `/ratgeber` | 100 / 100 / 100 / 100 (tekrarlı ölçüm; ilk soğuk ölçüm 91) | 100 / 100 / 100 / 100 |
+| `/ratgeber/website-nicht-bei-google-gefunden` (en uzun) | 100 / 100 / 100 / 100 (ilk soğuk ölçüm 98) | 100 / 100 / 100 / 100 |
+| `/ratgeber/impressum-pflichtangaben` | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/website-repair?lang=de` (kartlı hizmet sayfası) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/?lang=de` (ana sayfa) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+
+Mobil LCP ≈ 1,2 s, CLS 0, TBT 50–80 ms; sayfa başına ≈ 200–215 KiB aktarım (çoğu Next çalışma zamanı). Kalan uyarılar ("kullanılmayan JavaScript", "eski JavaScript") Next çerçevesinden gelir, puanı düşürmez; kovalanmaz.
+
+**F. Sınırlar:** Lighthouse "SEO 100" yalnızca temel teknik hijyeni ölçer (başlık, açıklama, taranabilirlik, hreflang, bağlantı metni, mobil uyum); sıralama, otorite veya içeriğin sorguyla eşleşmesi hakkında bir şey söylemez. Ölçüm yerel ve ağ gecikmesiz sunucudan; canlıda PageSpeed Insights ile tekrarlayın. Sıralama ancak Search Console verisiyle (bölüm 9) görülür.
+
