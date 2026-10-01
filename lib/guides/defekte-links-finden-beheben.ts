@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const defekteLinksFindenBeheben: Guide = {
+  lang: 'de',
   slug: 'defekte-links-finden-beheben',
   category: 'Links',
   check: 'links',

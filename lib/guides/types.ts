@@ -1,9 +1,14 @@
-/* Almanca Ratgeber (/ratgeber): veri modeli. Metinler lib/guides/*.ts içinde, bir rehber bir dosya.
-   Satır içi biçim (inline): **kalın**, `kod`, [metin](adres) ve {price.care} gibi fiyat/süre
-   işaretleri (lib/guides/inline.tsx). Fiyat ve süre rehber metinlerinde TEKRARLANMAZ; paket
-   kartlarından (content.ts) okunur. */
+/* Ratgeber (/ratgeber Almanca, /rehber Türkçe): veri modeli. Metinler lib/guides/*.ts (Almanca) ve
+   lib/guides/tr/*.ts (Türkçe) içinde, bir rehber bir dosya. Satır içi biçim (inline): **kalın**, `kod`,
+   [metin](adres) ve {price.care} gibi fiyat/süre işaretleri (lib/guides/inline.tsx). Fiyat ve süre rehber
+   metinlerinde TEKRARLANMAZ; paket kartlarından (content.ts) okunur. */
 
 import type { CheckKey } from '../content';
+
+/* Rehberin yazıldığı dil. Almanca ana dildir; Türkçe, Almanya'daki Türkçe konuşan işletmeler için
+   seçilmiş birkaç rehberin pilotudur (docs/seo-strategie.md). İngilizce şimdilik yok. */
+export type GuideLang = 'de' | 'tr';
+export const GUIDE_LANGS: GuideLang[] = ['de', 'tr'];
 
 export type Block =
   | { t: 'p'; x: string }
@@ -40,6 +45,10 @@ export const CATEGORY_ORDER: GuideCategory[] = [
 export type GuideService = 'check' | 'repair' | 'care';
 
 export type Guide = {
+  lang: GuideLang;
+  /* Bu rehber bir çeviri/uyarlamaysa Almanca aslının slug'ı. hreflang çifti buradan çıkar; yalnız Türkçe
+     dosyada yazılır, Almanca taraf karşılığı kendiliğinden bulur (lib/guides/index.ts: counterpart). */
+  translationOf?: string;
   slug: string;
   category: GuideCategory;
   /* Zu welchem der acht Prüfpunkte (lib/content.ts) der Ratgeber gehört; Grundlagen: keiner. */

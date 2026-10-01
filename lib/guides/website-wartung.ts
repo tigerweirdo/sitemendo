@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const websiteWartung: Guide = {
+  lang: 'de',
   slug: 'website-wartung',
   category: 'Technik und Wartung',
   check: 'stack',

@@ -8,7 +8,7 @@ import { absolutePageUrl } from '@/lib/seo';
 
 /* Üç hizmet rotasının ortak gövdesi (sunucu bileşeni): canonical ve hreflang, yapısal veri,
    sayfa. Yapısal veride fiyat yok; ana sayfadaki gibi, content.ts ile ayrı kopya tutulmasın.
-   Ratgeber kartları yalnız Almanca sayfada gösterilir (ratgeberler Almanca). */
+   Rehber kartları Almanca ve Türkçe sayfada gösterilir (her dilde kendi rehberleri); İngilizce sayfada yok. */
 export function ServiceRoute({ service, lang }: { service: ServiceKey; lang: Lang }) {
   const entry = SERVICE_PAGES.find(p => p.key === service)!;
   const page = servicePages[lang][service];
@@ -43,7 +43,7 @@ export function ServiceRoute({ service, lang }: { service: ServiceKey; lang: Lan
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }}
       />
-      <ServicePage service={service} initialLang={lang} guides={guideCardsFor(service)} />
+      <ServicePage service={service} initialLang={lang} guides={{ de: guideCardsFor(service, 'de'), tr: guideCardsFor(service, 'tr') }} />
     </>
   );
 }

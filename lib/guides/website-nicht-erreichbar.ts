@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const websiteNichtErreichbar: Guide = {
+  lang: 'de',
   slug: 'website-nicht-erreichbar',
   category: 'Erreichbarkeit',
   short: 'Website nicht erreichbar',

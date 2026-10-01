@@ -1,6 +1,6 @@
-# SEO stratejisi: Almanca Ratgeber (sitemendo.com)
+# SEO stratejisi: Almanca Ratgeber ve Türkçe pilot (sitemendo.com)
 
-Tarih: 2026-10-01 · Kapsam: `/ratgeber` bölümü, teknik SEO, iç bağlantı, ölçüm planı · Dil: Almanca öncelikli (kullanıcı kararı, 2026-10-01)
+Tarih: 2026-10-01 · Kapsam: `/ratgeber` bölümü, Türkçe pilot `/rehber`, teknik SEO, iç bağlantı, ölçüm planı · Dil: Almanca öncelikli (kullanıcı kararı, 2026-10-01). Türkçe pilot (4 rehber) hazır; **yayından önce kullanıcının okuması bekleniyor** (bkz. bölüm 8 ve 11).
 
 ## 1. Amaç, sınırlar, başarı ölçütü
 
@@ -13,14 +13,15 @@ Tarih: 2026-10-01 · Kapsam: `/ratgeber` bölümü, teknik SEO, iç bağlantı, 
 - Her olgusal iddia birincil kaynaktan doğrulandı; tarihe bağlı olanlar "Stand: Oktober 2026" taşır.
 - Hukuki konularda (Impressum, Datenschutz) "Rechtsberatung değildir" uyarısı ve kanunun kendi metni.
 
-**Başarı ölçütü (12 hafta):** (1) 11 Ratgeber + özet sayfası Search Console'da dizinli; (2) `/ratgeber/` yolunda gösterim ve tıklama oluşuyor; (3) ücretsiz kontrol isteklerinde arama kaynaklı artış (bkz. bölüm 9). Sıralama veya trafik sayısı vaat edilmez; kimse #1 garanti edemez (Google, "Brauche ich einen SEO?").
+**Başarı ölçütü (12 hafta):** (1) 11 Ratgeber + özet sayfası (ve yayınlanırsa Türkçe pilotun 4 rehberi + `/rehber`) Search Console'da dizinli; (2) `/ratgeber/` ve `/rehber/` yollarında gösterim ve tıklama oluşuyor; (3) ücretsiz kontrol isteklerinde arama kaynaklı artış (bkz. bölüm 9). Sıralama veya trafik sayısı vaat edilmez; kimse #1 garanti edemez (Google, "Brauche ich einen SEO?").
 
 ## 2. Ne yapıldı (özet)
 
 - 11 Almanca Ratgeber (`lib/guides/*.ts`, ayrıntılı, kaynaklı, 1.400+ kelime) + özet sayfası `/ratgeber`.
 - Teknik altyapı: statik HTML (JS gerektirmez), kendi kök düzeni, canonical, Article + BreadcrumbList + CollectionPage JSON-LD, sitemap (`lastModified` her Ratgeber'in kendi tarihi), Worker yönlendirmesi, mobilde kart biçimine dönen tablolar.
-- İç bağlantı: ana sayfa altbilgisi → `/ratgeber` (üç dilde); Almanca hizmet sayfaları → "Passende Ratgeber" (3–4 kart); Ratgeber'ler birbirine ve hizmet sayfalarına bağlı.
-- Denetimler: `npm test` (13 yeni test), `npm run check:links` (75 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar).
+- İç bağlantı: ana sayfa altbilgisi → `/ratgeber` (DE/EN) ve `/rehber` (TR); Almanca hizmet sayfaları → "Passende Ratgeber" (3–4 kart), Türkçe hizmet sayfaları → "İlgili rehberler" (2–4 kart); Ratgeber'ler birbirine ve hizmet sayfalarına bağlı.
+- **Türkçe pilot (`/rehber`):** Almanca aslı olan 4 rehberin Türkçe uyarlaması (`lib/guides/tr/*.ts`): `impressum-zorunlulugu`, `web-sitesi-google-da-gorunmuyor`, `iletisim-formu-calismiyor`, `web-sitesi-bakimi` + özet sayfası `/rehber`. Birebir çeviri değil, Almanya'daki Türkçe konuşan işletme sahibine uyarlama: olgular Almanca asıllarla aynı (aynı kaynaklar), hukuki terimler ve arayüz terimleri Almanca/İngilizce aslıyla birlikte verilir, Google kaynakları Türkçe belgeleri (`?hl=tr`). Almanca ve Türkçe eşler hreflang ile bağlıdır (`x-default` = Almanca). Yapay zekâ ile yazıldı: yayından önce yerel okuma şart.
+- Denetimler: `npm test` (`scripts/verify-guides.ts`, 14 test, iki dil için), `npm run check:links` (95 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar; Türkçe dosyalar dâhil).
 
 ## 3. Arama sonuçlarından gözlemler (sınırlı, ölçüm değil)
 
@@ -51,6 +52,15 @@ Hacimler ölçülmedi; sorgular tahmindir. Her Ratgeber'in tek bir ana niyeti va
 
 Bu tabloyu 4. haftada Search Console'daki gerçek sorgularla karşılaştırın; çakışma (aynı sorgu için iki Ratgeber görünüyor) varsa birini sadeleştirin veya iç bağlantıyla yönlendirin.
 
+**Türkçe pilot (tahmini sorgular, ölçülmedi):** Almanya'daki Türkçe konuşan işletme sahibi bazı aramaları Almanca, bazılarını Türkçe yapabilir; bu yüzden Türkçe sayfalar Almanca eşlerinin yerine değil yanına konur.
+
+| Rehber | Almanca eşi | Ana sorgu (tahmin) | Yan sorgular (tahmin) |
+|---|---|---|---|
+| `impressum-zorunlulugu` | `impressum-pflichtangaben` | impressum nedir | impressum zorunluluğu, impressum nasıl yazılır, impressum örneği |
+| `web-sitesi-google-da-gorunmuyor` | `website-nicht-bei-google-gefunden` | web sitem google'da çıkmıyor | sitem google'da görünmüyor, siteyi google'a ekleme, search console dizine eklenmedi |
+| `iletisim-formu-calismiyor` | `kontaktformular-funktioniert-nicht` | iletişim formu çalışmıyor | form mail göndermiyor, wordpress form e-posta gelmiyor |
+| `web-sitesi-bakimi` | `website-wartung` | web sitesi bakımı | wordpress bakım, site bakım sözleşmesi |
+
 ## 5. Sayfa standartları (on-page)
 
 Test (`scripts/verify-guides.ts`) bunları her `npm test`'te denetler:
@@ -61,12 +71,14 @@ Test (`scripts/verify-guides.ts`) bunları her `npm test`'te denetler:
 - Biçim: ≥ 1.400 kelime, ≥ 2 tablo/adım dizisi, alıntı ve kısaltma kuralları (Almanca tırnak, "z. B.", "91 %"), sabit fiyat yok.
 - FAQ bölümü sayfada görünür; **FAQPage/HowTo yapılandırılmış verisi bilerek eklenmedi:** Google bu zengin sonuçları kısıtladı (Ağustos 2023) ve FAQ zengin sonuçlarını 7 Mayıs 2026'da tamamen kaldırdı; işaretleme zarar vermez ama görünür sonuç üretmez.
 - Yazar: "Von Sitemendo" (kurum). `Article.author` Organization; uydurma kişi yok.
+- **Türkçe rehberler aynı testlerden geçer, dil kurallarıyla** (`RULES` içinde `scripts/verify-guides.ts`): "siz" biçimi (sen/senin/sana yasak), tırnak “…” (düz tırnak ve Almanca „…“ yasak), kesme işareti ’ (düz `'` yasak), yüzde işareti sayıdan önce (`%91`), ≥ 1.100 kelime (Almancada 1.400), tarihe bağlı iddialarda "Ekim 2026 itibarıyla", fiyat `{price.*}` işaretiyle ve TL/₺ yazılmaz, abartı listesi (en iyi, mükemmel, harika, garantili …), "garanti" yalnızca olumsuz bağlamda. Her Türkçe rehber bir Almanca asla (`translationOf`) ve aynı `check`/`service`/`category` değerine bağlıdır; ilgili rehberler yalnız Türkçe rehberlere gider. Arayüz terimleri (Search Console, Gmail, WordPress) hem Türkçe hem İngilizce aslıyla verilir.
 
 ## 6. Teknik kararlar
 
-- **URL şeması:** Her Ratgeber tek Almanca adreste (`/ratgeber/<slug>`), `?lang=` yok, canonical kendisi, hreflang yok (tek dilli sayfa). Ana site ve hizmet sayfaları `?lang=` şemasında kalır (mevcut düzen; bkz. bölüm 11).
-- **Statik çıktı:** `output: 'export'`; Ratgeber'ler `app/ratgeber/` altında ikinci bir kök düzende (`<html lang="de">`). Worker (`worker/index.ts`) `/ratgeber` ve `/ratgeber/<slug>` için varlığı sunar; bilinmeyen adres Almanca 404 (kod 404); sondaki eğik çizgi 308 ile kaldırılır; `Cache-Control: public, no-cache, no-transform`.
-- **Sitemap:** özet haftalık (0,8), Ratgeber'ler aylık (0,7), `lastModified` = Ratgeber'in `modified` alanı. Anlamlı bir değişiklikte `modified` yükseltilir (yalnızca gerçek değişiklikte; sahte "güncellendi" tarihi yok).
+- **URL şeması:** Almanca `/ratgeber/<slug>`, Türkçe `/rehber/<slug>`; her sayfa tek adreste, `?lang=` yok, canonical sayfanın kendisi. Çevirisi olan sayfa çiftleri (Türkçe dosyadaki `translationOf` alanı) hreflang ile birbirine bağlanır: `de`, `tr` ve `x-default` (= Almanca); iki özet sayfası da çifttir. Çevirisi olmayan Almanca Ratgeber'lerde hreflang yoktur (tek dilli sayfa). Ana site ve hizmet sayfaları `?lang=` şemasında kalır (mevcut düzen; bkz. bölüm 11).
+- **Statik çıktı:** `output: 'export'`; Ratgeber'ler `app/ratgeber/` altında ikinci, Türkçe rehberler `app/rehber/` altında üçüncü bir kök düzende (`<html lang="de">` ve `<html lang="tr">`). Worker (`worker/index.ts`) `/ratgeber`, `/ratgeber/<slug>`, `/rehber` ve `/rehber/<slug>` için varlığı sunar; bilinmeyen adres kendi dilinde 404 (Almanca yolda Almanca, `/rehber/…` yolunda Türkçe; kod 404, `noindex`); sondaki eğik çizgi 308 ile kaldırılır; `Cache-Control: public, no-cache, no-transform`. Arayüz metinleri (başlıklar, etiketler) `lib/guides/ui.ts`'te dile göre tutulur.
+- **Dil değiştirici:** rehber sayfalarında üst menüdeki TR/DE bağlantısı sayfanın karşılığına gider (çevirisi yoksa ana sayfanın o diline); geçerli dilin bağlantısı sayfanın kendisidir (`aria-current`).
+- **Sitemap:** özet haftalık (0,8), Ratgeber'ler aylık (0,7), `lastModified` = Ratgeber'in `modified` alanı; çevirisi olan sayfa çiftlerinde her kayıt `alternates.languages` (de, tr, x-default) taşır. Anlamlı bir değişiklikte `modified` yükseltilir (yalnızca gerçek değişiklikte; sahte "güncellendi" tarihi yok).
 - **Yapılandırılmış veri:** Article (headline, dates, publisher/author Organization), BreadcrumbList, özet için CollectionPage. Hizmet sayfalarındaki `Service` verisi değişmedi.
 - **Performans/erişilebilirlik:** İstemci JS gerektirmez (SSS yerel `<details>`); tablolar dar ekranda (< 640 px) kartlara dönüşür (satır başlığı kart başlığı, her hücrede sütun başlığı) ve tablo rolleri korunur; uzun teknik sözcükler (hata kodları, alan adları) kırılır; 320–1280 px arasında yatay taşma yok (altı genişlikte ölçüldü).
 - **Güvenlik başlıkları/CSP:** ana sitedekiyle aynı (`script-src 'self' 'unsafe-inline'`); Ratgeber'lerde harici betik, çerez, izleyici yok. Dış bağlantılar `rel="noopener noreferrer"`.
@@ -74,14 +86,27 @@ Test (`scripts/verify-guides.ts`) bunları her `npm test`'te denetler:
 ## 7. İç bağlantı yapısı
 
 ```
-ana sayfa (altbilgi "Ratgeber") ──► /ratgeber ──► 11 Ratgeber
+ana sayfa DE/EN (altbilgi "Ratgeber" / "Guides (in German)") ──► /ratgeber ──► 11 Ratgeber
+ana sayfa TR (altbilgi "Rehberler") ──► /rehber ──► 4 rehber (Türkçe pilot)
 Almanca hizmet sayfaları ("Passende Ratgeber", 3–4 kart) ──► ilgili Ratgeber'ler
+Türkçe hizmet sayfaları ("İlgili rehberler", 2–4 kart) ──► ilgili Türkçe rehberler
 Ratgeber ──► Ratgeber (related + metin içi) ──► hizmet sayfaları (kontrol / onarım / bakım) ──► form
+Türkçe rehber ──► Türkçe rehber (related) + Almanca eşi ("Almanca sürüm") + Türkçe hizmet sayfaları
 ```
 
-Hizmet sayfası eşlemesi `lib/guides/related.ts` içindedir (check: pillar, Google, Impressum, Ladezeit; repair: Ladezeit, mobil, Formular, Links; care: Wartung, Erreichbarkeit, WordPress-Fehler, HTTPS). Türkçe/İngilizce sayfalar Almanca Ratgeber'e yalnız altbilgiden ("Rehberler (Almanca)", "Guides (in German)") bağlanır; çünkü içerik Almanca.
+Hizmet sayfası eşlemesi `lib/guides/related.ts` içindedir, dil başına ayrı (Almanca check: pillar, Google, Impressum, Ladezeit; repair: Ladezeit, mobil, Formular, Links; care: Wartung, Erreichbarkeit, WordPress-Fehler, HTTPS. Türkçe check: Google, Impressum; repair: iletişim formu, Google; care: bakım, iletişim formu). İngilizce sayfalar Almanca Ratgeber'e yalnız altbilgiden ("Guides (in German)") bağlanır; çünkü İngilizce içerik yok. Türkçe rehberler, Türkçesi olmayan konulara (kırık bağlantılar, HTTPS, hız, mobil, erişilebilirlik) Almanca rehbere "(Almanca)" etiketiyle bağlanır; test bu çapraz-dil bağlantılarını da çözümler.
 
 ## 8. Yayından sonra yapılacaklar (kullanıcıda)
+
+**Almanca bölüm 2026-10-01'de yayınlandı** (push yapıldı; canlıda `/ratgeber` ve 11 Ratgeber 200, sitemap 30 adres). Aşağıdaki 1–6 yine geçerli kontrol listesidir.
+
+**Türkçe pilot için (yayın öncesi ve sonrası):**
+- **Önce okuyun.** Dört Türkçe rehberi (`lib/guides/tr/*.ts`, ya da hazırlanan okuma dosyası) baştan sona okuyun. Özellikle doğrulayın: (a) Search Console arayüz terimleri (Google'ın Türkçe belgelerinden alındı; kendi Türkçe arayüzünüzde aynı mı?), (b) hukuki terimlerin Türkçe karşılıkları (Impressum, ihtarname/Abmahnung, yetkili temsilci, denetleyici makam, idari para cezası), (c) WordPress Türkçe ayar adı ("Ayarlar → Okuma", "Arama motorlarının bu siteyi dizine eklemesine engel olmaya çalış"), (d) Chrome Geliştirici Araçları'ndaki "Ağ" sekmesi, (e) genel üslup ("siz", sakin, abartısız).
+- Düzeltme isterseniz söyleyin; metin değişince `modified` yükseltilir ve test yeniden çalıştırılır.
+- Uygun bulursanız önce dalı birleştirin: `git switch main && git merge turkish-pilot`, sonra `git push origin main`. Türkçe pilot şu an yalnızca yerelde `turkish-pilot` dalındadır, `main`'de değildir; **okumadan yayınlanmaz**.
+- Yayından sonra: `/rehber` ve 4 `/rehber/<slug>` 200 dönmeli; `https://sitemendo.com/sitemap.xml` 35 adres içermeli; bir Türkçe rehberin kaynağında `hreflang` `de`, `tr`, `x-default` ve `<html lang="tr">` görülmeli. Search Console'da sitemap'i yeniden gönderin; `/rehber` ve 4 rehber için "Dizine ekleme iste" (günlük kota; aynı adres tekrar gönderilmez).
+
+**Almanca yayın kontrol listesi:**
 
 1. `git push origin main` (push ve deploy kullanıcıdadır; Workers Builds yayını yapar).
 2. Canlıyı kontrol edin: `https://sitemendo.com/ratgeber` ve bir Ratgeber 200 dönmeli; `https://sitemendo.com/sitemap.xml` 30 adres içermeli (12'si `/ratgeber`).
@@ -101,6 +126,8 @@ Sitede analitik betiği yok (gizlilik metni böyle der); bu korunur. Kaynaklar: 
 | Hafta 8 | Gösterimi olup tıklanmayan sayfalar | Başlık/description'ı gerçek sorguya yaklaştırın (tek seferde bir sayfa, tarihini not edin) |
 | Hafta 12 | Tıklama ve form isteği | Hangi Ratgeber değer üretiyor? Faz 2 konularına ve çeviri kararına buna göre karar verin |
 
+Türkçe pilot yayınlanırsa: Performans → Sayfalar'da `/rehber/` filtresini kullanın ve `/ratgeber/` ile karşılaştırın. Almanca ve Türkçe eşler aynı konuyu iki dilde karşıladığı için karar 12. haftada, iki bölümün gösterim ve tıklama farkına ve ücretsiz kontrol isteklerine bakılarak verilir (bkz. bölüm 11).
+
 Okuma kuralları: yeni alanda ilk haftalarda gösterim azdır; Google "birkaç haftaya kadar" sürebileceğini kendisi söyler. Karar vermek için değişiklikten sonra en az birkaç hafta bekleyin (SEO Starter Guide). Tek bir sorgunun sapması değil, sayfa ve sorgu grubu eğilimi okunur.
 
 İsteğe bağlı (kullanıcı onayıyla): Bing Webmaster Tools (Search Console'dan içe aktarılır); IndexNow (adres bildirimi; izinsiz çalıştırılmaz); Cloudflare Workers gözlemlenebilirliği zaten açık: `/ratgeber/*` istek sayıları (botlar dahil) yön gösterir, kesin sayı değildir.
@@ -112,13 +139,15 @@ Okuma kuralları: yeni alanda ilk haftalarda gösterim azdır; Google "birkaç h
 | Bilgi | Nerede | Süre | Yapılacak |
 |---|---|---|---|
 | Chrome 154 "Always Use Secure Connections" (Ekim 2026) | HTTPS Ratgeber'i, pillar | 2026-11-15 | "duyurdu" → "… tarihinden beri"; teaser ve H2 |
-| PHP 8.2 güvenlik desteği sonu (31.12.2026) | Wartung, Ladezeit, pillar | 2027-01-01 | tablo/paragraf/SSS; Stand |
+| PHP 8.2 güvenlik desteği sonu (31.12.2026) | Wartung, Ladezeit, pillar; Türkçe `web-sitesi-bakimi` | 2027-01-01 | tablo/paragraf/SSS; Stand |
 | Ücretsiz kontrolün PHP eşiği (< 8.2 uyarı) | `lib/report/analyze.ts` | 2027-01-01 | eşiği 8.3'e çıkarın, `copy.ts` ve testleri güncelleyin |
-| DMARC politikaları (Yahoo, GMX, WEB.DE, Gmail, Outlook, T-Online) | Kontaktformular Ratgeber'i | 2027-01-15 | `dig +short TXT _dmarc.<alan>` ile yeniden sorgulayın |
+| DMARC politikaları (Yahoo, GMX, WEB.DE, Gmail, Outlook, T-Online) | Kontaktformular Ratgeber'i; Türkçe `iletisim-formu-calismiyor` | 2027-01-15 | `dig +short TXT _dmarc.<alan>` ile yeniden sorgulayın |
 | Sertifika ömrü 100 gün (15.3.2027) | HTTPS Ratgeber'i | 2027-03-15 | zaman kipini düzeltin |
-| Patchstack yıllık raporu (Şubat) | Wartung | 2027-03-01 | 2026 rakamlarını alın |
-| DDG/VSBG/MStV, IHK Merkblatt | Impressum Ratgeber'i | 2027-04-01 | kanun metni ve Aktualitätendienst; Stand |
-| Her Ratgeber | hepsi | 183 gün | kaynakları ve iddiaları yeniden okuyun, `modified` yükseltin |
+| Patchstack yıllık raporu (Şubat) | Wartung; Türkçe `web-sitesi-bakimi` | 2027-03-01 | 2026 rakamlarını alın |
+| DDG/VSBG/MStV, IHK Merkblatt | Impressum Ratgeber'i; Türkçe `impressum-zorunlulugu` | 2027-04-01 | kanun metni ve Aktualitätendienst; Stand |
+| Her Ratgeber ve her Türkçe rehber | hepsi | 183 gün | kaynakları ve iddiaları yeniden okuyun, `modified` yükseltin |
+
+Aynı iddia iki dilde durduğu için bir güncelleme **Almanca ve Türkçe dosyaya birlikte** uygulanır; Türkçe dosyayı unutmak en olası hatadır (`check:freshness` her iki dosyayı da listeler). Tarih ifadesi Almancada "Stand: Oktober 2026", Türkçede "Ekim 2026 itibarıyla" biçimindedir; test ikisini de arar.
 
 Dış bağlantılar için: `npm run check:links`. Google belgeleri taşınabilir (ör. HTTP durum kodları belgesi `developers.google.com/crawling/...` altına taşındı); script yönlendirmeleri raporlar. İki adres bot korumasında "von Hand prüfen" çıkar (W3C Link Checker, Search Engine Land); tarayıcıda açılır.
 
@@ -133,7 +162,7 @@ Dış bağlantılar için: `npm run check:links`. Google belgeleri taşınabilir
 - Barrierefreiheit (BFSG): kapsamı ve geçerlilik şartları doğrulanmadan yazılmaz.
 
 **Şimdilik yapılmayanlar (ve neden):**
-- Türkçe/İngilizce Ratgeber: hepsini birden çevirmiyoruz (ayrıntı aşağıda, "Türkçe ve İngilizce için karar çerçevesi"). Ana sayfa ve üç hizmet sayfası zaten TR/DE/EN: başlık, açıklama, canonical, hreflang (`x-default` Türkçe kök adres), `ProfessionalService` ve `Service` verisi üç dilde hazır.
+- Türkçe pilotun dışındaki 7 Ratgeber'in Türkçesi ve tüm İngilizce Ratgeber: yok; hepsini birden çevirmiyoruz (ayrıntı aşağıda, "Türkçe ve İngilizce için karar çerçevesi"). Ana sayfa ve üç hizmet sayfası zaten TR/DE/EN: başlık, açıklama, canonical, hreflang (`x-default` Türkçe kök adres), `ProfessionalService` ve `Service` verisi üç dilde hazır.
 - Yol tabanlı dil adresleri (`/de/...`): mevcut `?lang=` şeması hreflang ile çalışıyor; geçiş riskli. 12. haftada, hizmet sayfalarının verisine göre karar.
 - Şehir sayfaları (ör. "Webseite reparieren Berlin"): kural gereği Berlin'e özel izlenim yok; ayrıca benzer metinli çok sayıda sayfa spam riski taşır.
 - Sıfır-iletişim geri bağlantı fikirleri: yalnızca gerçek ve tutarlı kayıtlar (Google işletme profili, Bing Places, Apple Business Connect, kendi LinkedIn/GitHub profilleri, üyesi olunan IHK/Handwerkskammer'in firma rehberi). Her kayıtta ad, adres, telefon Impressum ile birebir aynı olmalı; toplu dizin gönderimi yapılmaz.
@@ -146,12 +175,14 @@ Almanca Ratgeber'ler Almanya hukukuna ve Almanya'daki araçlara dayanır (DDG, I
 | Seçenek | Artı | Eksi |
 |---|---|---|
 | A. Hepsini şimdi (11 × 2) | Tek seferde bitmiş görünür | Almanca'nın işe yaradığı henüz bilinmiyor; her tarihe bağlı bilgi ve hukuki atıf 3 kez bakım ister; hukuki terimlerde çeviri hatası riski |
-| **B. Pilot (önerilen):** Türkçe 3–4, İngilizce 0–3 rehber | Varsayımı ucuza sınar; bakım yükü küçük | Küçük örnek, sonuç gürültülü olabilir |
+| **B. Pilot (seçildi ve yazıldı, yayın öncesi okuma bekliyor):** Türkçe 4 rehber, İngilizce 0 | Varsayımı ucuza sınar; bakım yükü küçük | Küçük örnek, sonuç gürültülü olabilir |
 | C. 12. haftadan sonra | Karar gerçek veriye dayanır | 3 ay kaybedilir |
 
-Önerilen pilot konuları (hukuki ve "problem" niyetli, Almanya'daki küçük işletme sahibini en çok korkutanlar): Impressum zorunluluğu, "web sitem Google'da çıkmıyor", iletişim formu e-postaları gelmiyor, web sitesi bakımı. Türkçe önce (hedef kitle Türkçe ve Almanca iki dilli, kullanıcı kararı 2026-09-17; içeriği sen gözden geçirebilirsin); İngilizce yalnızca Türkçe pilot veri verirse.
+Pilot konuları (hukuki ve "problem" niyetli, Almanya'daki küçük işletme sahibini en çok korkutanlar; dördü de yazıldı): Impressum zorunluluğu, "web sitem Google'da çıkmıyor", iletişim formu e-postaları gelmiyor, web sitesi bakımı. Türkçe önce (hedef kitle Türkçe ve Almanca iki dilli, kullanıcı kararı 2026-09-17); İngilizce yalnızca Türkçe pilot veri verirse.
 
-Teknik not: yeni dillerin adres düzeni ve hreflang bağı gerekir (ör. `/tr/rehber/<slug>` ↔ `/ratgeber/<slug>`; yalnız çevirisi olan rehberler birbirine bağlanır, `guideMetadata`, sitemap ve test genişletilir). Hukuki terimler çeviride Almanca aslıyla birlikte verilir (Impressum, Anbieterkennzeichnung). Makine çevirisi doğrudan yayınlanmaz; yerel okuma şart.
+Uygulama (2026-10-01): adres düzeni `/rehber/<slug>` ↔ `/ratgeber/<slug>` (yol tabanlı `/tr/…` değil; mevcut Ratgeber düzeniyle aynı); yalnız çevirisi olan rehberler birbirine hreflang ile bağlanır (`guideMetadata`, sitemap, test genişletildi); yeni bir dil eklemek için `GuideLang`, `UI`, `linksFor` ve `RULES` (test) girdisi, bir kök düzen ve Worker yolu gerekir. Hukuki terimler çeviride Almanca aslıyla birlikte verilir (Impressum, Abmahnung, Anbieterkennzeichnung). Metinler yapay zekâ ile yazıldı; doğrudan yayınlanmaz, yerel okuma şart (kullanıcı okuyacak).
+
+**Pilot kararı (12. hafta):** Türkçe sayfalar gösterim ve ücretsiz kontrol isteği üretiyorsa kalan 7 Ratgeber sırayla Türkçeye uyarlanır (her biri aynı testten geçer, aynı okuma kuralıyla). Üretmiyorsa Türkçe bölüm olduğu gibi kalır, yeni çeviri yapılmaz; İngilizce hiç başlamaz.
 
 Açık karar (acil değil): `x-default` ve dil belirtilmeyen istek şu an Türkçe (kullanıcı kararı, 2026-09-17). SEO artık Almanca öncelikli; Almanya hedefliyse kök adresin ve `x-default`'un Almanca olması düşünülebilir. Worker dil seçimini ve hreflang'ı etkilediği için verilerle (Search Console, hangi dilde gösterim) birlikte karar verilir.
 
@@ -161,7 +192,8 @@ Açık karar (acil değil): `x-default` ve dil belirtilmeyen istek şu an Türk�
 - **E-E-A-T:** adlandırılmış uzman/yazar yok (proje kuralı: kişisel öykü, fotoğraf, uydurma ekip yok). Dengeleyiciler: kaynaklar, tarih, Impressum, dürüst kapsam notları. Kullanıcı isterse gerçek adıyla yazar satırı eklenebilir; bu kullanıcı kararıdır.
 - **Hukuki içerik:** Impressum/Datenschutz bölümleri kanun metnine ve IHK Merkblatt'ına dayanır, yine de genel bilgidir. Kanun değişirse `check:freshness` hatırlatır.
 - **Yapay zekâ özetleri:** bilgi sorgularında tıklama azalabilir; bu yüzden "problem + adım adım çözüm + araç" niyetine odaklandık.
-- **Tek dil:** Türkçe/İngilizce ziyaretçi bu içerikten yararlanmaz (bilinçli, bkz. bölüm 11).
+- **Dil kapsamı:** 11 Almanca Ratgeber'in yalnız 4'ünün Türkçesi var; İngilizce yok (bilinçli, bkz. bölüm 11).
+- **Türkçe metinlerin kalitesi:** metinler yapay zekâ ile yazıldı; hukuki terimler, Search Console/Gmail/WordPress arayüz adları yerel okumayla doğrulanmalı. Search Console terimleri Google'ın Türkçe yardım sayfalarından alındı; Google'ın Türkçe belgeleri (özellikle `developers.google.com` altındakiler) makine çevirisidir ve kendi içinde tutarsız olabilir (örnek: "Dizine ekleme iste" ve "Dizine eklenmesini iste"), bu yüzden arayüz terimleri İngilizce aslıyla birlikte verilir. WordPress ayar adı `translate.wordpress.org` Türkçe çevirisinden (geliştirme sürümü) alındı; sürüme göre değişebilir.
 - **Üçüncü taraf belgeler taşınır/değişir:** `check:links`, `check:freshness`.
 - **Ölçüm:** analitik yok; Search Console tek kaynak (ve form bildirimleri). Çerezsiz bir analitik eklemek gizlilik metnini ve Cloudflare ayarını etkiler; ayrı karar.
 
@@ -171,12 +203,13 @@ Tam liste her Ratgeber'in "Quellen" bölümünde. Başlıcaları: Google Search 
 
 ## 14. Nasıl test edilir (adım adım)
 
-**A. Kod tarafı (kendi makinen):** `npm test` (70 test: ratgeber verisi, uzunluklar, bağlantılar, işaretleme, sitemap, HTML), `npm run lint`, `npm run typecheck`, `npm run build`. İsteğe bağlı: `npm run check:links` (dış adresler canlı), `npm run check:freshness` (tarihe bağlı iddialar).
+**A. Kod tarafı (kendi makinen):** `npm test` (71 test: Ratgeber ve Türkçe rehber verisi, uzunluklar, dil kuralları, bağlantılar, işaretleme, hreflang çiftleri, sitemap, HTML), `npm run lint`, `npm run typecheck`, `npm run build` (45 statik sayfa). İsteğe bağlı: `npm run check:links` (dış adresler canlı), `npm run check:freshness` (tarihe bağlı iddialar).
 
 **B. Yayından hemen sonra, 5 dakika:**
 1. Bu 12 adres açılmalı: `https://sitemendo.com/ratgeber` ve 11 `/ratgeber/<slug>` (liste: `lib/guides/index.ts`). Kontrol: `curl -sI https://sitemendo.com/ratgeber/website-wartung` → `200`.
 2. Sayfa kaynağında (görünüm-kaynağı): `<title>`, `<link rel="canonical">` (kendi adresi), `<html lang="de">`, `application/ld+json` (Article + BreadcrumbList) ve **`noindex` olmaması**.
-3. `https://sitemendo.com/sitemap.xml` 30 adres içermeli (12'si `/ratgeber`).
+3. `https://sitemendo.com/sitemap.xml` 30 adres içermeli (12'si `/ratgeber`); Türkçe pilot yayınlandıktan sonra 35 (5'i `/rehber`).
+4. Türkçe pilot yayınlandıktan sonra: `/rehber` ve 4 `/rehber/<slug>` açılmalı; kaynakta `<html lang="tr">`, `hreflang` (`de`, `tr`, `x-default` Almanca) ve canonical (kendi adresi). Almanca eş sayfada (`/ratgeber/impressum-pflichtangaben` gibi) karşı yönde aynı üç `hreflang` ve "Türkische Fassung" bağlantısı bulunmalı.
 
 **C. Google araçları (hepsi ücretsiz):**
 - **Search Console → URL denetimi:** adresi yapıştır → "Canlı URL'yi test et": sayfa Google tarafından getirilebilir ve dizine eklenebilir görünmeli → "Dizine eklenmesini iste" (günlük kota var). Birkaç gün sonra aynı ekranda "URL Google'da" yazmalı. Genel görünüm: Dizinleme → Sayfalar.
@@ -196,6 +229,8 @@ Tam liste her Ratgeber'in "Quellen" bölümünde. Başlıcaları: Google Search 
 | `/ratgeber/impressum-pflichtangaben` | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/website-repair?lang=de` (kartlı hizmet sayfası) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/?lang=de` (ana sayfa) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+
+Türkçe pilot (aynı koşullar, 2026-10-01): `/rehber` ve 4 `/rehber/<slug>` mobil ve masaüstünde 100 / 100 / 100 / 100 (mobil LCP 1,2–1,4 s, CLS 0, TBT 10–40 ms; sayfa başına 195–215 KiB).
 
 Mobil LCP ≈ 1,2 s, CLS 0, TBT 50–80 ms; sayfa başına ≈ 200–215 KiB aktarım (çoğu Next çalışma zamanı). Kalan uyarılar ("kullanılmayan JavaScript", "eski JavaScript") Next çerçevesinden gelir, puanı düşürmez; kovalanmaz.
 

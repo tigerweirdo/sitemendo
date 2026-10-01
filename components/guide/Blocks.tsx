@@ -1,28 +1,28 @@
 import { Inline } from '@/lib/guides/inline';
-import type { Block } from '@/lib/guides/types';
+import type { Block, GuideLang } from '@/lib/guides/types';
 
 /* Rehber gövdesi: sunucu bileşeni, istemci JS yok. Tablolar klavyeyle odaklanabilir (tabIndex), böylece
    yatay kayan içerik klavye kullanıcısına da açıktır. Dar ekranda (<640px) tablo yana kaydırılmaz: her satır
    bir kart olur, her hücre kendi sütun başlığıyla (data-label) gösterilir. CSS .gd-table görüntüyü değiştirir;
    display:block tablo anlamını kaldırabildiği için roller açıkça verilir. */
 
-function BlockView({ block: b }: { block: Block }) {
+function BlockView({ block: b, lang }: { block: Block; lang: GuideLang }) {
   switch (b.t) {
     case 'p':
-      return <p><Inline text={b.x} /></p>;
+      return <p><Inline text={b.x} lang={lang} /></p>;
     case 'h3':
-      return <h3><Inline text={b.x} /></h3>;
+      return <h3><Inline text={b.x} lang={lang} /></h3>;
     case 'ul':
-      return <ul>{b.items.map((x, i) => <li key={i}><Inline text={x} /></li>)}</ul>;
+      return <ul>{b.items.map((x, i) => <li key={i}><Inline text={x} lang={lang} /></li>)}</ul>;
     case 'ol':
-      return <ol>{b.items.map((x, i) => <li key={i}><Inline text={x} /></li>)}</ol>;
+      return <ol>{b.items.map((x, i) => <li key={i}><Inline text={x} lang={lang} /></li>)}</ol>;
     case 'steps':
       return (
         <ol className="gd-steps">
           {b.items.map((s, i) => (
             <li key={i}>
-              <strong className="gd-steps__h"><Inline text={s.h} /></strong>
-              <span><Inline text={s.x} /></span>
+              <strong className="gd-steps__h"><Inline text={s.h} lang={lang} /></strong>
+              <span><Inline text={s.x} lang={lang} /></span>
             </li>
           ))}
         </ol>
@@ -36,8 +36,8 @@ function BlockView({ block: b }: { block: Block }) {
             <tbody role="rowgroup">
               {b.rows.map((row, r) => (
                 <tr key={r} role="row">{row.map((cell, c) => (c === 0
-                  ? <th key={c} scope="row" role="rowheader"><Inline text={cell} /></th>
-                  : <td key={c} data-label={b.head[c]} role="cell"><Inline text={cell} /></td>))}</tr>
+                  ? <th key={c} scope="row" role="rowheader"><Inline text={cell} lang={lang} /></th>
+                  : <td key={c} data-label={b.head[c]} role="cell"><Inline text={cell} lang={lang} /></td>))}</tr>
               ))}
             </tbody>
           </table>
@@ -47,7 +47,7 @@ function BlockView({ block: b }: { block: Block }) {
       return (
         <aside className={`gd-note gd-note--${b.kind}`}>
           <p className="gd-note__h">{b.title}</p>
-          <p><Inline text={b.x} /></p>
+          <p><Inline text={b.x} lang={lang} /></p>
         </aside>
       );
     case 'code':
@@ -60,6 +60,6 @@ function BlockView({ block: b }: { block: Block }) {
   }
 }
 
-export function Blocks({ blocks }: { blocks: Block[] }) {
-  return <>{blocks.map((b, i) => <BlockView key={i} block={b} />)}</>;
+export function Blocks({ blocks, lang }: { blocks: Block[]; lang: GuideLang }) {
+  return <>{blocks.map((b, i) => <BlockView key={i} block={b} lang={lang} />)}</>;
 }

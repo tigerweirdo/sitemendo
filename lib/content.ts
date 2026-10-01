@@ -237,7 +237,7 @@ export const content: Record<Lang, Copy> = {
       rights: 'Tüm hakları saklıdır',
       contact: 'İletişim',
       contactHint: 'Site adresi gerekmez — doğrudan yazın veya arayın.',
-      guides: 'Rehberler (Almanca)',
+      guides: 'Rehberler',
     },
     meta: {
       title: 'Sitemendo — Web siteniz için kontrol, düzeltme ve bakım',

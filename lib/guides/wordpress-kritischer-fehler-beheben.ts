@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const wordpressKritischerFehlerBeheben: Guide = {
+  lang: 'de',
   slug: 'wordpress-kritischer-fehler-beheben',
   category: 'Technik und Wartung',
   check: 'stack',

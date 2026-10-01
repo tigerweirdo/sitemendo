@@ -1,8 +1,10 @@
 'use client';
 
 import { content, type Lang } from '@/lib/content';
-import { LINKS } from '@/lib/guides/links';
+import { CARD_UI } from '@/lib/guides/cardUi';
+import { linksFor } from '@/lib/guides/links';
 import type { GuideCard } from '@/lib/guides/related';
+import type { GuideLang } from '@/lib/guides/types';
 import { withLangParam } from '@/lib/lang';
 import { SERVICE_PAGES, servicePages, serviceUi, type ServiceKey } from '@/lib/servicePages';
 import { useLangDocument } from '@/lib/useLangDocument';
@@ -11,7 +13,7 @@ import { LanguageSwitch } from '@/components/LanguageSwitch';
 
 /* Hizmet sayfası (kontrol, onarım, bakım). LegalPage'in sade kabuğu: üst menü, içerik, küçük
    altbilgi. Fiyat ve süre content.ts'teki paket kartlarından gelir; metin servicePages.ts'ten. */
-export function ServicePage({ service, initialLang, guides = [] }: { service: ServiceKey; initialLang: Lang; guides?: GuideCard[] }) {
+export function ServicePage({ service, initialLang, guides = {} }: { service: ServiceKey; initialLang: Lang; guides?: Partial<Record<GuideLang, GuideCard[]>> }) {
   const [lang, setLang] = useStoredLang(initialLang);
   const c = content[lang];
   const ui = serviceUi[lang];
@@ -23,6 +25,10 @@ export function ServicePage({ service, initialLang, guides = [] }: { service: Se
   const home = withLangParam('/', lang);
   const start = `${home}#start`;
   const others = SERVICE_PAGES.filter(p => p.key !== service);
+  /* Rehberler yalnız Almanca ve Türkçe sayfada; her dil kendi rehberlerini önerir. */
+  const guideLang: GuideLang | null = lang === 'de' || lang === 'tr' ? lang : null;
+  const guideCards = guideLang ? guides[guideLang] ?? [] : [];
+  const guideLinks = linksFor(guideLang ?? 'de');
 
   return (
     <div className="legal-page sp-page">
@@ -130,19 +136,19 @@ export function ServicePage({ service, initialLang, guides = [] }: { service: Se
             </div>
           </section>
 
-          {lang === 'de' && guides.length > 0 && (
+          {guideLang && guideCards.length > 0 && (
             <section className="sp-section" aria-labelledby="sp-guides">
-              <h2 className="h2" id="sp-guides">Passende Ratgeber</h2>
-              <p className="sp-note">Ausführliche Anleitungen zum Selbermachen, kostenlos und ohne Anmeldung.</p>
+              <h2 className="h2" id="sp-guides">{CARD_UI[guideLang].title}</h2>
+              <p className="sp-note">{CARD_UI[guideLang].text}</p>
               <div className="gd-cards">
-                {guides.map(g => (
-                  <a className="gd-card" key={g.slug} href={`${LINKS.guides}/${g.slug}`}>
+                {guideCards.map(g => (
+                  <a className="gd-card" key={g.slug} href={`${guideLinks.guides}/${g.slug}`}>
                     <span className="gd-card__t">{g.title}</span>
                     <span className="gd-card__d">{g.teaser}</span>
                   </a>
                 ))}
               </div>
-              <p className="sp-note"><a href={LINKS.guides}>Alle Ratgeber ansehen</a></p>
+              <p className="sp-note"><a href={guideLinks.guides}>{CARD_UI[guideLang].all}</a></p>
             </section>
           )}
 

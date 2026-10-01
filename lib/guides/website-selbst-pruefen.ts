@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const websiteSelbstPruefen: Guide = {
+  lang: 'de',
   slug: 'website-selbst-pruefen',
   category: 'Grundlagen',
   short: 'Website selbst prüfen: Checkliste',

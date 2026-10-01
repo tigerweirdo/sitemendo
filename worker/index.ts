@@ -53,7 +53,7 @@ const PAGE_CACHE = 'private, no-cache, no-transform';
 /* Almanca Ratgeber (/ratgeber, /ratgeber/<ad>): tek dilli, adrese bağlı sayfalar. Dil seçimi, yönlendirme
    ve dil çerezi yok; herkes aynı dosyayı alır, bu yüzden paylaşılan önbelleğe girebilir (her seferinde
    doğrulanır). Derlemede out/ratgeber.html ve out/ratgeber/<ad>.html olarak durur. */
-const GUIDE_PATH = /^\/ratgeber(?:\/[a-z0-9-]+)?$/;
+const GUIDE_PATH = /^\/(?:ratgeber|rehber)(?:\/[a-z0-9-]+)?$/;
 const GUIDE_CACHE = 'public, no-cache, no-transform';
 
 /* Derlemenin iç dosyaları (/de.html, /de/privacy.txt, /404.html …) dışarıdan açılmaz;
@@ -168,7 +168,7 @@ async function page(request: Request, env: Env, url: URL, path: SeoPath) {
   return preparePage(request, res);
 }
 
-async function notFound(request: Request, env: Env, url: URL, forced?: 'de') {
+async function notFound(request: Request, env: Env, url: URL, forced?: 'de' | 'tr') {
   const lang = forced
     ?? parseLang(url.searchParams.get('lang'))
     ?? parseLang(cookieValue(request, LANG_COOKIE))
@@ -180,7 +180,7 @@ async function notFound(request: Request, env: Env, url: URL, forced?: 'de') {
 
 async function guidePage(request: Request, env: Env, url: URL) {
   const res = await asset(env, request, url, url.pathname);
-  if (res.status === 404) return notFound(request, env, url, 'de');
+  if (res.status === 404) return notFound(request, env, url, url.pathname.startsWith('/rehber') ? 'tr' : 'de');
   return preparePage(request, secure(res, GUIDE_CACHE));
 }
 

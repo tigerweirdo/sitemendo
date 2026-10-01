@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const httpsSslFehlerBeheben: Guide = {
+  lang: 'de',
   slug: 'https-ssl-fehler-beheben',
   category: 'HTTPS',
   check: 'https',

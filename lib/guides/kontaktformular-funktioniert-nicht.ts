@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const kontaktformularFunktioniertNicht: Guide = {
+  lang: 'de',
   slug: 'kontaktformular-funktioniert-nicht',
   category: 'Formulare',
   check: 'forms',

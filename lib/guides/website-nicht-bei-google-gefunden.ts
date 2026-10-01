@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const websiteNichtBeiGoogleGefunden: Guide = {
+  lang: 'de',
   slug: 'website-nicht-bei-google-gefunden',
   category: 'Auffindbarkeit',
   check: 'index',

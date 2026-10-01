@@ -1,57 +1,76 @@
 /* Ratgeber için SEO: adresler, meta, Article ve BreadcrumbList yapısal verisi. Her rehber tek bir
-   Almanca adreste durur (/ratgeber/<slug>, ?lang= yok): canonical kendisidir. */
+   adreste durur (/ratgeber/<slug> Almanca, /rehber/<slug> Türkçe; ?lang= yok): canonical kendisidir.
+   Karşılığı olan rehberler hreflang ile birbirine bağlanır; x-default Almanca sürümdür. */
 
 import type { Metadata } from 'next';
 import { COMPANY, CONTACT_EMAIL, CONTACT_PHONE_E164, SITE_URL } from '../company';
 import { content } from '../content';
 import { plain } from './inline';
-import type { Guide } from './types';
+import type { Guide, GuideLang } from './types';
+import { UI } from './ui';
 
-export const HUB_PATH = '/ratgeber';
 export const BRAND_SUFFIX = ' | Sitemendo';
 export const OG_IMAGE = '/og/de.png';
 
-export const guidePath = (slug: string) => `${HUB_PATH}/${slug}`;
-export const guideUrl = (slug: string) => `${SITE_URL}${guidePath(slug)}`;
-export const hubUrl = `${SITE_URL}${HUB_PATH}`;
+type Addressable = { lang: GuideLang; slug: string };
 
-export const HUB_TITLE = 'Ratgeber: Website prüfen, reparieren und pflegen';
-export const HUB_DESCRIPTION = 'Verständliche Anleitungen für Unternehmen: mobile Ansicht, Ladezeit, defekte Links, HTTPS, Kontaktformular, Auffindbarkeit, Impressum und Wartung.';
+export const hubPath = (lang: GuideLang) => UI[lang].hubPath;
+export const hubUrl = (lang: GuideLang) => `${SITE_URL}${hubPath(lang)}`;
+export const guidePath = (g: Addressable) => `${hubPath(g.lang)}/${g.slug}`;
+export const guideUrl = (g: Addressable) => `${SITE_URL}${guidePath(g)}`;
 
-const image = { url: OG_IMAGE, width: 1200, height: 630, type: 'image/png', alt: content.de.meta.ogAlt };
+const ogImage = (lang: GuideLang) => ({ url: OG_IMAGE, width: 1200, height: 630, type: 'image/png', alt: content[lang === 'tr' ? 'tr' : 'de'].meta.ogAlt });
 const robots = { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' as const, 'max-snippet': -1 } };
 
-export function guideMetadata(g: Guide): Metadata {
+/* Dil karşılıkları: iki sayfa da kendini ve diğerini listeler; x-default Almanca. */
+function languageAlternates(a: Addressable, b: Addressable, url: (x: Addressable) => string) {
+  const de = a.lang === 'de' ? a : b;
+  return { [a.lang]: url(a), [b.lang]: url(b), 'x-default': url(de) };
+}
+
+export function guideMetadata(g: Guide, alt?: Guide): Metadata {
+  const ui = UI[g.lang];
+  const image = ogImage(g.lang);
   return {
     title: { absolute: `${g.title}${BRAND_SUFFIX}` },
     description: g.description,
-    alternates: { canonical: guideUrl(g.slug) },
+    alternates: { canonical: guideUrl(g), ...(alt ? { languages: languageAlternates(g, alt, guideUrl) } : {}) },
     robots,
     openGraph: {
       type: 'article',
-      url: guideUrl(g.slug),
+      url: guideUrl(g),
       siteName: 'Sitemendo',
       title: g.title,
       description: g.description,
-      locale: 'de_DE',
+      locale: ui.locale,
+      ...(alt ? { alternateLocale: [UI[alt.lang].locale] } : {}),
       publishedTime: g.published,
       modifiedTime: g.modified,
       authors: ['Sitemendo'],
-      section: g.category,
+      section: ui.categories[g.category],
       images: [image],
     },
     twitter: { card: 'summary_large_image', title: g.title, description: g.description, images: [image] },
   };
 }
 
-export function hubMetadata(): Metadata {
+/* Özet sayfaları: iki dilde de varsa birbirinin karşılığıdır. */
+export function hubMetadata(lang: GuideLang, otherLang?: GuideLang): Metadata {
+  const ui = UI[lang];
+  const image = ogImage(lang);
+  const languages = otherLang
+    ? languageAlternates({ lang, slug: '' }, { lang: otherLang, slug: '' }, x => hubUrl(x.lang))
+    : undefined;
   return {
-    title: { absolute: `${HUB_TITLE}${BRAND_SUFFIX}` },
-    description: HUB_DESCRIPTION,
-    alternates: { canonical: hubUrl },
+    title: { absolute: `${ui.hub.title}${BRAND_SUFFIX}` },
+    description: ui.hub.description,
+    alternates: { canonical: hubUrl(lang), ...(languages ? { languages } : {}) },
     robots,
-    openGraph: { type: 'website', url: hubUrl, siteName: 'Sitemendo', title: HUB_TITLE, description: HUB_DESCRIPTION, locale: 'de_DE', images: [image] },
-    twitter: { card: 'summary_large_image', title: HUB_TITLE, description: HUB_DESCRIPTION, images: [image] },
+    openGraph: {
+      type: 'website', url: hubUrl(lang), siteName: 'Sitemendo', title: ui.hub.title, description: ui.hub.description,
+      locale: ui.locale, ...(otherLang ? { alternateLocale: [UI[otherLang].locale] } : {}), images: [image],
+    },
+    twitter: { card: 'summary_large_image', title: ui.hub.title, description: ui.hub.description, images: [image] },
   };
 }
 
@@ -74,15 +93,15 @@ export function articleSchema(g: Guide) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: plain(g.h1),
+    headline: plain(g.h1, g.lang),
     description: g.description,
-    inLanguage: 'de-DE',
-    url: guideUrl(g.slug),
-    mainEntityOfPage: { '@type': 'WebPage', '@id': guideUrl(g.slug) },
+    inLanguage: UI[g.lang].inLanguage,
+    url: guideUrl(g),
+    mainEntityOfPage: { '@type': 'WebPage', '@id': guideUrl(g) },
     datePublished: g.published,
     dateModified: g.modified,
     image: `${SITE_URL}${OG_IMAGE}`,
-    articleSection: g.category,
+    articleSection: UI[g.lang].categories[g.category],
     author: { ...organization },
     publisher: { ...organization },
   };
@@ -96,18 +115,19 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
   };
 }
 
-export function hubSchema(guides: Guide[]) {
+export function hubSchema(lang: GuideLang, guides: Guide[]) {
+  const ui = UI[lang];
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: HUB_TITLE,
-    description: HUB_DESCRIPTION,
-    inLanguage: 'de-DE',
-    url: hubUrl,
+    name: ui.hub.title,
+    description: ui.hub.description,
+    inLanguage: ui.inLanguage,
+    url: hubUrl(lang),
     isPartOf: { '@type': 'WebSite', name: 'Sitemendo', url: SITE_URL },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: guides.map((g, i) => ({ '@type': 'ListItem', position: i + 1, url: guideUrl(g.slug), name: plain(g.h1) })),
+      itemListElement: guides.map((g, i) => ({ '@type': 'ListItem', position: i + 1, url: guideUrl(g), name: plain(g.h1, g.lang) })),
     },
   };
 }
@@ -134,9 +154,12 @@ export function guideStats(g: Guide) {
     }
   }
   g.faq.forEach(f => texts.push(f.q, f.a));
-  const words = texts.map(plain).join(' ').split(/\s+/).filter(Boolean).length;
+  const words = texts.map(t => plain(t, g.lang)).join(' ').split(/\s+/).filter(Boolean).length;
   return { words, minutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)) };
 }
 
-const DATE = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-export const formatDate = (iso: string) => DATE.format(new Date(`${iso}T12:00:00Z`));
+const DATE: Record<GuideLang, Intl.DateTimeFormat> = {
+  de: new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+  tr: new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+};
+export const formatDate = (iso: string, lang: GuideLang) => DATE[lang].format(new Date(`${iso}T12:00:00Z`));

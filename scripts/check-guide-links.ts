@@ -30,7 +30,7 @@ function collect() {
       else if (b.t === 'steps') b.items.forEach(i => texts.push(i.x));
       else if (b.t === 'table') texts.push(...b.rows.flat());
     }
-    for (const t of texts) linksOf(t).forEach(l => add(l.href, g.slug));
+    for (const t of texts) linksOf(t, g.lang).forEach(l => add(l.href, g.slug));
   }
   return used;
 }

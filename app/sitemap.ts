@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { LANGS } from '@/lib/lang';
-import { GUIDES } from '@/lib/guides';
+import { counterpart, guidesIn } from '@/lib/guides';
 import { guideUrl, hubUrl } from '@/lib/guides/seo';
+import { GUIDE_LANGS } from '@/lib/guides/types';
 import { SERVICE_PAGES } from '@/lib/servicePages';
 import { SEO_PATHS, absolutePageUrl, type SeoPath } from '@/lib/seo';
 
@@ -24,13 +25,33 @@ function pageEntries(): MetadataRoute.Sitemap {
   })));
 }
 
-/* Almanca Ratgeber: tek dilli, hreflang yok; lastModified rehberin kendi tarihi. */
+/* Ratgeber ve rehberler: her sayfa kendi adresinde, lastModified rehberin kendi tarihi. Karşılığı olan sayfalar
+   (Almanca/Türkçe) hreflang ile birbirine bağlanır; x-default Almanca sürümdür. */
+function languages(urlOf: { de: string; tr: string }) {
+  return { de: urlOf.de, tr: urlOf.tr, 'x-default': urlOf.de };
+}
+
 function guideEntries(): MetadataRoute.Sitemap {
-  const latest = GUIDES.map(g => g.modified).sort().at(-1);
-  return [
-    { url: hubUrl, lastModified: latest, changeFrequency: 'weekly', priority: 0.8 },
-    ...GUIDES.map(g => ({ url: guideUrl(g.slug), lastModified: g.modified, changeFrequency: 'monthly' as const, priority: 0.7 })),
-  ];
+  const both = GUIDE_LANGS.every(l => guidesIn(l).length > 0);
+  return GUIDE_LANGS.flatMap(lang => {
+    const list = guidesIn(lang);
+    if (!list.length) return [];
+    const latest = list.map(g => g.modified).sort().at(-1);
+    return [
+      {
+        url: hubUrl(lang), lastModified: latest, changeFrequency: 'weekly' as const, priority: 0.8,
+        ...(both ? { alternates: { languages: languages({ de: hubUrl('de'), tr: hubUrl('tr') }) } } : {}),
+      },
+      ...list.map(g => {
+        const alt = counterpart(g);
+        const pair = alt ? languages({ de: guideUrl(g.lang === 'de' ? g : alt), tr: guideUrl(g.lang === 'tr' ? g : alt) }) : undefined;
+        return {
+          url: guideUrl(g), lastModified: g.modified, changeFrequency: 'monthly' as const, priority: 0.7,
+          ...(pair ? { alternates: { languages: pair } } : {}),
+        };
+      }),
+    ];
+  });
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {

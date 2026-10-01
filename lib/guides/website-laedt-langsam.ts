@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const websiteLaedtLangsam: Guide = {
+  lang: 'de',
   slug: 'website-laedt-langsam',
   category: 'Tempo',
   check: 'speed',

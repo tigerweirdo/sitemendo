@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const impressumPflichtangaben: Guide = {
+  lang: 'de',
   slug: 'impressum-pflichtangaben',
   category: 'Kontakt und Recht',
   check: 'contact',

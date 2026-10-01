@@ -1,6 +1,7 @@
 import type { Guide } from './types';
 
 export const websiteMobilOptimieren: Guide = {
+  lang: 'de',
   slug: 'website-mobil-optimieren',
   category: 'Mobil',
   check: 'mobile',

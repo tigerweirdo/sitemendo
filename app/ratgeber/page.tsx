@@ -1,8 +1,10 @@
 import { GuideHub } from '@/components/guide/GuideHub';
+import { guidesIn } from '@/lib/guides';
 import { hubMetadata } from '@/lib/guides/seo';
 
-export const metadata = hubMetadata();
+/* Türkçe karşılığı varsa özet sayfaları birbirinin hreflang karşılığıdır. */
+export const metadata = hubMetadata('de', guidesIn('tr').length ? 'tr' : undefined);
 
 export default function RatgeberPage() {
-  return <GuideHub />;
+  return <GuideHub lang="de" />;
 }

@@ -5,7 +5,7 @@
  *  - "bald":   Frist in den nächsten 60 Tagen.
  * Exit-Code 1, sobald etwas fällig ist. Neue datumsgebundene Aussage? Hier eine Regel ergänzen.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GUIDES } from '../lib/guides';
 
@@ -17,6 +17,7 @@ const daysUntil = (iso: string) => Math.round((Date.parse(`${iso}T00:00:00Z`) - 
 type Rule = { id: string; due: string; files: string[]; pattern: RegExp; todo: string };
 
 const guideFile = (slug: string) => `lib/guides/${slug}.ts`;
+const trFile = (slug: string) => `lib/guides/tr/${slug}.ts`;
 const RULES: Rule[] = [
   {
     id: 'chrome-154', due: '2026-11-15', pattern: /Chrome 154|Version 154/,
@@ -24,8 +25,8 @@ const RULES: Rule[] = [
     todo: 'Chrome 154 sollte ausgeliefert sein: Formulierungen von "angekündigt" auf "seit dem …" ändern (Quelle blog.google/security/https-by-defau prüfen), Teaser und H2 anpassen.',
   },
   {
-    id: 'php-8.2-ende', due: '2027-01-01', pattern: /31\. Dezember 2026/,
-    files: [guideFile('website-wartung'), guideFile('website-laedt-langsam'), guideFile('website-selbst-pruefen')],
+    id: 'php-8.2-ende', due: '2027-01-01', pattern: /31\. Dezember 2026|31 Aralık 2026/,
+    files: [guideFile('website-wartung'), guideFile('website-laedt-langsam'), guideFile('website-selbst-pruefen'), trFile('web-sitesi-bakimi')],
     todo: 'PHP 8.2 ist ausgelaufen: Tabelle, Absatz und FAQ aktualisieren (php.net/supported-versions.php), Stand-Angaben erneuern.',
   },
   {
@@ -40,17 +41,17 @@ const RULES: Rule[] = [
   },
   {
     id: 'patchstack-bericht', due: '2027-03-01', pattern: /State of WordPress Security in 2026/,
-    files: [guideFile('website-wartung')],
+    files: [guideFile('website-wartung'), trFile('web-sitesi-bakimi')],
     todo: 'Patchstack veröffentlicht den Jahresbericht im Februar: Zahlen für 2026 übernehmen (Gesamtzahl, Anteil Plugins/Themes/Kern, Zeit bis zum ersten Angriff), Quelle und Tldr anpassen.',
   },
   {
-    id: 'dmarc-freemail', due: '2027-01-15', pattern: /Yahoo verlangt/,
-    files: [guideFile('kontaktformular-funktioniert-nicht')],
+    id: 'dmarc-freemail', due: '2027-01-15', pattern: /Yahoo verlangt|Yahoo[^.\n]{0,80}p=reject/,
+    files: [guideFile('kontaktformular-funktioniert-nicht'), trFile('iletisim-formu-calismiyor')],
     todo: 'DMARC-Richtlinien der Freemail-Anbieter erneut abfragen (dig +short TXT _dmarc.yahoo.com, _dmarc.gmx.de, _dmarc.web.de, _dmarc.gmail.com, _dmarc.outlook.com, _dmarc.t-online.de) und Absatz sowie FAQ anpassen.',
   },
   {
-    id: 'gesetze-impressum', due: '2027-04-01', pattern: /Stand: Oktober 2026/,
-    files: [guideFile('impressum-pflichtangaben')],
+    id: 'gesetze-impressum', due: '2027-04-01', pattern: /Stand: Oktober 2026|Ekim 2026 itibarıyla/,
+    files: [guideFile('impressum-pflichtangaben'), trFile('impressum-zorunlulugu')],
     todo: '§ 5 und § 33 DDG, § 36 VSBG, § 18 MStV und das IHK-Merkblatt auf Änderungen prüfen (gesetze-im-internet.de, Aktualitätendienst), Stand-Angabe erneuern.',
   },
 ];
@@ -58,7 +59,7 @@ const RULES: Rule[] = [
 let overdue = 0;
 const lines: string[] = [];
 for (const rule of RULES) {
-  const hits = rule.files.filter(file => rule.pattern.test(readFileSync(join(ROOT, file), 'utf8')));
+  const hits = rule.files.filter(file => existsSync(join(ROOT, file)) && rule.pattern.test(readFileSync(join(ROOT, file), 'utf8')));
   if (!hits.length) continue;
   const d = daysUntil(rule.due);
   if (d <= 0) { overdue++; lines.push(`FÄLLIG  ${rule.due} (${-d} Tage überfällig)  ${rule.id}\n          ${rule.todo}\n          Dateien: ${hits.join(', ')}`); }
