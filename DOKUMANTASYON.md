@@ -42,11 +42,17 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-10-02 — GitHub’da paylaşma (`seo-phase2`)
+
+Kullanıcı projeyi GitHub’da paylaşmamı istedi. Depo zaten herkese açıktı: https://github.com/tigerweirdo/sitemendo (`origin`, `main` = `f522a4a`). Güncel iş `seo-phase2` üzerindeydi ve uzakta yoktu (iki commit: ikinci SEO paketi ve tablo kelime bölünmesi).
+
+**Durum: `seo-phase2` GitHub’da.** `main` güncellenmedi; Workers Builds yalnız `main` push’unda yayınlar, canlı site değişmedi. Yayın onayı hâlâ ayrı.
+
 ### 2026-10-02 — Tablolarda kelime bölünmesi (rehber sayfaları)
 
 Sorun (kullanıcı ekran görüntüsüyle bildirdi): Türkçe Google rehberindeki tabloda kelimeler ortadan bölünüyordu ("Nasıl anlars ınız", "Tipik nede nler", "Ne yardı mcı olur"); aynı durum Almanca rehberlerde ve yeni SPF/DKIM/DMARC rehberinde de vardı ("Beob acht en", "DKI M", "selektor._domainke y"). İstek: kelimeler bölünmesin, tüm rehber tablolarında ve tüm genişliklerde.
 
-**Durum: dalda (`seo-phase2`), ayrı commit; yayın onayı bekliyor.**
+**Durum: `seo-phase2` GitHub’da (2026-10-02); `main`’e alınmadı, yayın onayı bekliyor.**
 
 Kök neden: `.gd-body { overflow-wrap: anywhere }` (uzun hata kodları taşmasın diye eklenmişti). `anywhere` metnin en küçük (min-content) genişliğini sıfıra yaklaştırır; otomatik tablo düzeni dar sütunları bu yüzden aşırı sıkıştırır ve kelimeleri ortadan böler. Ölçüm (19 rehber sayfası, 16 genişlik, her metin düğümündeki her kelimenin satır dikdörtgenleri): **912 bölünmüş kelime, 903'ü tablo hücrelerinde** (640 px ve üstünde her genişlikte 80–127).
 
@@ -65,7 +71,7 @@ Değişen dosyalar: `app/globals.css`, `lib/guides/inline.tsx`, `components/guid
 
 Amaç: kullanıcı "optimizasyon mükemmel olmalı" dedi; ajansların yaptığı işlerle karşılaştırma yapıldı (teknik taraf tamam; eksikler: otorite ve bağlantı, özgün içerik ve görsel, konu genişliği, yerel kayıtlar, ölçüm) ve altı adımlı bir plan sunuldu, kullanıcı "sırayla başla" dedi. Bu paket ilk iki adımdır: sayfa içi ince ayar (gerçek arama ifadesi, paylaşım görseli) ve iki yeni Almanca Ratgeber. Strateji, konu haritası ve ölçüm planı: `docs/seo-strategie.md`.
 
-**Durum: dalda (`seo-phase2`), yayın onayı bekliyor; push yapılmadı.**
+**Durum: `seo-phase2` GitHub’da (2026-10-02); `main`’e alınmadı, yayın onayı bekliyor.**
 
 Eklenenler / değişenler:
 - **Arama ifadesine yaklaştırma (üç Ratgeber, adresler aynı, yönlendirme gerekmedi):** Google otomatik tamamlama verisi (Almanya; hacim değil, yalnızca ifade sinyali): "website selbst prüfen" ve "firmenwebsite prüfen" için öneri yok, "homepage prüfen" için çok; "website nicht bei google" için öneriler "gelistet", "angezeigt", "taucht nicht auf"; "website nicht erreichbar" önerilerini tüketici sorunları (WLAN, Handy) dolduruyor. Buna göre: `website-selbst-pruefen` "Homepage prüfen: Checkliste in 8 Schritten" (H1 "Homepage und Website prüfen: …"); `website-nicht-bei-google-gefunden` "Website nicht bei Google gelistet? Ursachen" (H1 "Website wird bei Google nicht angezeigt: …", ilk SSS sorusu aynı ifadeyle); `website-nicht-erreichbar` "Eigene Website nicht erreichbar? Ursachen" (H1 "… So finden Betreiber die Ursache …", yeni not "Sie sind Besucher, nicht Betreiber?"). Önce/sonra tablosu: `docs/seo-strategie.md` bölüm 4.
