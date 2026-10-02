@@ -111,7 +111,7 @@ export const UI: Record<GuideLang, GuideUi> = {
     sources: 'Kaynaklar ve ek bağlantılar',
     disclaimer: date => `Bu rehber genel bilgi niteliğindedir; hukuki, mali veya uzman danışmanlığının yerini tutmaz. Tüm bilgiler ${date} tarihli durumu yansıtır; Google, tarayıcılar ve yasa koyucuların açıklamaları zamanla değişir.`,
     back: 'Rehber listesine dönün',
-    flowStop: 'Burada takılır, eğer:',
+    flowStop: 'Burada takılırsa:',
     altLabel: { de: 'Almanca sürüm', tr: 'Türkçe sürüm' },
     serviceLink: { check: 'Ücretsiz kontrol hakkında', repair: 'Site onarımı hakkında', care: 'Site bakımı hakkında' },
     hub: {

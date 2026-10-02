@@ -28,6 +28,16 @@ export const iletisimFormuCalismiyor: Guide = {
       blocks: [
         { t: 'p', x: 'Sayfadaki başarı mesajına güvenmeyin. Yolu gelen kutusuna kadar kontrol edin.' },
         {
+          t: 'flow',
+          label: 'Bir form iletisinin gelen kutusuna giden yolu ve nerede takıldığı',
+          nodes: [
+            { h: 'Tarayıcıdaki form', x: 'Ziyaretçi “Gönder”e tıklar; sayfa isteği arka planda sunucunuza gönderir.', stop: 'tıkladığınızda hiçbir şey olmaz ya da 403, 404 veya 500 gibi bir durum kodu görünür (5 ila 7. nedenler).' },
+            { h: 'Sunucunuzdan gönderim', x: 'Bir betik ya da eklenti iletiyi `mail()` işlevine ya da bir posta sunucusuna teslim eder.', stop: 'sayfa “başarılı” der ama size hiçbir şey ulaşmaz: `mail()` yalnızca iletinin kabul edildiğini bildirir (1. neden).' },
+            { h: 'Alıcı sunucuda doğrulama', x: 'Alıcı sunucu gönderen adresini ve SPF, DKIM ile DMARC kayıtlarını denetler.', stop: 'gönderen olarak ziyaretçinin adresi yazılıdır ya da kayıtlar eksiktir (2 ve 3. nedenler).' },
+            { h: 'Posta kutunuz', x: 'Kurallar, spam filtreleri ve yönlendirmeler iletinin gelen kutusuna düşüp düşmeyeceğini belirler.', stop: 'ileti spam klasöründedir, posta kutusu doludur ya da bir kural iletiyi taşır (4. neden).' },
+          ],
+        },
+        {
           t: 'steps',
           items: [
             { h: 'Yabancı bir adresle doldurun', x: 'Formu başka bir sağlayıcıdan bir adresle doldurun; örneğin özel bir GMX, WEB.DE ya da Gmail hesabıyla. Alıcı adresinin kendisini kullanmayın: Aksi hâlde gönderen adresindeki hata fark edilmez.' },
@@ -192,5 +202,5 @@ export const iletisimFormuCalismiyor: Guide = {
     { label: 'WordPress.org (İngilizce): Flamingo, iletileri saklama', url: 'https://wordpress.org/plugins/flamingo/' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };

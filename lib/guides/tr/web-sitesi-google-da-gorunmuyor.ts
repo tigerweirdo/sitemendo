@@ -27,6 +27,16 @@ export const webSitesiGoogleDaGorunmuyor: Guide = {
       h2: 'Dizinde değil mi, yoksa yalnızca kötü sıralanıyor mu?',
       blocks: [
         { t: 'p', x: 'Google araması üç aşamada çalışır: Google sayfaları indirir (tarama, crawling), çözümleyip kaydeder (dizine ekleme, indexing) ve uygun aramalarda gösterir (arama sonuçlarının sunulması). Google’ın kendi anlatımına göre tüm sayfalar tüm aşamalardan geçmez ve dizine alınma garanti edilmez.' },
+        {
+          t: 'flow',
+          label: 'Bir sayfanın Google aramasına giden yolu ve nerede takılabileceği',
+          nodes: [
+            { h: 'Google adresi tanır', x: 'Sayfa, bağlantılar ya da site haritanız üzerinden bilinir hâle gelir.', stop: 'Search Console “Bulundu: Şu anda dizine eklenmiş değil” der: Google adresi biliyor ama sayfayı henüz çağırmadı.' },
+            { h: 'Tarama (crawling)', x: 'Google sayfayı indirir. Google’a göre bu birkaç gün ile birkaç hafta arasında sürebilir.', stop: 'çağrı başarısız olur: robots.txt sayfayı engeller, sayfa 404 hatası verir ya da sunucunuz 5xx hatası döndürür.' },
+            { h: 'Dizine ekleme (indexing)', x: 'Google sayfayı çözümler ve dizinde saklar. Google’a göre dizine alınma garanti edilmez.', stop: 'Search Console “Tarandı: Şu anda dizine eklenmiş değil” der ya da sayfada noindex talimatı vardır.' },
+            { h: 'Arama sonuçlarında gösterim', x: 'Uygun aramalarda Google sayfayı gösterir. Sayfanın nerede çıkacağı, diğerlerinin yanı sıra içeriğe, rekabete ve başka sitelerden gelen bağlantılara bağlıdır.', stop: 'URL Denetleme “URL Google’da mevcut” der ama müşterilerinizin kullandığı arama terimlerinde çok geridesiniz. O zaman konu teknik değil, içerik ve sıralamadır.' },
+          ],
+        },
         { t: 'p', x: 'Site sahibi olarak sizin için bu, “Beni bulamıyorlar” cümlesinin iki farklı anlama gelebileceği demektir.' },
         {
           t: 'table',
@@ -235,5 +245,5 @@ export const webSitesiGoogleDaGorunmuyor: Guide = {
     { label: 'WordPress (İngilizce): 5.5 sürümünde XML site haritaları', url: 'https://make.wordpress.org/core/2020/07/22/new-xml-sitemaps-functionality-in-wordpress-5-5/' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };
