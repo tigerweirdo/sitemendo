@@ -7,6 +7,7 @@ import { defekteLinksFindenBeheben } from './defekte-links-finden-beheben';
 import { httpsSslFehlerBeheben } from './https-ssl-fehler-beheben';
 import { impressumPflichtangaben } from './impressum-pflichtangaben';
 import { kontaktformularFunktioniertNicht } from './kontaktformular-funktioniert-nicht';
+import { spfDkimDmarcEinrichten } from './spf-dkim-dmarc-einrichten';
 import { websiteLaedtLangsam } from './website-laedt-langsam';
 import { websiteMobilOptimieren } from './website-mobil-optimieren';
 import { websiteNichtBeiGoogleGefunden } from './website-nicht-bei-google-gefunden';
@@ -14,6 +15,7 @@ import { websiteNichtErreichbar } from './website-nicht-erreichbar';
 import { websiteSelbstPruefen } from './website-selbst-pruefen';
 import { websiteWartung } from './website-wartung';
 import { wordpressKritischerFehlerBeheben } from './wordpress-kritischer-fehler-beheben';
+import { wordpressWartungsmodusGehtNichtWeg } from './wordpress-wartungsmodus-geht-nicht-weg';
 import { iletisimFormuCalismiyor } from './tr/iletisim-formu-calismiyor';
 import { impressumZorunlulugu } from './tr/impressum-zorunlulugu';
 import { webSitesiBakimi } from './tr/web-sitesi-bakimi';
@@ -31,6 +33,8 @@ export const GUIDES: Guide[] = [
   websiteWartung,
   websiteNichtErreichbar,
   wordpressKritischerFehlerBeheben,
+  wordpressWartungsmodusGehtNichtWeg,
+  spfDkimDmarcEinrichten,
   /* Türkçe pilot (/rehber): Almanca aslı olan dört rehber. Sıra altbilgi ve özet sayfasını belirler. */
   webSitesiGoogleDaGorunmuyor,
   impressumZorunlulugu,

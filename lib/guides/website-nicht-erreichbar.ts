@@ -5,9 +5,9 @@ export const websiteNichtErreichbar: Guide = {
   slug: 'website-nicht-erreichbar',
   category: 'Erreichbarkeit',
   short: 'Website nicht erreichbar',
-  title: 'Website nicht erreichbar? Ursachen und Lösungen',
-  h1: 'Website nicht erreichbar: So finden Sie die Ursache und beheben den Ausfall',
-  description: 'Ihre Website ist nicht erreichbar oder zeigt Fehler wie 500, 502 oder 503? So grenzen Sie die Ursache ein und wissen, was Sie Ihrem Hoster melden sollten.',
+  title: 'Eigene Website nicht erreichbar? Ursachen',
+  h1: 'Eigene Website nicht erreichbar: So finden Betreiber die Ursache und beheben den Ausfall',
+  description: 'Ihre Website ist nicht erreichbar oder zeigt 500, 502 oder 503? So grenzen Sie die Ursache ein und wissen, was Sie Ihrem Hoster melden sollten.',
   teaser: 'Domain, DNS, Server oder Website-Software: Fehlerbilder lesen, Ursache eingrenzen und dem Hoster die richtigen Angaben liefern.',
   tldr: [
     'Eine nicht erreichbare Website hat meist eine von vier Ursachen: Domain oder DNS, Server oder Hoster, die Website-Software (zum Beispiel WordPress) oder eine Sperre durch Firewall oder Sicherheitsfunktion.',
@@ -24,6 +24,7 @@ export const websiteNichtErreichbar: Guide = {
       id: 'schnelltest',
       h2: 'Schnelltest: Ist die Website wirklich nicht erreichbar?',
       blocks: [
+        { t: 'note', kind: 'info', title: 'Sie sind Besucher, nicht Betreiber?', x: 'Dieser Ratgeber richtet sich an Betreiber einer eigenen Website. Wenn Sie eine fremde Seite nicht öffnen können, prüfen Sie zuerst, ob andere Seiten laden. Ist das der Fall, liegt der Fehler meist bei der Website und nicht bei Ihrer Verbindung: Sie können dann nur abwarten oder den Betreiber informieren.' },
         {
           t: 'steps',
           items: [
@@ -99,7 +100,7 @@ export const websiteNichtErreichbar: Guide = {
       h2: 'Ausfälle und Google: Was Sie wissen sollten',
       blocks: [
         { t: 'p', x: 'Laut Google sorgen Serverfehler mit den Codes 5xx und 429 dafür, dass die Crawler das Crawling vorübergehend verlangsamen. URLs, die dauerhaft einen Serverfehler zurückgeben, werden für die Google Suche aus dem Index entfernt. Wie lange Google Fehler toleriert, nennt die Dokumentation nicht. Anhaltende Ausfälle sind deshalb ein Risiko für Ihre Sichtbarkeit.' },
-        { t: 'p', x: 'Bei geplanten Wartungsarbeiten sollte die Wartungsseite den Statuscode 503 liefern, möglichst mit einer Angabe, wann der Dienst wieder bereit ist (Header `Retry-After`). MDN beschreibt 503 als Antwort für vorübergehende Zustände. Eine Wartungsseite, die mit dem Statuscode 200 ausgeliefert wird, signalisiert Suchmaschinen dagegen fälschlich, dass alles in Ordnung ist.' },
+        { t: 'p', x: 'Bei geplanten Wartungsarbeiten sollte die Wartungsseite den Statuscode 503 liefern, möglichst mit einer Angabe, wann der Dienst wieder bereit ist (Header `Retry-After`). MDN beschreibt 503 als Antwort für vorübergehende Zustände. Eine Wartungsseite, die mit dem Statuscode 200 ausgeliefert wird, signalisiert Suchmaschinen dagegen fälschlich, dass alles in Ordnung ist. Bleibt ein WordPress-Wartungsmodus nach einem Update hängen, hilft der Ratgeber [WordPress Wartungsmodus geht nicht weg](/ratgeber/wordpress-wartungsmodus-geht-nicht-weg).' },
       ],
     },
     {
@@ -138,7 +139,7 @@ export const websiteNichtErreichbar: Guide = {
     { q: 'Wie sollte eine Wartungsseite eingerichtet sein?', a: 'Sie sollte den Statuscode 503 liefern, möglichst mit dem Header `Retry-After`. So erkennen Suchmaschinen und andere Clients, dass der Zustand vorübergehend ist.' },
   ],
   service: 'care',
-  related: ['website-wartung', 'https-ssl-fehler-beheben', 'wordpress-kritischer-fehler-beheben'],
+  related: ['website-wartung', 'wordpress-wartungsmodus-geht-nicht-weg', 'https-ssl-fehler-beheben', 'wordpress-kritischer-fehler-beheben'],
   sources: [
     { label: 'Google: HTTP-Statuscodes sowie Netzwerk- und DNS-Fehler', url: 'https://developers.google.com/crawling/docs/troubleshooting/http-status-codes?hl=de' },
     { label: 'MDN: 502 Bad Gateway', url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/502' },
@@ -148,5 +149,5 @@ export const websiteNichtErreichbar: Guide = {
     { label: 'DENIC: Whois-Abfrage für .de-Domains', url: 'https://www.denic.de/services/whois-service/' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };

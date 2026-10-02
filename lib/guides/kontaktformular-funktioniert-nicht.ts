@@ -67,7 +67,7 @@ export const kontaktformularFunktioniertNicht: Guide = {
 
         { t: 'h3', x: '3. E-Mail-Authentifizierung fehlt oder ist fehlerhaft (SPF, DKIM, DMARC)' },
         { t: 'p', x: 'Mit drei Einträgen im DNS Ihrer Domain weisen Sie nach, dass eine Nachricht wirklich von Ihnen stammt. Ohne sie stufen Empfänger Ihre Nachrichten eher als verdächtig ein. Google verlangt von allen, die an Gmail-Adressen senden, seit dem 1. Februar 2024 mindestens SPF oder DKIM. Wer täglich 5.000 oder mehr Nachrichten an Gmail-Adressen sendet, braucht SPF und DKIM und zusätzlich DMARC. Erfüllen Absender das nicht, werden ihre Nachrichten möglicherweise als Spam markiert oder nicht wie erwartet zugestellt.' },
-        { t: 'p', x: 'Wie die Einträge aussehen, zeigt der Abschnitt [SPF, DKIM und DMARC einrichten](/ratgeber/kontaktformular-funktioniert-nicht#dns).' },
+        { t: 'p', x: 'Wie die Einträge aussehen, zeigt der Abschnitt [SPF, DKIM und DMARC einrichten](/ratgeber/kontaktformular-funktioniert-nicht#dns). Ausführlich, mit Beispielen, Prüfschritten und dem neuen DMARC-Standard von 2026, erklärt es der Ratgeber [SPF, DKIM und DMARC einrichten](/ratgeber/spf-dkim-dmarc-einrichten).' },
 
         { t: 'h3', x: '4. Empfänger, Postfach oder Filter' },
         {
@@ -180,7 +180,7 @@ export const kontaktformularFunktioniertNicht: Guide = {
     { q: 'Muss ich überhaupt ein Kontaktformular anbieten?', a: 'Nein. Sie können Anfragen auch über eine gut sichtbare E-Mail-Adresse oder Telefonnummer erhalten. Welche Kontaktangaben im Impressum stehen müssen, erklärt unser Ratgeber zum [Impressum](/ratgeber/impressum-pflichtangaben).' },
   ],
   service: 'repair',
-  related: ['https-ssl-fehler-beheben', 'website-wartung', 'website-selbst-pruefen'],
+  related: ['spf-dkim-dmarc-einrichten', 'https-ssl-fehler-beheben', 'website-wartung', 'website-selbst-pruefen'],
   sources: [
     { label: 'Google: Richtlinien für E-Mail-Absender', url: 'https://support.google.com/mail/answer/81126?hl=de' },
     { label: 'Google: E-Mail mit vollständigem Header ansehen', url: 'https://support.google.com/mail/answer/29436?hl=de' },
@@ -191,5 +191,5 @@ export const kontaktformularFunktioniertNicht: Guide = {
     { label: 'WordPress.org: Flamingo (Nachrichten speichern)', url: 'https://wordpress.org/plugins/flamingo/' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };

@@ -59,7 +59,7 @@ const RULES: Record<GuideLang, Rules> = {
     guarantee: /garantier\w*|Garantie\w*|Platz 1\b/gi,
     negation: /\b(?:niemand|nicht|kein|keine|keinen|ohne|skeptisch|misstrauen|Vorsicht)\b/i,
     dated: new RegExp(`Stand: (?:${MONTHS_DE}) 20\\d\\d`),
-    datedSlugs: ['https-ssl-fehler-beheben', 'kontaktformular-funktioniert-nicht', 'website-nicht-bei-google-gefunden', 'impressum-pflichtangaben', 'website-wartung'],
+    datedSlugs: ['https-ssl-fehler-beheben', 'kontaktformular-funktioniert-nicht', 'website-nicht-bei-google-gefunden', 'impressum-pflichtangaben', 'website-wartung', 'wordpress-wartungsmodus-geht-nicht-weg', 'spf-dkim-dmarc-einrichten'],
     badPercent: /\d%/,
     badPercentMsg: 'Prozentzeichen braucht ein Leerzeichen davor ("91 %")',
     badAbbrev: /\b(?:z\.B\.|u\.a\.|d\.h\.|bzw\.\S)/,
@@ -204,6 +204,9 @@ check('Meta: Längen, Einzigartigkeit und Marke', () => {
     eq(guidePath(g), `${hubPath(g.lang)}/${g.slug}`, `${g.slug}: Pfad`);
     eq((meta.openGraph as { type?: string }).type, 'article', `${g.slug}: og:type`);
     eq((meta.openGraph as { locale?: string }).locale, UI[g.lang].locale, `${g.slug}: og:locale`);
+    /* Das Teilen-Bild folgt der Sprache der Seite (wie auf der Hauptseite), und die Datei existiert. */
+    eq((meta.openGraph as { images?: { url: string }[] }).images?.[0]?.url, `/og/${g.lang}.png`, `${g.slug}: og:image`);
+    ok(existsSync(join(import.meta.dirname, '..', 'public', 'og', `${g.lang}.png`)), `${g.slug}: public/og/${g.lang}.png fehlt`);
     eq((meta.robots as { index?: boolean }).index, true, `${g.slug}: indexierbar`);
   }
   unique('Titel', GUIDES.map(g => g.title));
@@ -221,7 +224,8 @@ check('Meta: Längen, Einzigartigkeit und Marke', () => {
 });
 
 check('Datum: gültig, Änderung nicht vor Veröffentlichung, nicht in der Zukunft', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  /* Die Daten sind Berliner Kalendertage: "heute" in Europe/Berlin, nicht in UTC (sonst schlägt der Test in der Stunde nach Mitternacht Berliner Zeit fehl). */
+  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin' }).format(new Date());
   for (const g of GUIDES) {
     for (const d of [g.published, g.modified]) {
       ok(/^\d{4}-\d{2}-\d{2}$/.test(d), `${g.slug}: Datumsformat ${d}`);
@@ -431,6 +435,7 @@ check('Strukturierte Daten und Sitemap: Article, Breadcrumb, Übersicht, hreflan
     eq(a.dateModified, g.modified, `${g.slug}: dateModified`);
     eq(a.url, guideUrl(g), `${g.slug}: url`);
     eq(a.inLanguage, UI[g.lang].inLanguage, `${g.slug}: inLanguage`);
+    ok(a.image.endsWith(`/og/${g.lang}.png`), `${g.slug}: Article-Bild folgt der Sprache (${a.image})`);
     eq(a.author['@type'], 'Organization', `${g.slug}: author`);
     ok(a.publisher.name && a.publisher.address.addressCountry === 'DE', `${g.slug}: publisher`);
     ok(!jsonLd(a).includes('<'), `${g.slug}: "<" in JSON-LD`);

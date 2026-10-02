@@ -5,11 +5,11 @@ export const websiteNichtBeiGoogleGefunden: Guide = {
   slug: 'website-nicht-bei-google-gefunden',
   category: 'Auffindbarkeit',
   check: 'index',
-  short: 'Website nicht bei Google gefunden',
-  title: 'Website nicht bei Google gefunden? Ursachen',
-  h1: 'Website wird bei Google nicht gefunden: Ursachen und Lösungen',
-  description: 'Ihre Website erscheint nicht bei Google? So prüfen Sie, ob sie indexiert ist, finden die häufigsten Ursachen (noindex, robots.txt, Links) und beheben sie.',
-  teaser: 'Nicht indexiert oder nur schlecht platziert? So unterscheiden Sie beides, prüfen mit der Search Console und beheben die häufigsten Ursachen.',
+  short: 'Website nicht bei Google gelistet',
+  title: 'Website nicht bei Google gelistet? Ursachen',
+  h1: 'Website wird bei Google nicht angezeigt: Ursachen und Lösungen',
+  description: 'Website bei Google nicht gelistet oder angezeigt? So prüfen Sie die Indexierung, finden häufige Ursachen (noindex, robots.txt, Links) und beheben sie.',
+  teaser: 'Nicht gelistet oder nur schlecht platziert? So unterscheiden Sie beides, prüfen mit der Search Console und beheben die häufigsten Ursachen.',
   tldr: [
     'Es gibt zwei verschiedene Probleme: Die Seite ist nicht im Google-Index (Indexierung), oder sie steht dort, aber weit hinten (Ranking). Beides erfordert unterschiedliche Maßnahmen.',
     'Die Search Console beantwortet die Frage verlässlich: Die URL-Prüfung zeigt, ob eine Seite „auf Google“ ist. Die Suche mit `site:` ist laut Google nicht immer vollständig.',
@@ -204,7 +204,7 @@ export const websiteNichtBeiGoogleGefunden: Guide = {
   ],
   faq: [
     { q: 'Wie lange dauert es, bis meine neue Website bei Google erscheint?', a: 'Laut Google kann es einige Wochen dauern, bis eine neue Website oder Änderungen an einer bestehenden bemerkt werden. Mit Search Console, Sitemap und Links von anderen Seiten helfen Sie Google beim Finden. Eine feste Zusage gibt es nicht.' },
-    { q: 'Warum finde ich meine Website bei Google nicht, obwohl sie online ist?', a: 'Häufige Gründe: Die Website ist noch neu, ein `noindex` oder eine gesperrte `robots.txt` hält sie aus dem Index, oder keine andere Seite verlinkt darauf. Prüfen Sie es mit der URL-Prüfung der Search Console.' },
+    { q: 'Warum wird meine Website bei Google nicht angezeigt, obwohl sie online ist?', a: 'Häufige Gründe: Die Website ist noch neu, ein `noindex` oder eine gesperrte `robots.txt` hält sie aus dem Index, oder keine andere Seite verlinkt darauf. Prüfen Sie es mit der URL-Prüfung der Search Console.' },
     { q: 'Was bedeutet „Gefunden – zurzeit nicht indexiert“?', a: 'Google kennt die Adresse, hat die Seite aber noch nicht abgerufen. In vielen Fällen genügt Geduld; hilfreich ist zudem eine gute interne Verlinkung. Wiederholtes Einreichen beschleunigt es laut Google nicht.' },
     { q: 'Was bedeutet „Gecrawlt – zurzeit nicht indexiert“?', a: 'Google hat die Seite abgerufen, aber nicht in den Index aufgenommen. Laut Google kann sie später noch aufgenommen werden, und ein erneutes Einreichen ist nicht nötig. Prüfen Sie, ob die Seite eigenständigen, hilfreichen Inhalt hat und gut verlinkt ist.' },
     { q: 'Muss ich meine Website bei Google anmelden?', a: 'Nein. Google findet Websites automatisch, vor allem über Links. Search Console und Sitemap sind trotzdem sinnvoll: Sie zeigen Probleme und helfen Google beim Entdecken Ihrer Seiten.' },
@@ -234,5 +234,5 @@ export const websiteNichtBeiGoogleGefunden: Guide = {
     { label: 'WordPress: XML-Sitemaps seit Version 5.5', url: 'https://make.wordpress.org/core/2020/07/22/new-xml-sitemaps-functionality-in-wordpress-5-5/' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };

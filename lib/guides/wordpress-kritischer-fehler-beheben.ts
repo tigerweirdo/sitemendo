@@ -118,7 +118,7 @@ export const wordpressKritischerFehlerBeheben: Guide = {
           t: 'ul',
           items: [
             '**Neue PHP-Version:** Hat der Hoster die PHP-Version geändert oder haben Sie sie umgestellt, laufen ältere Plugins und Themes manchmal nicht mehr. Stellen Sie testweise auf die vorherige Version zurück und aktualisieren Sie dann die Erweiterungen. Wie lange welche PHP-Version unterstützt wird, steht im Ratgeber [Website-Wartung](/ratgeber/website-wartung).',
-            '**Unterbrochenes Update:** Bleibt die Meldung zur kurzzeitigen Nichtverfügbarkeit stehen, löschen Sie laut WordPress-Dokumentation die Datei `.maintenance` im Hauptverzeichnis.',
+            '**Unterbrochenes Update:** Bleibt die Meldung zur kurzzeitigen Nichtverfügbarkeit stehen, löschen Sie laut WordPress-Dokumentation die Datei `.maintenance` im Hauptverzeichnis. Eine ausführliche Anleitung steht im Ratgeber [WordPress Wartungsmodus geht nicht weg](/ratgeber/wordpress-wartungsmodus-geht-nicht-weg).',
             '**Beschädigte Konfigurationsdatei:** Bei einem Internal Server Error nennt die Dokumentation als wahrscheinlichste Ursache eine beschädigte `.htaccess`. Benennen Sie sie um und lassen Sie sie unter „Einstellungen → Permalinks“ neu erzeugen.',
             '**Datenbankfehler:** Bei der Meldung zum Aufbau der Datenbankverbindung prüfen Sie Name, Benutzer, Passwort und Host in der `wp-config.php` und fragen den Hoster, ob die Datenbank erreichbar ist und ihr Kontingent nicht erschöpft ist.',
           ],
@@ -162,7 +162,7 @@ export const wordpressKritischerFehlerBeheben: Guide = {
     { q: 'Wie vermeide ich den Fehler in Zukunft?', a: 'Spielen Sie Updates erst nach einer Sicherung ein, testen Sie danach die Funktionen, nutzen Sie nur Plugins, die Sie wirklich brauchen, und behalten Sie die PHP-Version im Blick. Mehr dazu im Ratgeber [Website-Wartung](/ratgeber/website-wartung).' },
   ],
   service: 'repair',
-  related: ['website-wartung', 'website-nicht-erreichbar', 'kontaktformular-funktioniert-nicht'],
+  related: ['website-wartung', 'wordpress-wartungsmodus-geht-nicht-weg', 'website-nicht-erreichbar', 'kontaktformular-funktioniert-nicht'],
   sources: [
     { label: 'WordPress: Fatal Error Recovery Mode in 5.2', url: 'https://make.wordpress.org/core/2019/04/16/fatal-error-recovery-mode-in-5-2/' },
     { label: 'WordPress: Debugging in WordPress', url: 'https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/' },
@@ -170,5 +170,5 @@ export const wordpressKritischerFehlerBeheben: Guide = {
     { label: 'PHP: Unterstützte Versionen', url: 'https://www.php.net/supported-versions.php' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };

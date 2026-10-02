@@ -50,6 +50,16 @@ const RULES: Rule[] = [
     todo: 'DMARC-Richtlinien der Freemail-Anbieter erneut abfragen (dig +short TXT _dmarc.yahoo.com, _dmarc.gmx.de, _dmarc.web.de, _dmarc.gmail.com, _dmarc.outlook.com, _dmarc.t-online.de) und Absatz sowie FAQ anpassen.',
   },
   {
+    id: 'dmarc-anbieter-tabelle', due: '2027-01-15', pattern: /Stand 1\. Oktober 2026/,
+    files: [guideFile('spf-dkim-dmarc-einrichten')],
+    todo: 'Die Tabelle der DMARC-Richtlinien großer Anbieter erneut abfragen (dig +short TXT _dmarc.<domain> für yahoo.com, aol.com, ionos.de, strato.de, mailbox.org, gmx.de, web.de, icloud.com, freenet.de, proton.me, gmail.com, outlook.com, hotmail.com, t-online.de, posteo.de) und Datum ändern.',
+  },
+  {
+    id: 'absender-anforderungen', due: '2027-04-01', pattern: /Microsoft \(Outlook\.com\)/,
+    files: [guideFile('spf-dkim-dmarc-einrichten')],
+    todo: 'Anforderungen von Gmail, Yahoo und Outlook.com erneut lesen (support.google.com/mail/answer/81126, senders.yahooinc.com/best-practices, techcommunity.microsoft.com, Suche nach "Outlook high-volume sender requirements") und den Abschnitt anpassen; Microsoft hat den Zeitpunkt für Ablehnungen offen gelassen.',
+  },
+  {
     id: 'gesetze-impressum', due: '2027-04-01', pattern: /Stand: Oktober 2026|Ekim 2026 itibarıyla/,
     files: [guideFile('impressum-pflichtangaben'), trFile('impressum-zorunlulugu')],
     todo: '§ 5 und § 33 DDG, § 36 VSBG, § 18 MStV und das IHK-Merkblatt auf Änderungen prüfen (gesetze-im-internet.de, Aktualitätendienst), Stand-Angabe erneuern.',

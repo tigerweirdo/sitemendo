@@ -4,10 +4,10 @@ export const websiteSelbstPruefen: Guide = {
   lang: 'de',
   slug: 'website-selbst-pruefen',
   category: 'Grundlagen',
-  short: 'Website selbst prüfen: Checkliste',
-  title: 'Website selbst prüfen: Checkliste in 8 Schritten',
-  h1: 'Website selbst prüfen: Die Checkliste für Unternehmen',
-  description: 'So prüfen Sie Ihre Firmenwebsite selbst: acht Punkte von der Handy-Ansicht bis zum Impressum, mit kostenlosen Werkzeugen, Zielwerten und Prioritäten.',
+  short: 'Homepage prüfen: Checkliste',
+  title: 'Homepage prüfen: Checkliste in 8 Schritten',
+  h1: 'Homepage und Website prüfen: Die Checkliste für Unternehmen',
+  description: 'So prüfen Sie Ihre Firmen-Homepage selbst: acht Punkte von der Handy-Ansicht bis zum Impressum, mit kostenlosen Werkzeugen, Zielwerten und Prioritäten.',
   teaser: 'Acht Prüfpunkte, kostenlose Werkzeuge und klare Zielwerte: So verschaffen Sie sich in ein bis zwei Stunden einen Überblick.',
   tldr: [
     'Acht Punkte genügen für einen ersten Überblick: mobile Ansicht, Ladezeit, Links, HTTPS, Formulare, Technik, Auffindbarkeit und Kontaktwege.',
@@ -126,7 +126,7 @@ export const websiteSelbstPruefen: Guide = {
             'Wiederholen Sie den Test mit einer Absenderadresse bei einem anderen Anbieter, zum Beispiel einmal Gmail und einmal Outlook.',
           ],
         },
-        { t: 'p', x: 'Mehr dazu: [Kontaktformular funktioniert nicht](/ratgeber/kontaktformular-funktioniert-nicht).' },
+        { t: 'p', x: 'Mehr dazu: [Kontaktformular funktioniert nicht](/ratgeber/kontaktformular-funktioniert-nicht). Wie Sie die E-Mail-Authentifizierung einrichten, erklärt der Ratgeber [SPF, DKIM und DMARC einrichten](/ratgeber/spf-dkim-dmarc-einrichten).' },
       ],
     },
     {
@@ -217,7 +217,7 @@ export const websiteSelbstPruefen: Guide = {
     { q: 'Was kostet die Prüfung bei Sitemendo?', a: 'Die Website-Prüfung kostet {price.check}. Sie erhalten den Bericht innerhalb von 48 Stunden; Reparatur und Pflege sind optional.' },
   ],
   service: 'check',
-  related: ['website-laedt-langsam', 'website-mobil-optimieren', 'kontaktformular-funktioniert-nicht'],
+  related: ['website-laedt-langsam', 'website-mobil-optimieren', 'kontaktformular-funktioniert-nicht', 'spf-dkim-dmarc-einrichten'],
   sources: [
     { label: 'Google Search Central: Mobile-First-Indexierung, Best Practices', url: 'https://developers.google.com/search/docs/crawling-indexing/mobile/mobile-sites-mobile-first-indexing?hl=de' },
     { label: 'web.dev: Core Web Vitals und ihre Zielwerte', url: 'https://web.dev/articles/vitals?hl=de' },
@@ -229,5 +229,5 @@ export const websiteSelbstPruefen: Guide = {
     { label: 'Google Search Central: Indexierung mit noindex blockieren', url: 'https://developers.google.com/search/docs/crawling-indexing/block-indexing?hl=de' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };

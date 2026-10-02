@@ -10,7 +10,8 @@ import type { Guide, GuideLang } from './types';
 import { UI } from './ui';
 
 export const BRAND_SUFFIX = ' | Sitemendo';
-export const OG_IMAGE = '/og/de.png';
+/* Paylaşım görseli dilin kendi dosyası (public/og/<dil>.png), ana sitedeki gibi. */
+export const ogPath = (lang: GuideLang) => `/og/${lang}.png`;
 
 type Addressable = { lang: GuideLang; slug: string };
 
@@ -19,7 +20,7 @@ export const hubUrl = (lang: GuideLang) => `${SITE_URL}${hubPath(lang)}`;
 export const guidePath = (g: Addressable) => `${hubPath(g.lang)}/${g.slug}`;
 export const guideUrl = (g: Addressable) => `${SITE_URL}${guidePath(g)}`;
 
-const ogImage = (lang: GuideLang) => ({ url: OG_IMAGE, width: 1200, height: 630, type: 'image/png', alt: content[lang === 'tr' ? 'tr' : 'de'].meta.ogAlt });
+const ogImage = (lang: GuideLang) => ({ url: ogPath(lang), width: 1200, height: 630, type: 'image/png', alt: content[lang].meta.ogAlt });
 const robots = { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' as const, 'max-snippet': -1 } };
 
 /* Dil karşılıkları: iki sayfa da kendini ve diğerini listeler; x-default Almanca. */
@@ -100,7 +101,7 @@ export function articleSchema(g: Guide) {
     mainEntityOfPage: { '@type': 'WebPage', '@id': guideUrl(g) },
     datePublished: g.published,
     dateModified: g.modified,
-    image: `${SITE_URL}${OG_IMAGE}`,
+    image: `${SITE_URL}${ogPath(g.lang)}`,
     articleSection: UI[g.lang].categories[g.category],
     author: { ...organization },
     publisher: { ...organization },

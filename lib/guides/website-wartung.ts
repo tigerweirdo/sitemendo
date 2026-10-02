@@ -67,11 +67,11 @@ export const websiteWartung: Guide = {
           caption: 'Wartungsaufgaben und empfohlener Rhythmus',
           head: ['Aufgabe', 'Rhythmus', 'Was dabei geprüft wird'],
           rows: [
-            ['Updates für CMS, Plugins und Themes', 'Laufend, mindestens monatlich', 'Sicherheitsupdates zeitnah einspielen; vorher sichern, nachher die Funktionen testen'],
+            ['Updates für CMS, Plugins und Themes', 'Laufend, mindestens monatlich', 'Sicherheitsupdates zeitnah einspielen; vorher sichern, nachher die Funktionen testen. Bleibt ein Update im Wartungsmodus hängen, hilft der Ratgeber [WordPress Wartungsmodus geht nicht weg](/ratgeber/wordpress-wartungsmodus-geht-nicht-weg)'],
             ['Sicherung mit Wiederherstellungstest', 'Automatisch; Test regelmäßig, etwa vierteljährlich', 'Sicherung vorhanden, aktuell und außerhalb des Servers gespeichert'],
             ['Erreichbarkeit überwachen', 'Laufend', 'Meldung bei Ausfall, damit Sie nicht von Kunden davon erfahren'],
             ['Grundlegende Sicherheitsprüfung', 'Monatlich', 'Nicht benötigte Plugins und Benutzerkonten entfernen, starke Passwörter, Warnmeldungen'],
-            ['Formulartest', 'Monatlich', 'Testnachricht kommt an, siehe Ratgeber [Kontaktformular funktioniert nicht](/ratgeber/kontaktformular-funktioniert-nicht)'],
+            ['Formulartest', 'Monatlich', 'Testnachricht kommt an, siehe Ratgeber [Kontaktformular funktioniert nicht](/ratgeber/kontaktformular-funktioniert-nicht) und [SPF, DKIM und DMARC einrichten](/ratgeber/spf-dkim-dmarc-einrichten)'],
             ['Link-Kontrolle', 'Monatlich', 'Defekte Links und Weiterleitungen, siehe Ratgeber [Defekte Links finden und beheben](/ratgeber/defekte-links-finden-beheben)'],
             ['Ladezeit und mobile Ansicht', 'Vierteljährlich', 'Messwerte, Menü und Schaltflächen auf dem Handy, siehe Ratgeber [Website lädt langsam](/ratgeber/website-laedt-langsam)'],
             ['Zertifikat, Domain, PHP-Version', 'Jährlich und bei Ablaufwarnung', 'Ablaufdaten und Support-Ende im Blick behalten'],
@@ -170,7 +170,7 @@ export const websiteWartung: Guide = {
     { q: 'Brauche ich bei einem Dienstleister einen Auftragsverarbeitungsvertrag?', a: 'In der Regel ja, wenn der Dienstleister Zugriff auf personenbezogene Daten Ihrer Website hat, etwa Formular-Einträge oder Kundenkonten (Art. 28 DSGVO). Das ist keine Rechtsberatung; Einzelfragen klären Sie mit einer fachkundigen Stelle.' },
   ],
   service: 'care',
-  related: ['wordpress-kritischer-fehler-beheben', 'website-nicht-erreichbar', 'website-selbst-pruefen'],
+  related: ['wordpress-kritischer-fehler-beheben', 'wordpress-wartungsmodus-geht-nicht-weg', 'website-nicht-erreichbar', 'website-selbst-pruefen'],
   sources: [
     { label: 'Patchstack: State of WordPress Security in 2026', url: 'https://patchstack.com/whitepaper/state-of-wordpress-security-in-2026/' },
     { label: 'PHP: Unterstützte Versionen', url: 'https://www.php.net/supported-versions.php' },
@@ -179,5 +179,5 @@ export const websiteWartung: Guide = {
     { label: 'Art. 28 DSGVO: Auftragsverarbeiter', url: 'https://dejure.org/gesetze/DSGVO/28.html' },
   ],
   published: '2026-10-01',
-  modified: '2026-10-01',
+  modified: '2026-10-02',
 };
