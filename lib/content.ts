@@ -65,7 +65,7 @@ export type Copy = {
     back: string; updated: string; controller: string;
     privacyTitle: string; privacyLead: string; privacy: LegalBlock[];
     impressumTitle: string; impressumLead: string;
-    provider: string; country: string; emailLabel: string; phoneLabel: string;
+    provider: string; responsible: string; country: string; emailLabel: string; phoneLabel: string;
     impressum: LegalBlock[];
   };
 };
@@ -273,6 +273,7 @@ export const content: Record<Lang, Copy> = {
       impressumTitle: 'Impressum',
       impressumLead: 'Yasal bilgiler ve iletişim.',
       provider: 'Hizmet sağlayıcı',
+      responsible: 'İçerikten sorumlu kişi (§ 18 Abs. 2 MStV)',
       country: 'Almanya',
       emailLabel: 'E-posta',
       phoneLabel: 'Telefon',
@@ -483,6 +484,7 @@ export const content: Record<Lang, Copy> = {
       impressumTitle: 'Impressum',
       impressumLead: 'Legal notice and contact.',
       provider: 'Service provider',
+      responsible: 'Responsible for content (§ 18 (2) MStV)',
       country: 'Germany',
       emailLabel: 'Email',
       phoneLabel: 'Phone',
@@ -693,6 +695,7 @@ export const content: Record<Lang, Copy> = {
       impressumTitle: 'Impressum',
       impressumLead: 'Rechtliche Angaben und Kontakt.',
       provider: 'Diensteanbieter',
+      responsible: 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV',
       country: 'Deutschland',
       emailLabel: 'E-Mail',
       phoneLabel: 'Telefon',

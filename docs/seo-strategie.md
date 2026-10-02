@@ -81,6 +81,7 @@ Test (`scripts/verify-guides.ts`) bunları her `npm test`'te denetler:
 - Üstte "Kurz gesagt" (3–5 madde), içindekiler, bölümler (H2/H3 sırası bozulmaz), SSS (5–8 soru), dürüst "Was unsere kostenlose Prüfung dazu zeigt" notu, kaynaklar, "Stand" tarihi.
 - İç bağlantı: her Ratgeber başka ≥ 2 Ratgeber'den bağlı; her biri bir hizmet sayfasına bağlanır; bağlantı metinleri hedefi anlatır ("hier klicken" yok).
 - Biçim: ≥ 1.400 kelime, ≥ 2 tablo/adım dizisi, alıntı ve kısaltma kuralları (Almanca tırnak, "z. B.", "91 %"), sabit fiyat yok.
+- **Akış şemaları (`flow` bloğu, 2026-10-02):** dört Almanca rehberde özgün diyagram (Google'a giden yol, e-posta doğrulaması, erişilemeyen sitede ebeneler, form mesajının yolu). Her kutu gerçek HTML metni, aşağı okla bağlı, tek sütun; SVG kullanılmadı çünkü dar ekranda küçülen metin okunmaz, dar sütunda kelime bölünür. Test: 3–6 kutu, her kutuda açıklama, en az bir "burada takılır" durumu. Türkçe karşılıklar yok (yeni Türkçe metin kullanıcı onayı ister).
 - FAQ bölümü sayfada görünür; **FAQPage/HowTo yapılandırılmış verisi bilerek eklenmedi:** Google bu zengin sonuçları kısıtladı (Ağustos 2023) ve FAQ zengin sonuçlarını 7 Mayıs 2026'da tamamen kaldırdı; işaretleme zarar vermez ama görünür sonuç üretmez.
 - Paylaşım görseli: `og:image` ve `Article.image` sayfanın diline göre (`/og/de.png`, `/og/tr.png`; 1200 × 630, dile göre alt metin); test adresi ve dosyanın varlığını denetler.
 - Yazar: "Von Sitemendo" (kurum). `Article.author` Organization; uydurma kişi yok.
@@ -121,7 +122,13 @@ Hizmet sayfası eşlemesi `lib/guides/related.ts` içindedir, dil başına ayrı
 **İkinci paket (2026-10-02, dal `seo-phase2`; yayın onayı bekliyor):**
 - Yayından sonra: `/ratgeber/wordpress-wartungsmodus-geht-nicht-weg` ve `/ratgeber/spf-dkim-dmarc-einrichten` 200 dönmeli; `https://sitemendo.com/sitemap.xml` 37 adres içermeli (14'ü `/ratgeber`, 5'i `/rehber`); bir Türkçe rehberin kaynağında `og:image` `https://sitemendo.com/og/tr.png`, Almanca rehberde `https://sitemendo.com/og/de.png` olmalı.
 - Search Console: sitemap'i yeniden gönderin; iki yeni rehber için "Dizine ekleme iste". Başlığı değişen üç sayfa ve genişleyen Impressum rehberi (iki dilde) Google'ın kendi taramasıyla güncellenir; aynı adresi tekrar tekrar göndermeyin. Başlık değişikliğinin etkisini 4. ve 8. haftada Performans → Sayfalar'da bu üç sayfanın tıklama oranından okuyun (değişiklik tarihi: yayın günü).
-- **Açık kalan doğrulamalar:** iki yeni Almanca rehber ve Impressum eklemeleri yapay zekâ ile yazıldı; ana dili Almanca olan biri ya da avukat okumadı. DMARC sağlayıcı tablosu bir DNS anlık görüntüsüdür ("Stand 1. Oktober 2026", 15 alan adı). Kendi Impressum'unuz için iki karar açık: USt-IdNr. (henüz yok) ve § 18 Abs. 2 MStV satırı (bu tür rehber sitelerin kapsama girip girmediği IHK ölçütüne göre belirsiz; ihtiyatlı satır eklenebilir, bkz. `DOKUMANTASYON.md`).
+- **Açık kalan doğrulamalar:** iki yeni Almanca rehber ve Impressum eklemeleri yapay zekâ ile yazıldı; ana dili Almanca olan biri ya da avukat okumadı. DMARC sağlayıcı tablosu bir DNS anlık görüntüsüdür ("Stand 1. Oktober 2026", 15 alan adı). Kendi Impressum'unuz: § 18 Abs. 2 MStV satırı **eklendi (2026-10-02, kullanıcı kararı; ihtiyat)**; USt-IdNr. henüz yok ve yoksa yazılmaz (§ 5 DDG yalnız sahip olunan numarayı ister, bkz. `DOKUMANTASYON.md`).
+
+**Üçüncü paket (2026-10-02, dal `claude/eloquent-noether-3t8i4s`, `seo-phase2` üzerine; yayın onayı bekliyor):**
+- Yayından sonra: Impressum üç dilde "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV" / "İçerikten sorumlu kişi (§ 18 Abs. 2 MStV)" / "Responsible for content (§ 18 (2) MStV)" bölümünü göstermeli (`/impressum?lang=de`); dört rehberde (`website-nicht-bei-google-gefunden`, `spf-dkim-dmarc-einrichten`, `website-nicht-erreichbar`, `kontaktformular-funktioniert-nicht`) akış şeması görünmeli. Sayfa sayısı ve sitemap değişmedi (37 adres).
+- Search Console'da yeni adres yok; değişen rehberleri Google kendi taramasıyla günceller (`modified` zaten 2026-10-02).
+- İşletme kayıtları: `docs/isletme-kayitlari.md` (üretilen dosya) açılıp kayıtlar sizin hesaplarınızla yapılır.
+- **Henüz yazılmadı:** "Website gehackt" ve BFSG rehberleri. Bu oturumun ağ politikası birincil kaynak sitelerini engelliyordu (gesetze-im-internet.de, bzst.de, developers.google.com, bsi.bund.de, eur-lex.europa.eu, die-medienanstalten.de, IHK siteleri), proje kuralı her olgusal iddianın birincil kaynaktan okunmasını ister; kaynaksız yazılmadı. Ağ erişimi açılınca yazılır.
 
 **Almanca yayın kontrol listesi:**
 
@@ -175,8 +182,8 @@ Dış bağlantılar için: `npm run check:links`. Google belgeleri taşınabilir
 **Faz 2 (12. hafta kararına bağlı; her biri önce birincil kaynakla doğrulanır):**
 - Website-Relaunch ohne SEO-Verlust (Weiterleitungsplan; Google "Website-Umzug" belgesi).
 - E-Mail-Zustellung / SPF, DKIM, DMARC: **yazıldı (2026-10-02)**, `spf-dkim-dmarc-einrichten`; WordPress Wartungsmodus aynı pakette (`wordpress-wartungsmodus-geht-nicht-weg`).
-- Website gehackt (hack şüphesi: ilk adımlar, temizlik, bildirim; otomatik tamamlamada "website gehackt was tun" güçlü) ve BFSG (kimler kapsama giriyor, istisnalar; kapsam doğrulanmadan yazılmaz): sonraki paket önerisi, onay bekliyor.
-- Ana rehberlere 1–2 özgün, alt metinli diyagram (Google'ın özgün görseli önermesi); işletme kayıtları (Google, Bing, Apple) için kopyala-yapıştır bilgi sayfası (kayıtlar sizin hesaplarınızla yapılır).
+- Website gehackt (hack şüphesi: ilk adımlar, temizlik, bildirim; otomatik tamamlamada "website gehackt was tun" güçlü) ve BFSG (kimler kapsama giriyor, istisnalar; kapsam doğrulanmadan yazılmaz): **onaylandı (2026-10-02), henüz yazılmadı**; birincil kaynaklara ağ erişimi gerekir (bkz. bölüm 8, üçüncü paket).
+- Ana rehberlere özgün diyagram: **yapıldı (2026-10-02)**, dört rehberde akış şeması (bölüm 5). İşletme kayıtları kopyala-yapıştır sayfası: **yapıldı (2026-10-02)**, `docs/isletme-kayitlari.md` (kayıtlar sizin hesaplarınızla yapılır).
 - Google-Unternehmensprofil einrichten (yerel görünürlük; profil kurallarına dikkat).
 - WordPress sicher aktualisieren (Testkopie, Sicherung, Rückweg).
 - Cookie-Banner / Einwilligung (TDDDG § 25) ve Datenschutzerklärung: hukuki, yalnızca kanun metni ve resmî kurum kaynaklarıyla, avukat gözden geçirmesi önerilir.
@@ -225,7 +232,7 @@ Tam liste her Ratgeber'in "Quellen" bölümünde. Başlıcaları: Google Search 
 
 ## 14. Nasıl test edilir (adım adım)
 
-**A. Kod tarafı (kendi makinen):** `npm test` (72 test: Ratgeber ve Türkçe rehber verisi, uzunluklar, dil kuralları, bağlantılar, işaretleme, hreflang çiftleri, paylaşım görseli, kelime bölünmesi, sitemap, HTML), `npm run lint`, `npm run typecheck`, `npm run build` (47 statik sayfa). İsteğe bağlı: `npm run check:links` (113 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar).
+**A. Kod tarafı (kendi makinen):** `npm test` (75 test: Ratgeber ve Türkçe rehber verisi, uzunluklar, dil kuralları, bağlantılar, işaretleme, hreflang çiftleri, paylaşım görseli, kelime bölünmesi, akış şemaları, sitemap, HTML; Impressum sorumlu kişi satırı; işletme kayıtları dosyasının güncelliği), `npm run lint`, `npm run typecheck`, `npm run build` (47 statik sayfa). İsteğe bağlı: `npm run check:links` (113 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar).
 
 **B. Yayından hemen sonra, 5 dakika:**
 1. Bu 14 adres açılmalı: `https://sitemendo.com/ratgeber` ve 13 `/ratgeber/<slug>` (liste: `lib/guides/index.ts`). Kontrol: `curl -sI https://sitemendo.com/ratgeber/website-wartung` → `200`.

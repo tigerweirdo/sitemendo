@@ -16,6 +16,9 @@ export type Block =
   | { t: 'ul'; items: string[] }
   | { t: 'ol'; items: string[] }
   | { t: 'steps'; items: { h: string; x: string }[] }
+  /* Akış şeması: kutular ve oklar, gerçek HTML metni (satır içi SVG yok, böylece metin her genişlikte okunur ve
+     kelime bölünmez). `stop` o aşamada takılırsa görülen belirti ya da durum mesajıdır. */
+  | { t: 'flow'; label: string; nodes: { h: string; x: string; stop?: string }[] }
   | { t: 'table'; caption: string; head: string[]; rows: string[][] }
   | { t: 'note'; kind: 'tip' | 'warn' | 'info'; title: string; x: string }
   | { t: 'code'; label: string; x: string };

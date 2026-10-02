@@ -1,5 +1,6 @@
 import { Inline } from '@/lib/guides/inline';
 import type { Block, GuideLang } from '@/lib/guides/types';
+import { UI } from '@/lib/guides/ui';
 
 /* Rehber gövdesi: sunucu bileşeni, istemci JS yok. Tablolar klavyeyle odaklanabilir (tabIndex), böylece
    yatay kayan içerik klavye kullanıcısına da açıktır. Dar ekranda (<640px) tablo yana kaydırılmaz: her satır
@@ -26,6 +27,21 @@ function BlockView({ block: b, lang }: { block: Block; lang: GuideLang }) {
             </li>
           ))}
         </ol>
+      );
+    case 'flow':
+      return (
+        <figure className="gd-flow">
+          <figcaption>{b.label}</figcaption>
+          <ol>
+            {b.nodes.map((n, i) => (
+              <li key={i}>
+                <strong className="gd-flow__h"><Inline text={n.h} lang={lang} soft /></strong>
+                <span><Inline text={n.x} lang={lang} soft /></span>
+                {n.stop && <span className="gd-flow__stop"><b>{UI[lang].flowStop}</b> <Inline text={n.stop} lang={lang} soft /></span>}
+              </li>
+            ))}
+          </ol>
+        </figure>
       );
     case 'table':
       return (

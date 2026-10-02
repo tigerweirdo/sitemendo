@@ -1885,6 +1885,23 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
 /* Fragetitel ist ein Flex-Element: ohne min-width: 0 würde ein langes Wort die Zeile breiter als den Bildschirm machen (break-word senkt die Mindestbreite nicht). */
 .gd-body .faq__title { min-width: 0; }
 
+/* Ablaufdiagramm: Kästen untereinander, Pfeile dazwischen. Bewusst einspaltig: der Text bleibt echtes HTML und
+   bricht in jeder Breite zwischen Wörtern um (kein SVG, das auf dem Handy schrumpft). Der Pfeil ist reines CSS. */
+.gd-flow { margin: 1.4em 0; background: #fff; border: 1px solid var(--line); }
+.gd-flow figcaption { padding: 12px 14px; background: var(--paper); border-bottom: 1px solid var(--line); font-size: var(--fs-ui); font-weight: 600; }
+.gd-body .gd-flow ol { display: grid; gap: 28px; margin: 0; padding: 18px 14px; list-style: none; }
+.gd-flow li { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin: 0; padding: 12px 14px; background: var(--paper); border: 1px solid var(--ink); }
+.gd-body .gd-flow li + li { margin-top: 0; }
+.gd-flow li + li::before { content: ''; position: absolute; left: 22px; top: -28px; height: 20px; border-left: 2px solid var(--ink); }
+.gd-flow li + li::after {
+  content: ''; position: absolute; left: 19px; top: -14px; width: 8px; height: 8px;
+  border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg);
+}
+.gd-flow__h { font-weight: var(--fw-semibold); }
+.gd-body .gd-flow li > span { font-size: var(--fs-ui); line-height: 1.55; }
+.gd-flow__stop { padding: 8px 10px; background: #fff; border-left: 4px solid var(--err); }
+.gd-flow__stop b { font-weight: 600; }
+
 .gd-table { margin: 0 0 1.4em; overflow-x: auto; background: #fff; border: 1px solid var(--line); }
 .gd-table:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .gd-table table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: var(--fs-ui); }

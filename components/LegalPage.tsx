@@ -83,6 +83,14 @@ export function LegalPage({ type, initialLang }: { type: 'privacy' | 'impressum'
                   </p>
                 </section>
                 <section>
+                  <h2>{legal.responsible}</h2>
+                  <p>
+                    {COMPANY.ownerName}<br />
+                    {COMPANY.street}<br />
+                    {`${COMPANY.postalCode} ${COMPANY.city}`}
+                  </p>
+                </section>
+                <section>
                   <h2>{legal.emailLabel}</h2>
                   <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
                 </section>

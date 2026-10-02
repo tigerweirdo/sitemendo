@@ -9,10 +9,11 @@
     "deploy": "next build && wrangler deploy",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "tsx --test scripts/verify-form-faq.ts scripts/verify-precheck.ts scripts/verify-report.ts scripts/verify-report-worker.ts scripts/verify-report-edit.ts scripts/verify-report-alerts.ts scripts/verify-service-pages.ts scripts/verify-guides.ts",
+    "test": "tsx --test scripts/verify-form-faq.ts scripts/verify-precheck.ts scripts/verify-report.ts scripts/verify-report-worker.ts scripts/verify-report-edit.ts scripts/verify-report-alerts.ts scripts/verify-service-pages.ts scripts/verify-guides.ts scripts/verify-legal.ts scripts/verify-listings.ts",
     "check:links": "tsx scripts/check-guide-links.ts",
     "check:freshness": "tsx scripts/check-guide-freshness.ts",
     "icons": "node scripts/build-icons.mjs",
+    "listings": "tsx scripts/build-listings.ts",
     "measure": "node scripts/measure-self.mjs"
   },
   "dependencies": {

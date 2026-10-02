@@ -29,6 +29,8 @@ export type GuideUi = {
   sources: string;
   disclaimer: (date: string) => string;
   back: string;
+  /* Akış şemasında bir aşamada takılmanın etiketi (Blocks.tsx, 'flow'). */
+  flowStop: string;
   altLabel: Record<GuideLang, string>;
   serviceLink: Record<GuideService, string>;
   /* Özet sayfası */
@@ -69,6 +71,7 @@ export const UI: Record<GuideLang, GuideUi> = {
     sources: 'Quellen und weiterführende Links',
     disclaimer: date => `Dieser Ratgeber ist eine allgemeine Information und ersetzt keine Rechts-, Steuer- oder Fachberatung im Einzelfall. Alle Angaben beziehen sich auf den Stand ${date}; Hinweise von Google, Browsern und Gesetzgebern ändern sich.`,
     back: 'Zurück zur Übersicht',
+    flowStop: 'Hier hängt es, wenn:',
     altLabel: { de: 'Deutsche Fassung', tr: 'Türkische Fassung' },
     serviceLink: { check: 'Mehr zur kostenlosen Prüfung', repair: 'Mehr zur Website-Reparatur', care: 'Mehr zur Website-Pflege' },
     hub: {
@@ -108,6 +111,7 @@ export const UI: Record<GuideLang, GuideUi> = {
     sources: 'Kaynaklar ve ek bağlantılar',
     disclaimer: date => `Bu rehber genel bilgi niteliğindedir; hukuki, mali veya uzman danışmanlığının yerini tutmaz. Tüm bilgiler ${date} tarihli durumu yansıtır; Google, tarayıcılar ve yasa koyucuların açıklamaları zamanla değişir.`,
     back: 'Rehber listesine dönün',
+    flowStop: 'Burada takılır, eğer:',
     altLabel: { de: 'Almanca sürüm', tr: 'Türkçe sürüm' },
     serviceLink: { check: 'Ücretsiz kontrol hakkında', repair: 'Site onarımı hakkında', care: 'Site bakımı hakkında' },
     hub: {

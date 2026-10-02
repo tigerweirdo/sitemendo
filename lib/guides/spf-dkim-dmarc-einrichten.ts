@@ -36,6 +36,16 @@ export const spfDkimDmarcEinrichten: Guide = {
             ['DMARC', 'Passen SPF oder DKIM zur sichtbaren Absenderdomain, und was soll bei einem Fehlschlag passieren?', 'TXT-Eintrag bei `_dmarc`', 'Die Richtlinie zu früh auf `reject` gesetzt'],
           ],
         },
+        {
+          t: 'flow',
+          label: 'So prüft ein empfangender Server eine Nachricht von Ihrer Domain',
+          nodes: [
+            { h: 'Nachricht kommt an', x: 'Der Server erhält die Mail mit ihren zwei Absenderangaben: dem sichtbaren `From` und der technischen Absenderangabe der Einlieferung.' },
+            { h: 'SPF-Prüfung', x: 'Darf der sendende Server für die Domain senden? Grundlage ist der TXT-Eintrag bei der Domain.', stop: 'mehrere SPF-Einträge stehen, ein Absender fehlt oder die Nachricht weitergeleitet wurde.' },
+            { h: 'DKIM-Prüfung', x: 'Stammt die Nachricht von der Domain, und wurde sie unterwegs verändert? Der Schlüssel steht unter `selektor._domainkey`.', stop: 'Selektor oder Schlüssel falsch eingetragen sind oder ein Versanddienst nur mit seiner eigenen Domain signiert.' },
+            { h: 'DMARC-Entscheidung', x: 'Passen SPF oder DKIM zur sichtbaren Absenderdomain im `From`? Wenn nicht, gilt die Richtlinie aus dem Eintrag bei `_dmarc`.', stop: 'die Richtlinie zu früh auf `reject` steht, obwohl noch ein berechtigter Absender nicht ausgerichtet ist.' },
+          ],
+        },
         { t: 'p', x: 'Entscheidend ist die Ausrichtung (englisch Alignment). Nach RFC 9989 setzt ein bestandenes DMARC voraus, dass SPF oder DKIM bestanden haben und die dabei geprüfte Domain zur Absenderdomain im Feld `From` passt. Im Standardmodus „relaxed“ genügt dieselbe Hauptdomain, etwa `mail.ihre-domain.de` und `ihre-domain.de`. Im Modus „strict“ müssen beide identisch sein. Ein Versanddienst, der nur mit seiner eigenen Domain signiert, besteht DMARC für Ihre Domain deshalb nicht.' },
         { t: 'note', kind: 'info', title: 'SPF allein reicht meist nicht', x: 'SPF prüft nur die technische Absenderangabe, nicht das sichtbare `From`. Beim Weiterleiten kann SPF außerdem fehlschlagen, weil der weiterleitende Server nicht im SPF-Eintrag des ursprünglichen Absenders steht; RFC 7208 beschreibt das als bekanntes Problem. Eine DKIM-Signatur bleibt dagegen gültig, solange die signierten Teile der Nachricht unverändert bleiben.' },
       ],

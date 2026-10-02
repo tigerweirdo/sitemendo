@@ -27,6 +27,16 @@ export const kontaktformularFunktioniertNicht: Guide = {
       blocks: [
         { t: 'p', x: 'Verlassen Sie sich nicht auf die Erfolgsmeldung der Seite. Prüfen Sie den ganzen Weg bis ins Postfach.' },
         {
+          t: 'flow',
+          label: 'Der Weg einer Formular-Nachricht bis ins Postfach und wo sie hängen bleibt',
+          nodes: [
+            { h: 'Formular im Browser', x: 'Der Besucher klickt auf „Senden“; die Seite schickt die Anfrage im Hintergrund an Ihren Server.', stop: 'beim Klick nichts passiert oder ein Statuscode wie 403, 404 oder 500 erscheint (Ursachen 5 bis 7).' },
+            { h: 'Versand durch Ihren Server', x: 'Ein Skript oder Plugin übergibt die Nachricht an `mail()` oder an einen Mailserver.', stop: 'die Seite „erfolgreich“ meldet, bei Ihnen aber nichts ankommt: `mail()` bestätigt nur die Annahme (Ursache 1).' },
+            { h: 'Prüfung beim empfangenden Server', x: 'Der empfangende Server prüft Absenderadresse sowie SPF, DKIM und DMARC.', stop: 'als Absender die Adresse des Besuchers steht oder die Einträge fehlen (Ursachen 2 und 3).' },
+            { h: 'Ihr Postfach', x: 'Regeln, Spam-Filter und Weiterleitungen entscheiden, ob die Nachricht im Posteingang landet.', stop: 'die Nachricht im Spam-Ordner liegt, das Postfach voll ist oder eine Regel sie verschiebt (Ursache 4).' },
+          ],
+        },
+        {
           t: 'steps',
           items: [
             { h: 'Mit fremder Adresse ausfüllen', x: 'Füllen Sie das Formular mit einer Adresse eines anderen Anbieters aus, zum Beispiel einem privaten GMX-, WEB.DE- oder Gmail-Konto. Nehmen Sie nicht die Empfängeradresse selbst: Dann bleibt ein Fehler bei der Absenderadresse unentdeckt.' },

@@ -67,6 +67,16 @@ export const websiteNichtErreichbar: Guide = {
       h2: 'Von außen nach innen: Domain, DNS, Server, Anwendung',
       blocks: [
         { t: 'p', x: 'Gehen Sie die Ebenen in dieser Reihenfolge durch. So vermeiden Sie, an der Website zu arbeiten, wenn eigentlich die Domain abgelaufen ist.' },
+        {
+          t: 'flow',
+          label: 'Von außen nach innen: Ebenen einer Anfrage und wer zuständig ist',
+          nodes: [
+            { h: 'Domain und DNS', x: 'Der Browser löst den Domainnamen in eine Server-Adresse auf.', stop: 'der Name nicht aufgelöst wird (`DNS_PROBE_FINISHED_NXDOMAIN`): Domain abgelaufen, falsche Nameserver oder fehlender DNS-Eintrag. Zuständig ist der Domain-Anbieter.' },
+            { h: 'Hosting und Server', x: 'Der Server nimmt die Verbindung an, und der Webserver-Dienst antwortet.', stop: 'der Server nicht rechtzeitig antwortet (`ERR_CONNECTION_TIMED_OUT`), die Verbindung ablehnt (`ERR_CONNECTION_REFUSED`) oder `503` meldet. Zuständig ist der Hoster.' },
+            { h: 'Website-Software', x: 'WordPress, PHP, Plugins und Datenbank erzeugen die Seite.', stop: 'ein `500`, eine weiße Seite oder ein Datenbankfehler erscheint. Zuständig ist die Website-Betreuung, gegebenenfalls der Hoster.' },
+            { h: 'Firewall und Sicherheitsfunktion', x: 'Firewall, Sicherheits-Plugin oder Bot-Schutz entscheiden mit, wer überhaupt durchkommt.', stop: '`403`-Fehler, Zeitüberschreitungen oder Prüfseiten erscheinen, obwohl die Seite sonst läuft.' },
+          ],
+        },
         { t: 'h3', x: '1. Domain und DNS' },
         { t: 'p', x: 'Prüfen Sie beim Domain-Anbieter, ob die Domain verlängert und die Zahlung durchgelaufen ist und ob die Nameserver noch die richtigen sind. Bei .de-Domains zeigt die [Whois-Abfrage der DENIC](https://www.denic.de/services/whois-service/), ob die Domain registriert ist und welche Nameserver hinterlegt sind. Hat sich die Server-Adresse beim Hoster geändert, muss der DNS-Eintrag dazu passen. Änderungen am DNS brauchen Zeit, bis sie überall sichtbar sind.' },
         { t: 'h3', x: '2. Hosting und Server' },

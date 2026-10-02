@@ -149,6 +149,7 @@ export function guideStats(g: Guide) {
       if (b.t === 'p' || b.t === 'h3') texts.push(b.x);
       else if (b.t === 'ul' || b.t === 'ol') texts.push(...b.items);
       else if (b.t === 'steps') b.items.forEach(i => texts.push(i.h, i.x));
+      else if (b.t === 'flow') texts.push(b.label, ...b.nodes.flatMap(n => [n.h, n.x, ...(n.stop ? [n.stop] : [])]));
       else if (b.t === 'table') texts.push(b.caption, ...b.head, ...b.rows.flat());
       else if (b.t === 'note') texts.push(b.title, b.x);
       else texts.push(b.label, b.x);

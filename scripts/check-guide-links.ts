@@ -28,6 +28,7 @@ function collect() {
       if (b.t === 'p' || b.t === 'h3' || b.t === 'note') texts.push(b.x);
       else if (b.t === 'ul' || b.t === 'ol') texts.push(...b.items);
       else if (b.t === 'steps') b.items.forEach(i => texts.push(i.x));
+      else if (b.t === 'flow') b.nodes.forEach(n => texts.push(n.x, ...(n.stop ? [n.stop] : [])));
       else if (b.t === 'table') texts.push(...b.rows.flat());
     }
     for (const t of texts) linksOf(t, g.lang).forEach(l => add(l.href, g.slug));

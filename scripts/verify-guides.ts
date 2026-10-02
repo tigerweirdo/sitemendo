@@ -115,6 +115,14 @@ function pieces(g: Guide): Piece[] {
         case 'p': case 'h3': add(at, b.x, true); break;
         case 'ul': case 'ol': b.items.forEach((x, j) => add(`${at}.${j}`, x, true)); break;
         case 'steps': b.items.forEach((x, j) => { add(`${at}.${j}.h`, x.h, true); add(`${at}.${j}.x`, x.x, true); }); break;
+        case 'flow':
+          add(`${at}/label`, b.label, false);
+          b.nodes.forEach((n, j) => {
+            add(`${at}.${j}.h`, n.h, true);
+            add(`${at}.${j}.x`, n.x, true);
+            if (n.stop) add(`${at}.${j}.stop`, n.stop, true);
+          });
+          break;
         case 'table':
           add(`${at}/caption`, b.caption, false);
           b.head.forEach((x, j) => add(`${at}/head.${j}`, x, false));
@@ -291,6 +299,16 @@ check('Blöcke: Tabellen vollständig, Schritte, Hinweise und Code gefüllt', ()
           structured++;
           ok(b.items.length >= 3, `${at}: mindestens drei Schritte`);
           for (const item of b.items) ok(item.h.trim().length > 3 && item.x.trim().length > 20, `${at}: Schritt "${item.h}" unvollständig`);
+        } else if (b.t === 'flow') {
+          structured++;
+          ok(b.label.trim().length >= 10, `${at}: Diagrammüberschrift`);
+          ok(b.nodes.length >= 3 && b.nodes.length <= 6, `${at}: Diagramm braucht drei bis sechs Stationen (${b.nodes.length})`);
+          for (const n of b.nodes) {
+            ok(n.h.trim().length >= 3 && n.h.trim().length <= 60, `${at}: Station "${n.h}" (3 bis 60 Zeichen)`);
+            ok(n.x.trim().length >= 20, `${at}: Station "${n.h}" ohne Erklärung`);
+            if (n.stop !== undefined) ok(n.stop.trim().length >= 10, `${at}: Station "${n.h}": Hinweis zu kurz`);
+          }
+          ok(b.nodes.some(n => n.stop), `${at}: Diagramm ohne eine einzige Stelle, an der es hängen kann`);
         } else if (b.t === 'ol') {
           structured++;
           ok(b.items.length >= 3, `${at}: mindestens drei Punkte`);

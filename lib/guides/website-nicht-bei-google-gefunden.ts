@@ -26,6 +26,16 @@ export const websiteNichtBeiGoogleGefunden: Guide = {
       h2: 'Nicht indexiert oder nur schlecht platziert?',
       blocks: [
         { t: 'p', x: 'Die Google-Suche arbeitet in drei Phasen: Google lädt Seiten herunter (Crawling), analysiert und speichert sie (Indexierung) und zeigt sie bei passenden Suchanfragen an (Bereitstellung der Suchergebnisse). Nach Googles eigener Darstellung durchlaufen nicht alle Seiten alle Phasen, und die Aufnahme in den Index wird nicht garantiert.' },
+        {
+          t: 'flow',
+          label: 'Der Weg einer Seite in die Google-Suche und wo es hängen kann',
+          nodes: [
+            { h: 'Google kennt die Adresse', x: 'Die Seite wird über Links oder Ihre Sitemap bekannt.', stop: 'die Search Console „Gefunden – zurzeit nicht indexiert“ meldet: Google kennt die Adresse, hat die Seite aber noch nicht abgerufen.' },
+            { h: 'Crawling', x: 'Google lädt die Seite herunter. Das kann laut Google einige Tage oder mehrere Wochen dauern.', stop: 'der Abruf scheitert: die robots.txt sperrt die Seite, sie liefert einen 404-Fehler oder Ihr Server antwortet mit einem 5xx-Fehler.' },
+            { h: 'Indexierung', x: 'Google analysiert die Seite und speichert sie im Index. Die Aufnahme wird laut Google nicht garantiert.', stop: 'die Search Console „Gecrawlt – zurzeit nicht indexiert“ meldet oder die Seite die Anweisung noindex trägt.' },
+            { h: 'Anzeige in den Suchergebnissen', x: 'Bei passenden Suchanfragen zeigt Google die Seite an. Wo sie steht, hängt unter anderem von Inhalt, Konkurrenz und Verweisen anderer Seiten ab.', stop: 'die URL-Prüfung „URL ist auf Google“ meldet, Sie bei den Suchbegriffen Ihrer Kunden aber weit hinten stehen. Dann geht es um Inhalt und Ranking, nicht um Technik.' },
+          ],
+        },
         { t: 'p', x: 'Für Sie als Betreiber heißt das: „Ich werde nicht gefunden“ kann zwei verschiedene Dinge bedeuten.' },
         {
           t: 'table',
