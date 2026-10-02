@@ -1856,7 +1856,10 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
 .gd-toc a { display: block; margin-left: -1px; padding: 8px 0 8px 14px; border-left: 2px solid transparent; line-height: 1.35; }
 .gd-toc a:hover { border-left-color: var(--ink); }
 
-.gd-body { min-width: 0; max-width: 720px; overflow-wrap: anywhere; }
+.gd-body { min-width: 0; max-width: 720px; overflow-wrap: break-word; }
+/* break-word statt anywhere: anywhere senkt die Mindestbreite jeder Tabellenspalte auf nahezu null, die Tabelle quetscht dann schmale Spalten
+   und bricht Wörter mitten im Wort. Mit break-word bleibt die längste Zeichenfolge einer Spalte ihre Mindestbreite; nur eine Zeichenfolge,
+   die länger als die ganze Zeile ist (Fehlercode in 320 px), wird noch umbrochen. */
 :where(.gd-body) p, :where(.gd-body) li { font-size: 1.0625rem; line-height: 1.7; }
 :where(.gd-body) p { margin: 0 0 1.1em; }
 .gd-intro p { font-size: 1.15rem; line-height: 1.65; }
@@ -1873,12 +1876,14 @@ html[data-lang-pending] body { visibility: hidden; animation: lang-pending-revea
 .gd-body code { padding: .1em .35em; background: rgba(9, 9, 9, .07); font-family: var(--mono); font-size: .9em; }
 
 .gd-body .gd-steps { padding-left: 0; list-style: none; counter-reset: gd-step; }
-.gd-steps li { position: relative; display: grid; gap: 4px; margin: 0; padding: 0 0 22px 52px; counter-increment: gd-step; }
+.gd-steps li { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; margin: 0; padding: 0 0 22px 52px; counter-increment: gd-step; }
 .gd-steps li::before {
   content: counter(gd-step); position: absolute; left: 0; top: 0; display: grid; place-items: center;
   width: 36px; height: 36px; background: var(--sulfur); border: 1px solid var(--ink); font-weight: var(--fw-semibold);
 }
 .gd-steps__h { font-weight: var(--fw-semibold); }
+/* Fragetitel ist ein Flex-Element: ohne min-width: 0 würde ein langes Wort die Zeile breiter als den Bildschirm machen (break-word senkt die Mindestbreite nicht). */
+.gd-body .faq__title { min-width: 0; }
 
 .gd-table { margin: 0 0 1.4em; overflow-x: auto; background: #fff; border: 1px solid var(--line); }
 .gd-table:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

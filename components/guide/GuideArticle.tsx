@@ -73,7 +73,7 @@ export function GuideArticle({ guide: g }: { guide: Guide }) {
               <div className="gd-intro">{g.intro.map((x, i) => <p key={i}><Inline text={x} lang={lang} /></p>)}</div>
               {g.sections.map(s => (
                 <section key={s.id} id={s.id} aria-labelledby={`${s.id}-h`} className="gd-section">
-                  <h2 id={`${s.id}-h`}><Inline text={s.h2} lang={lang} /></h2>
+                  <h2 id={`${s.id}-h`}><Inline text={s.h2} lang={lang} soft /></h2>
                   <Blocks blocks={s.blocks} lang={lang} />
                 </section>
               ))}

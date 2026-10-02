@@ -11,7 +11,7 @@ function BlockView({ block: b, lang }: { block: Block; lang: GuideLang }) {
     case 'p':
       return <p><Inline text={b.x} lang={lang} /></p>;
     case 'h3':
-      return <h3><Inline text={b.x} lang={lang} /></h3>;
+      return <h3><Inline text={b.x} lang={lang} soft /></h3>;
     case 'ul':
       return <ul>{b.items.map((x, i) => <li key={i}><Inline text={x} lang={lang} /></li>)}</ul>;
     case 'ol':
@@ -36,8 +36,8 @@ function BlockView({ block: b, lang }: { block: Block; lang: GuideLang }) {
             <tbody role="rowgroup">
               {b.rows.map((row, r) => (
                 <tr key={r} role="row">{row.map((cell, c) => (c === 0
-                  ? <th key={c} scope="row" role="rowheader"><Inline text={cell} lang={lang} /></th>
-                  : <td key={c} data-label={b.head[c]} role="cell"><Inline text={cell} lang={lang} /></td>))}</tr>
+                  ? <th key={c} scope="row" role="rowheader"><Inline text={cell} lang={lang} soft /></th>
+                  : <td key={c} data-label={b.head[c]} role="cell"><Inline text={cell} lang={lang} soft /></td>))}</tr>
               ))}
             </tbody>
           </table>

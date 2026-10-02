@@ -5,7 +5,7 @@
  * scripts/check-guide-links.ts. Her test tüm bulguları toplar ve birlikte raporlar (ilk hatada durmaz).
  */
 import assert from 'node:assert/strict';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { createElement } from 'react';
@@ -16,7 +16,7 @@ import { GuideHub } from '../components/guide/GuideHub';
 import { ServiceRoute } from '../components/ServiceRoute';
 import { content } from '../lib/content';
 import { GUIDES, counterpart, getGuide, guidesIn } from '../lib/guides';
-import { SAFE_HREF, TOKENS_BY_LANG, fill, linksOf, plain } from '../lib/guides/inline';
+import { Inline, SAFE_HREF, TOKENS_BY_LANG, fill, linksOf, plain } from '../lib/guides/inline';
 import { SERVICE_GUIDES, guideCardsFor } from '../lib/guides/related';
 import { BRAND_SUFFIX, articleSchema, breadcrumbSchema, guideMetadata, guidePath, guideStats, guideUrl, hubMetadata, hubPath, hubSchema, hubUrl, jsonLd } from '../lib/guides/seo';
 import { CATEGORY_ORDER, GUIDE_LANGS, type Guide, type GuideLang } from '../lib/guides/types';
@@ -521,6 +521,32 @@ check('Gerendertes HTML: eine H1, Überschriftenfolge, Anker, FAQ, JSON-LD, kein
       ok(/role="row"/.test(m[1]) && /role="columnheader"/.test(m[1]) && /role="rowheader"/.test(m[1]) && /role="cell"/.test(m[1]), `${g.slug}: Tabellenrollen fehlen`);
     }
     eq((html.match(/<table role="table">/g) ?? []).length, (html.match(/<table[ >]/g) ?? []).length, `${g.slug}: Tabelle ohne role`);
+  }
+});
+
+check('Umbruch: Wörter brechen nicht mitten im Wort; lange Kennungen in Tabellen und Überschriften haben Umbruchstellen', () => {
+  /* Frühere Ursache der Wortbrüche in Tabellen: overflow-wrap: anywhere senkt die Mindestbreite jeder Spalte auf nahezu null,
+     die Tabelle quetscht dann schmale Spalten. In den Ratgeber-Regeln gilt break-word (bricht nur, was länger als die Zeile ist). */
+  const css = readFileSync(join(import.meta.dirname, '..', 'app', 'globals.css'), 'utf8');
+  for (const m of css.matchAll(/([^{}]*\.gd-[^{}]*)\{([^}]*)\}/g)) {
+    ok(!/overflow-wrap:\s*anywhere|word-break:\s*break-(?:all|word)/.test(m[2]), `CSS ${m[1].trim()}: bricht Wörter mitten im Wort`);
+  }
+  /* Kennungen ab 28 Zeichen bekommen <wbr> nach Satzzeichen, ohne den Text zu verändern; kürzere und Fließtext bleiben unberührt. */
+  const render = (text: string, soft: boolean) => renderToStaticMarkup(createElement(Inline, { text, lang: 'de', soft }));
+  const noWbr = (html: string) => html.replace(/<wbr\/?>/g, '');
+  for (const t of ['`selektor._domainkey.ihre-domain.de`', '`_domainkey.mail.ihre-domain.de`', '`ERR_SSL_VERSION_OR_CIPHER_MISMATCH`', '`rua=mailto:dmarc@ihre-domain.de`']) {
+    const soft = render(t, true);
+    ok(/<wbr\/?>/.test(soft), `${t}: keine Umbruchstelle`);
+    eq(noWbr(soft), render(t, false), `${t}: Text durch Umbruchstellen verändert`);
+    ok(!/<wbr/.test(render(t, false)), `${t}: Umbruchstelle ohne soft`);
+    ok(!/[>.]_<wbr/.test(soft), `${t}: Unterstrich am Namensanfang vom Namen getrennt`);
+  }
+  for (const t of ['`kurz.de`', '`NET::ERR_CERT_DATE_INVALID`']) ok(!/<wbr/.test(render(t, true)), `${t}: Kennung unter 28 Zeichen bleibt ungeteilt`);
+  /* Jede lange Kennung in einer Tabellenzelle oder Überschrift ist umbrechbar (sonst bestimmt ihre Länge die Spaltenbreite). */
+  for (const g of GUIDES) {
+    const html = renderToStaticMarkup(createElement(GuideArticle, { guide: g }));
+    const cells = [...html.matchAll(/<(?:td|th|h2|h3)[ >][\s\S]*?<\/(?:td|th|h2|h3)>/g)].map(m => m[0]);
+    for (const cell of cells) for (const m of cell.matchAll(/<code>([^<\s]{28,})<\/code>/g)) ok(false, `${g.slug}: Kennung ohne Umbruchstelle in Zelle oder Überschrift: ${m[1]}`);
   }
 });
 

@@ -22,7 +22,7 @@ Tarih: 2026-10-01 (güncelleme: 2026-10-02, ikinci paket) · Kapsam: `/ratgeber`
 - İç bağlantı: ana sayfa altbilgisi → `/ratgeber` (DE/EN) ve `/rehber` (TR); Almanca hizmet sayfaları → "Passende Ratgeber" (3–4 kart), Türkçe hizmet sayfaları → "İlgili rehberler" (2–4 kart); Ratgeber'ler birbirine ve hizmet sayfalarına bağlı.
 - **Türkçe pilot (`/rehber`):** Almanca aslı olan 4 rehberin Türkçe uyarlaması (`lib/guides/tr/*.ts`): `impressum-zorunlulugu`, `web-sitesi-google-da-gorunmuyor`, `iletisim-formu-calismiyor`, `web-sitesi-bakimi` + özet sayfası `/rehber`. Birebir çeviri değil, Almanya'daki Türkçe konuşan işletme sahibine uyarlama: olgular Almanca asıllarla aynı (aynı kaynaklar), hukuki terimler ve arayüz terimleri Almanca/İngilizce aslıyla birlikte verilir, Google kaynakları Türkçe belgeleri (`?hl=tr`). Almanca ve Türkçe eşler hreflang ile bağlıdır (`x-default` = Almanca). Yapay zekâ ile yazıldı; yayından önce kullanıcı onayı alındı (2026-10-01), yeni Türkçe rehberler için aynı kural geçerli.
 - **İkinci paket (2026-10-02, dal `seo-phase2`):** (1) *Arama ifadesine yaklaştırma:* Google otomatik tamamlama verisine (Almanya; hacim değil, yalnızca ifade sinyali) göre üç Ratgeber'in başlık, H1, description ve bir SSS sorusu ayarlandı; adresler değişmedi (bölüm 3 ve 4). (2) *Dile göre paylaşım görseli:* `og:image` ve `Article.image` artık sayfanın diline göre `/og/de.png` ya da `/og/tr.png` (öncesinde Türkçe rehberler de Almanca görseli taşıyordu); test dosyanın varlığını da denetler. (3) *İki yeni Almanca Ratgeber:* `wordpress-wartungsmodus-geht-nicht-weg` (1.921 kelime, 10 dk) ve `spf-dkim-dmarc-einrichten` (2.441 kelime, 12 dk); ikisi de birincil kaynaklıdır (bölüm 13). (4) *Impressum rehberi (Almanca ve Türkçe) genişletildi:* "Sonderfälle" bölümü (şahıs işletmesi, dernek, özel site, sosyal medya, platform satıcıları; IHK München, Regensburg, Hagen, Karlsruhe), OLG Hamburg 21.5.2026 kararı (Az. 15 U 99/24; Instagram, IHK Hanau-Gelnhausen-Schlüchtern özetiyle), iki yeni SSS ("Instagram/Facebook", "Impressum Almanca mı olmalı?") ve § 18 Abs. 2 MStV notuna IHK Karlsruhe ölçütü. (5) Beş mevcut Ratgeber'e yeni rehberlere giden bağlantılar eklendi; `check:freshness` iki yeni kural aldı.
-- Denetimler: `npm test` (`scripts/verify-guides.ts`, 14 test, iki dil için), `npm run check:links` (113 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar; Türkçe dosyalar dâhil).
+- Denetimler: `npm test` (`scripts/verify-guides.ts`, 15 test, iki dil için), `npm run check:links` (113 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar; Türkçe dosyalar dâhil).
 
 ## 3. Arama sonuçlarından gözlemler (sınırlı, ölçüm değil)
 
@@ -93,7 +93,7 @@ Test (`scripts/verify-guides.ts`) bunları her `npm test`'te denetler:
 - **Dil değiştirici:** rehber sayfalarında üst menüdeki TR/DE bağlantısı sayfanın karşılığına gider (çevirisi yoksa ana sayfanın o diline); geçerli dilin bağlantısı sayfanın kendisidir (`aria-current`).
 - **Sitemap:** özet haftalık (0,8), Ratgeber'ler aylık (0,7), `lastModified` = Ratgeber'in `modified` alanı; çevirisi olan sayfa çiftlerinde her kayıt `alternates.languages` (de, tr, x-default) taşır. Anlamlı bir değişiklikte `modified` yükseltilir (yalnızca gerçek değişiklikte; sahte "güncellendi" tarihi yok).
 - **Yapılandırılmış veri:** Article (headline, dates, image = dile göre paylaşım görseli, publisher/author Organization), BreadcrumbList, özet için CollectionPage. Hizmet sayfalarındaki `Service` verisi değişmedi.
-- **Performans/erişilebilirlik:** İstemci JS gerektirmez (SSS yerel `<details>`); tablolar dar ekranda (< 640 px) kartlara dönüşür (satır başlığı kart başlığı, her hücrede sütun başlığı) ve tablo rolleri korunur; uzun teknik sözcükler (hata kodları, alan adları) kırılır; 320–1280 px arasında yatay taşma yok (altı genişlikte ölçüldü).
+- **Performans/erişilebilirlik:** İstemci JS gerektirmez (SSS yerel `<details>`); tablolar dar ekranda (< 640 px) kartlara dönüşür (satır başlığı kart başlığı, her hücrede sütun başlığı) ve tablo rolleri korunur. **Kelimeler ortadan bölünmez:** gövde metni `overflow-wrap: break-word` kullanır (`anywhere` her tablo sütununun en küçük genişliğini sıfıra yaklaştırıp dar sütunlarda kelimeleri "anlars ınız" gibi bölüyordu); 28 karakterden uzun tanımlayıcılar (DNS adları, hata kodları) tablo hücrelerinde ve başlıklarda noktalama sonrası `<wbr>` ile kırılabilir (kopyalanan metin değişmez); test hem CSS'i hem bunu denetler. 19 sayfada 24 genişlikte (360–1920 px) ölçüldü: ortadan bölünen kelime 0, yana kayan tablo 0, yatay taşma 0 (düzeltmeden önceki ölçümde, 16 genişlikte 912 bölünme vardı; 903'ü tablo hücrelerinde). 320–340 px'te yalnız satıra sığmayan birkaç uzun sözcük ve kod hâlâ kırılır (ör. Verbraucherstreitbeilegungsgesetzes).
 - **Güvenlik başlıkları/CSP:** ana sitedekiyle aynı (`script-src 'self' 'unsafe-inline'`); Ratgeber'lerde harici betik, çerez, izleyici yok. Dış bağlantılar `rel="noopener noreferrer"`.
 
 ## 7. İç bağlantı yapısı
@@ -225,7 +225,7 @@ Tam liste her Ratgeber'in "Quellen" bölümünde. Başlıcaları: Google Search 
 
 ## 14. Nasıl test edilir (adım adım)
 
-**A. Kod tarafı (kendi makinen):** `npm test` (71 test: Ratgeber ve Türkçe rehber verisi, uzunluklar, dil kuralları, bağlantılar, işaretleme, hreflang çiftleri, paylaşım görseli, sitemap, HTML), `npm run lint`, `npm run typecheck`, `npm run build` (47 statik sayfa). İsteğe bağlı: `npm run check:links` (113 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar).
+**A. Kod tarafı (kendi makinen):** `npm test` (72 test: Ratgeber ve Türkçe rehber verisi, uzunluklar, dil kuralları, bağlantılar, işaretleme, hreflang çiftleri, paylaşım görseli, kelime bölünmesi, sitemap, HTML), `npm run lint`, `npm run typecheck`, `npm run build` (47 statik sayfa). İsteğe bağlı: `npm run check:links` (113 dış adres canlı), `npm run check:freshness` (tarihe bağlı iddialar).
 
 **B. Yayından hemen sonra, 5 dakika:**
 1. Bu 14 adres açılmalı: `https://sitemendo.com/ratgeber` ve 13 `/ratgeber/<slug>` (liste: `lib/guides/index.ts`). Kontrol: `curl -sI https://sitemendo.com/ratgeber/website-wartung` → `200`.
@@ -253,6 +253,8 @@ Tam liste her Ratgeber'in "Quellen" bölümünde. Başlıcaları: Google Search 
 | `/?lang=de` (ana sayfa) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 
 Türkçe pilot (aynı koşullar, 2026-10-01): `/rehber` ve 4 `/rehber/<slug>` mobil ve masaüstünde 100 / 100 / 100 / 100 (mobil LCP 1,2–1,4 s, CLS 0, TBT 10–40 ms; sayfa başına 195–215 KiB).
+
+İkinci paket (aynı koşullar, 2026-10-02, tablo düzeltmesinden sonra): `/ratgeber/spf-dkim-dmarc-einrichten`, `/ratgeber/wordpress-wartungsmodus-geht-nicht-weg`, `/rehber/web-sitesi-google-da-gorunmuyor`, `/ratgeber/website-nicht-erreichbar`, `/ratgeber/kontaktformular-funktioniert-nicht`: mobil ve masaüstünde 100 / 100 / 100 / 100 (mobil LCP 1,1–1,4 s, CLS 0, TBT 20–60 ms; sayfa başına 208–215 KiB).
 
 Mobil LCP ≈ 1,2 s, CLS 0, TBT 50–80 ms; sayfa başına ≈ 200–215 KiB aktarım (çoğu Next çalışma zamanı). Kalan uyarılar ("kullanılmayan JavaScript", "eski JavaScript") Next çerçevesinden gelir, puanı düşürmez; kovalanmaz.
 
