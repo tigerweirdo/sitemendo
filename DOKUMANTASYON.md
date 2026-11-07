@@ -58,6 +58,20 @@ Yapılanlar:
 
 Doğrulama: `npm run lint`, `typecheck`, `test` (75/75), `build` temiz.
 
+### 2026-11-07 — PostHog yalnızca canlı alan adında
+
+Amaç: localhost, workers.dev önizlemesi, CI ve Lighthouse (`navigator.webdriver`) ortamlarında PostHog olayı gönderilmemesi; canlıda sayfa başına tek `$pageview`.
+
+**Durum: PR açık (`cursor/posthog-prod-gating-9f0b`).**
+
+Yapılanlar:
+- `lib/company.ts`: `SITE_HOSTNAME`, `SITE_HOST_ALIASES` (worker ile ortak kaynak).
+- `lib/analytics/runtime.ts`: allowlist ve `webdriver` denetimi.
+- `lib/analytics/posthog.ts`: `shouldInitPostHog`, `shouldCapturePageview` (Strict Mode / çift effect için 2,5 sn dedupe).
+- `scripts/verify-posthog.ts`; `npm test` listesine eklendi.
+
+Allowlist: `sitemendo.com`, `www.sitemendo.com`.
+
 ### 2026-10-02 — Üçüncü paket: Impressum sorumlu kişi, akış şemaları, işletme kayıtları
 
 Amaç: kullanıcı sırasıyla (1) üç başlık ifadesini onayladı, (2) § 18 Abs. 2 MStV satırının eklenmesini istedi, (3) USt-IdNr'nin nasıl bulunacağını sordu, (4) sonraki paketin başlamasını ve "tüm geliştirmelerin tamamlanmasını" istedi. Dal: `claude/eloquent-noether-3t8i4s` (bu oturuma atanan dal), `seo-phase2` üzerine fast-forward ile kuruldu. **`main`'e dokunulmadı; yayın için kullanıcının açık "onaylıyorum"u gerekir (bu mesajda verilmedi).**

@@ -16,3 +16,9 @@ export const COMPANY = {
 
 /** Mutlak bağlantılar için (e-postalar). */
 export const SITE_URL = 'https://sitemendo.com';
+
+/** Canlı site alan adı — worker yönlendirmeleri ve analitik allowlist ile uyumlu. */
+export const SITE_HOSTNAME = new URL(SITE_URL).hostname;
+
+/** www gibi kalıcı yönlendirilen kopya adresler (worker/index.ts). */
+export const SITE_HOST_ALIASES = ['www.sitemendo.com'] as const;

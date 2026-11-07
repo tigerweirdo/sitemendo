@@ -1,8 +1,39 @@
 import type { PostHog } from 'posthog-js';
 import { POSTHOG_API_HOST, POSTHOG_PROJECT_KEY, POSTHOG_PROJECT_SLUG } from './config';
+import { isAutomatedBrowser, isPostHogAllowedHostname } from './runtime';
 
 let client: PostHog | null = null;
 let loading: Promise<PostHog | null> | null = null;
+
+/** React Strict Mode çift mount ve ardışık aynı pathname için. */
+const PAGEVIEW_DEDUPE_MS = 2500;
+let lastPageview: { path: string; at: number } | null = null;
+
+export function shouldInitPostHog(opts: {
+  hostname: string;
+  webdriver?: boolean | null;
+  dnt?: boolean;
+  projectKey?: string;
+}) {
+  if (!opts.projectKey) return false;
+  if (opts.dnt) return false;
+  if (isAutomatedBrowser(opts.webdriver)) return false;
+  return isPostHogAllowedHostname(opts.hostname);
+}
+
+export function shouldCapturePageview(pathname: string, now = Date.now()) {
+  const path = safePagePath(pathname);
+  if (lastPageview?.path === path && now - lastPageview.at < PAGEVIEW_DEDUPE_MS) return false;
+  lastPageview = { path, at: now };
+  return true;
+}
+
+/** Node testleri için. */
+export function resetPostHogClientState() {
+  client = null;
+  loading = null;
+  lastPageview = null;
+}
 
 export function dntEnabled() {
   if (typeof navigator === 'undefined') return false;
@@ -32,8 +63,18 @@ function scrubEventUrl(url: unknown) {
   }
 }
 
+function canInitInBrowser() {
+  if (typeof window === 'undefined') return false;
+  return shouldInitPostHog({
+    hostname: window.location.hostname,
+    webdriver: navigator.webdriver,
+    dnt: dntEnabled(),
+    projectKey: POSTHOG_PROJECT_KEY,
+  });
+}
+
 export async function getPostHog(): Promise<PostHog | null> {
-  if (typeof window === 'undefined' || dntEnabled() || !POSTHOG_PROJECT_KEY) return null;
+  if (!canInitInBrowser()) return null;
   if (client) return client;
   if (!loading) {
     loading = new Promise(resolve => {
@@ -84,6 +125,7 @@ export function trackPrimaryCta(cta: string) {
 }
 
 export async function capturePageview(pathname: string) {
+  if (!shouldCapturePageview(pathname)) return;
   const ph = await getPostHog();
   if (!ph) return;
   const path = safePagePath(pathname);

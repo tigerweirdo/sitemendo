@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { capturePageview, getPostHog, outboundLabel, track } from '@/lib/analytics/posthog';
 
 function isExternalLink(anchor: HTMLAnchorElement) {
@@ -18,7 +18,6 @@ function isExternalLink(anchor: HTMLAnchorElement) {
 
 export function PostHogProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const lastPath = useRef<string | null>(null);
 
   useEffect(() => {
     void getPostHog();
@@ -26,8 +25,6 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!pathname) return;
-    if (lastPath.current === pathname) return;
-    lastPath.current = pathname;
     void capturePageview(pathname);
   }, [pathname]);
 

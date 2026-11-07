@@ -1,4 +1,4 @@
-import { SITE_URL } from '@/lib/company';
+import { SITE_HOST_ALIASES, SITE_URL } from '@/lib/company';
 import { LANG_COOKIE, parseLang, preferredLang } from '@/lib/lang';
 import { SEO_PATHS, type SeoPath } from '@/lib/seo';
 import { approve } from './approve';
@@ -16,7 +16,7 @@ export { ReportWorkflow } from './report';
 type Env = ReportEnv & { ASSETS: { fetch: (request: Request) => Promise<Response> }; REPORT_WORKFLOW?: ReportBinding };
 
 /* Kopya adres ana adrese kalıcı yönlenir; canonical tek başına yetmiyor. */
-const ALIAS_HOSTS = ['www.sitemendo.com'];
+const ALIAS_HOSTS: readonly string[] = SITE_HOST_ALIASES;
 /* Yerel geliştirme (wrangler dev) düz HTTP ile çalışır; canlıda HTTP isteği HTTPS'e yönlenir. */
 const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
 
