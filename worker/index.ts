@@ -28,7 +28,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://eu.i.posthog.com",
   "frame-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -46,7 +46,8 @@ const SECURITY_HEADERS: Record<string, string> = {
 };
 
 /* no-transform: Cloudflare sayfaya analiz betiği eklemez, e-posta adreslerini değiştirmez.
-   Gizlilik metni analiz aracı kullanmadığımızı söylüyor; değişen HTML hidrasyonu da bozar.
+   PostHog istatistiği sayfaya gömülü JS ile gider; Cloudflare’ın enjekte ettiği betik yok.
+   Değişen HTML hidrasyonu da bozar.
    Aynı adres dile göre farklı dosya döndürdüğü için sayfalar paylaşılan önbelleğe girmez. */
 const PAGE_CACHE = 'private, no-cache, no-transform';
 

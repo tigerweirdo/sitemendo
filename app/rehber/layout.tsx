@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { PostHogProvider } from '@/components/analytics/PostHogProvider';
 import '../globals.css';
 import { SITE_URL } from '@/lib/company';
 
@@ -21,7 +22,9 @@ export const metadata: Metadata = {
 export default function GuideLayoutTr({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="tr" className={inter.variable}>
-      <body>{children}</body>
+      <body>
+        <PostHogProvider>{children}</PostHogProvider>
+      </body>
     </html>
   );
 }

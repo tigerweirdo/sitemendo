@@ -5,6 +5,7 @@ import { linksFor } from '@/lib/guides/links';
 import { guidePath, hubPath } from '@/lib/guides/seo';
 import type { GuideLang } from '@/lib/guides/types';
 import { UI } from '@/lib/guides/ui';
+import { PrimaryCtaLink } from '@/components/analytics/PrimaryCtaLink';
 import { SERVICE_PAGES } from '@/lib/servicePages';
 
 /* Üst menü: ana sitenin dil sistemi (?lang=) tek sayfa içindir; rehberler kendi adreslerinde durur.
@@ -27,7 +28,7 @@ export function GuideHeader({ lang, alternates = {} }: { lang: GuideLang; altern
           <a href={to('de')} lang="de" hrefLang="de" aria-current={lang === 'de' ? 'true' : undefined}>DE</a>
           <a href={to('en')} lang="en" hrefLang="en">EN</a>
         </div>
-        <a className="btn btn--sm nav-cta" href={L.start}>{c.nav.ctaShort}</a>
+        <PrimaryCtaLink className="btn btn--sm nav-cta" href={L.start} cta="guide_nav">{c.nav.ctaShort}</PrimaryCtaLink>
       </div>
     </header>
   );
