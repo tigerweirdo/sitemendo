@@ -46,7 +46,7 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 Amaç: sitemendo.com olaylarını paylaşımlı PostHog projesine göndermek; `project_slug = sitemendo` ile ileride admin filtresi.
 
-**Durum: PR açık (`cursor/posthog-analytics-9bcf`).** Canlı site bu depodan (`next build` → `out/`, Cloudflare Worker `worker/index.ts`, `wrangler.jsonc`). Gizlilik metni (`content.ts`) hâlâ “analiz aracı yok” diyor — PostHog sonrası hukuki güncelleme kullanıcıda (DSGVO / AVV PostHog).
+**Durum: PR açık (`cursor/posthog-analytics-9bcf`).** Canlı site bu depodan (`next build` → `out/`, Cloudflare Worker `worker/index.ts`, `wrangler.jsonc`). Gizlilik metni (`lib/content.ts`, TR/DE/EN) PostHog’u açıklar (7 Kasım 2026); PostHog AVV kullanıcıda kalır.
 
 Yapılanlar:
 - `posthog-js`; yapılandırma `lib/analytics/config.ts` (+ isteğe bağlı `NEXT_PUBLIC_POSTHOG_KEY`); yardımcılar `lib/analytics/posthog.ts` (`track`, `trackPrimaryCta`, `capturePageview`).
@@ -54,6 +54,7 @@ Yapılanlar:
 - Üç kök düzen: `app/[lang]/layout.tsx`, `ratgeber/layout.tsx`, `rehber/layout.tsx`.
 - Özel olaylar: `primary_cta_click` (Site, ServicePage, rehber nav), `form_start` / `form_success` (hero + final formlar; alan değeri yok), `outbound_click` (WhatsApp vb.).
 - Worker CSP: `connect-src` → `https://eu.i.posthog.com`.
+- Gizlilik: yeni bölüm „Nutzungsstatistik / Usage statistics / Kullanım istatistiği (PostHog)“; güncelleme tarihi 7.11.2026.
 
 Doğrulama: `npm run lint`, `typecheck`, `test` (75/75), `build` temiz.
 
