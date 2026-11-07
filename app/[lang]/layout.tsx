@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { PostHogProvider } from '@/components/analytics/PostHogProvider';
 import '../globals.css';
 import { SITE_URL } from '@/lib/company';
 import { content } from '@/lib/content';
@@ -43,7 +44,7 @@ export default async function RootLayout({ children, params }: Readonly<LayoutPr
     <html lang={lang} className={inter.variable}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: LANG_BOOTSTRAP }} />
-        {children}
+        <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>
   );

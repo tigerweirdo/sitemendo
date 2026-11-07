@@ -42,6 +42,21 @@ Kod dışı; kullanıcının yapması gerekiyor. Ayrıntılı tarif sohbette ver
 
 ## Görevler
 
+### 2026-11-07 — PostHog analitik (EU, çoklu site)
+
+Amaç: sitemendo.com olaylarını paylaşımlı PostHog projesine göndermek; `project_slug = sitemendo` ile ileride admin filtresi.
+
+**Durum: PR açık (`cursor/posthog-analytics-9bcf`).** Canlı site bu depodan (`next build` → `out/`, Cloudflare Worker `worker/index.ts`, `wrangler.jsonc`). Gizlilik metni (`content.ts`) hâlâ “analiz aracı yok” diyor — PostHog sonrası hukuki güncelleme kullanıcıda (DSGVO / AVV PostHog).
+
+Yapılanlar:
+- `posthog-js`; yapılandırma `lib/analytics/config.ts` (+ isteğe bağlı `NEXT_PUBLIC_POSTHOG_KEY`); yardımcılar `lib/analytics/posthog.ts` (`track`, `trackPrimaryCta`, `capturePageview`).
+- `components/analytics/PostHogProvider.tsx`: lazy init (`requestIdleCallback`), `persistence: 'memory'` (çerezsiz, Almanya için), DNT, otomatik yakalama ve kayıt kapalı; sayfa görüntüleme `usePathname` ile; dış bağlantılar `outbound_click` (yalnızca host).
+- Üç kök düzen: `app/[lang]/layout.tsx`, `ratgeber/layout.tsx`, `rehber/layout.tsx`.
+- Özel olaylar: `primary_cta_click` (Site, ServicePage, rehber nav), `form_start` / `form_success` (hero + final formlar; alan değeri yok), `outbound_click` (WhatsApp vb.).
+- Worker CSP: `connect-src` → `https://eu.i.posthog.com`.
+
+Doğrulama: `npm run lint`, `typecheck`, `test` (75/75), `build` temiz.
+
 ### 2026-10-02 — Üçüncü paket: Impressum sorumlu kişi, akış şemaları, işletme kayıtları
 
 Amaç: kullanıcı sırasıyla (1) üç başlık ifadesini onayladı, (2) § 18 Abs. 2 MStV satırının eklenmesini istedi, (3) USt-IdNr'nin nasıl bulunacağını sordu, (4) sonraki paketin başlamasını ve "tüm geliştirmelerin tamamlanmasını" istedi. Dal: `claude/eloquent-noether-3t8i4s` (bu oturuma atanan dal), `seo-phase2` üzerine fast-forward ile kuruldu. **`main`'e dokunulmadı; yayın için kullanıcının açık "onaylıyorum"u gerekir (bu mesajda verilmedi).**

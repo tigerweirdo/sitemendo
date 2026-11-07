@@ -9,6 +9,7 @@ import { withLangParam } from '@/lib/lang';
 import { SERVICE_PAGES, servicePages, serviceUi, type ServiceKey } from '@/lib/servicePages';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
+import { PrimaryCtaLink } from '@/components/analytics/PrimaryCtaLink';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 
 /* Hizmet sayfası (kontrol, onarım, bakım). LegalPage'in sade kabuğu: üst menü, içerik, küçük
@@ -38,7 +39,7 @@ export function ServicePage({ service, initialLang, guides = {} }: { service: Se
           <a className="brand" href={home}>SITEMENDO<b>.</b></a>
           <div className="nav__right">
             <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-            <a className="btn btn--sm nav-cta" href={start}>{c.nav.ctaShort}</a>
+            <PrimaryCtaLink className="btn btn--sm nav-cta" href={start} cta={`service_nav_${service}`}>{c.nav.ctaShort}</PrimaryCtaLink>
           </div>
         </div>
       </header>
@@ -52,7 +53,7 @@ export function ServicePage({ service, initialLang, guides = {} }: { service: Se
           </nav>
           <h1 className="h1 sp__title">{page.h1}</h1>
           <p className="lead">{page.lead}</p>
-          <a className="btn sp__cta" href={start}>{c.nav.cta}</a>
+          <PrimaryCtaLink className="btn sp__cta" href={start} cta={`service_hero_${service}`}>{c.nav.cta}</PrimaryCtaLink>
 
           {service === 'check' ? (
             <section className="sp-section" aria-labelledby="sp-checks">
@@ -155,7 +156,7 @@ export function ServicePage({ service, initialLang, guides = {} }: { service: Se
           <section className="sp-band" aria-labelledby="sp-cta">
             <h2 className="h2" id="sp-cta">{page.ctaTitle}</h2>
             <p>{page.ctaText}</p>
-            <a className="btn" href={start}>{c.nav.cta}</a>
+            <PrimaryCtaLink className="btn" href={start} cta={`service_footer_${service}`}>{c.nav.cta}</PrimaryCtaLink>
           </section>
 
           <nav className="sp-more" aria-label={ui.more}>

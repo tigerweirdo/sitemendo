@@ -13,6 +13,7 @@ import SELF_CHECK from '@/lib/selfCheck.json';
 import { useLangDocument } from '@/lib/useLangDocument';
 import { useStoredLang } from '@/lib/useStoredLang';
 import { useActiveSection } from '@/lib/useActiveSection';
+import { track, trackPrimaryCta } from '@/lib/analytics/posthog';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { HeroKnife, type KnifeTag, type ToolId } from '@/components/HeroKnife';
 import { CheckIcon } from '@/components/CheckIcon';
@@ -225,7 +226,8 @@ export function Site({ initialLang, knife }: { initialLang: Lang; knife: ReactNo
     return () => window.removeEventListener('keydown', onKey);
   }, [menuOpen]);
 
-  const jumpToForm = () => {
+  const jumpToForm = (cta: string) => {
+    trackPrimaryCta(cta);
     setMenuOpen(false);
     const el = document.querySelector('#top .audit-form') as HTMLElement | null;
     const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -294,7 +296,7 @@ export function Site({ initialLang, knife }: { initialLang: Lang; knife: ReactNo
           </nav>
           <div className="nav__right">
             <LanguageSwitch lang={lang} setLang={setLang} label={c.nav.lang}/>
-            <button className="btn btn--sm nav-cta nav-cta--main" type="button" onClick={jumpToForm}>
+            <button className="btn btn--sm nav-cta nav-cta--main" type="button" onClick={() => jumpToForm(compactNavCta ? 'nav_header_short' : 'nav_header')}>
               {navCta}
             </button>
             <button
@@ -324,7 +326,7 @@ export function Site({ initialLang, knife }: { initialLang: Lang; knife: ReactNo
                 }}
               >{item.label}</a>
             ))}
-            <button className="btn" type="button" onClick={jumpToForm}>{c.nav.cta}</button>
+            <button className="btn" type="button" onClick={() => jumpToForm('nav_mobile_menu')}>{c.nav.cta}</button>
             <LanguageSwitch lang={lang} setLang={setLang} onPick={() => setMenuOpen(false)} label={c.nav.lang}/>
           </div>
         </div>
@@ -434,14 +436,14 @@ export function Site({ initialLang, knife }: { initialLang: Lang; knife: ReactNo
                 </div>
                 <div className="service__foot">
                   {s.scope && <p className="service__scope">{s.scope}</p>}
-                  {s.cta && <button className="btn service__cta" type="button" onClick={jumpToForm}>{s.cta}</button>}
+                  {s.cta && <button className="btn service__cta" type="button" onClick={() => jumpToForm(`service_card_${s.no}`)}>{s.cta}</button>}
                 </div>
               </li>
             ))}
           </ol>
           <p className="services-note" data-reveal>{c.pricesNote}</p>
           <div className="services-cta" data-reveal>
-            <button className="btn" type="button" onClick={jumpToForm}>{c.servicesCta}</button>
+            <button className="btn" type="button" onClick={() => jumpToForm('services_section')}>{c.servicesCta}</button>
           </div>
         </Section>
 
@@ -466,7 +468,7 @@ export function Site({ initialLang, knife }: { initialLang: Lang; knife: ReactNo
       </main>
 
       <Footer ref={footerRef} lang={lang} setLang={setLang} privacyHref={privacyHref} impressumHref={impressumHref} navItems={navItems}/>
-      <MobileCta label={c.nav.cta} onGo={jumpToForm}/>
+      <MobileCta label={c.nav.cta} onGo={() => jumpToForm('mobile_fixed')}/>
     </AuditFormProvider>
   );
 }
@@ -514,7 +516,14 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   const ownedFocus = useRef<'url' | 'email' | 'status' | null>(null);
   /* Formun ekrana geldiği an: gönderime kadar geçen süre bot kontrolünde kullanılır. */
   const openedAt = useRef(0);
+  const formStarted = useRef(false);
   useEffect(() => { openedAt.current = Date.now(); }, []);
+
+  const noteFormStart = useCallback(() => {
+    if (formStarted.current) return;
+    formStarted.current = true;
+    void track('form_start', { form: idPrefix });
+  }, [idPrefix]);
   const url = ctx?.url ?? '';
   const normalized = useMemo(() => normalizeWebsite(url), [url]);
 
@@ -582,6 +591,7 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
       ownedFocus.current = 'status';
       setMode(result);
       setStep('done');
+      void track('form_success', { form: idPrefix, outcome: result });
     } catch {
       ownedFocus.current = 'email';
       setError(f.fail);
@@ -605,7 +615,14 @@ function AuditForm({ lang, idPrefix, privacyHref, intro }: { lang: Lang; idPrefi
   const done = mode ? formDoneView(mode, f) : null;
 
   return (
-    <form className="audit-form" onSubmit={submit} noValidate aria-busy={busy} aria-labelledby={showTitle ? titleId : undefined}>
+    <form
+      className="audit-form"
+      onSubmit={submit}
+      onFocusCapture={noteFormStart}
+      noValidate
+      aria-busy={busy}
+      aria-labelledby={showTitle ? titleId : undefined}
+    >
       <p className="sr-only" aria-live="polite" aria-atomic="true">{busy ? f.sending : ''}</p>
       {/* Bot tuzağı: görünmez ve klavyeyle ulaşılmaz; dolu gelen istek gönderilmez. */}
       <input className="form-hp" type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" defaultValue=""/>
